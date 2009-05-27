@@ -1,0 +1,169 @@
+#================================================================
+# Setting Variables
+#================================================================
+
+# Generic settings
+SHELL = @SHELL@
+
+# Package information
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+PACKAGEDIR = $(PACKAGE)-$(VERSION)
+PACKAGETGZ = $(PACKAGE)-$(VERSION).tar.gz
+LIBVER = @MYLIBVER@
+LIBREV = @MYLIBREV@
+FORMATVER = @MYFORMATVER@
+
+# Targets
+HEADERFILES = @MYHEADERFILES@
+LIBRARYFILES = @MYLIBRARYFILES@
+LIBOBJFILES = @MYLIBOBJFILES@
+COMMANDFILES = @MYCOMMANDFILES@
+TESTCOMMANDFILES = @MYTESTCOMMANDFILES@
+DOCUMENTFILES = @MYDOCUMENTFILES@
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+INCLUDEDIR = @includedir@/bayon
+LIBDIR = @libdir@
+BINDIR = @bindir@
+DESTDIR = 
+
+# Building configuration
+CC = @CXX@
+CPPFLAGS = @MYCPPFLAGS@
+CFLAGS = @MYCFLAGS@
+LDFLAGS = @MYLDFLAGS@
+TESTLDFLAGS = @MYTESTLDFLAGS@
+CMDLDFLAGS = @MYCMDLDFLAGS@
+LIBS = @LIBS@
+LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
+RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
+
+
+#================================================================
+# Suffix rules
+#================================================================
+
+.SUFFIXES :
+.SUFFIXES : .cc .o
+
+.cc.o :
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+
+#================================================================
+# Actions
+#================================================================
+
+all : $(LIBRARYFILES) $(COMMANDFILES)
+
+test : $(TESTCOMMANDFILES)
+	make check
+
+check :
+	$(RUNENV) $(RUNCMD) ./vectest
+	$(RUNENV) $(RUNCMD) ./clutest
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Checking completed.\n'
+	@printf '#================================================================\n'
+
+clean :
+	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
+	  *.o *~ a.out gmon.out leak.log
+
+check-valgrind:
+	make RUNCMD="valgrind --tool=memcheck --log-fd=1" check > leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -i data/test.tsv -n 2 >> leak.log
+	grep ERROR leak.log
+	grep 'at exit' leak.log
+
+untabify :
+	ls *.cc *.h | while read name ; \
+	  do \
+	    sed -e 's/\t/        /g' -e 's/ *$$//' $$name > $$name~; \
+	    [ -f $$name~ ] && mv -f $$name~ $$name ; \
+	  done
+
+install :
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)
+	cp -Rf $(HEADERFILES) $(DESTDIR)$(INCLUDEDIR)
+	mkdir -p $(DESTDIR)$(LIBDIR)
+	cp -Rf $(LIBRARYFILES) $(DESTDIR)$(LIBDIR)
+	mkdir -p $(DESTDIR)$(BINDIR)
+	cp -Rf $(COMMANDFILES) $(DESTDIR)$(BINDIR)
+
+uninstall :
+	cd $(DESTDIR)$(INCLUDEDIR) && rm -f $(HEADERFILES)
+	cd $(DESTDIR)$(LIBDIR) && rm -f $(LIBRARYFILES)
+	cd $(DESTDIR)$(BINDIR) && rm -f $(COMMANDFILES)
+
+dist :
+	make distclean
+	cd .. && tar cvf - $(PACKAGEDIR) | gzip -c > $(PACKAGETGZ)
+	sync ; sync
+
+distclean : clean
+	rm -rf Makefile config.cache config.h config.log config.status autom4te.cache
+
+.PHONY : all clean install check
+
+
+#================================================================
+# Building binaries
+#================================================================
+
+libbayon.a : $(LIBOBJFILES)
+	$(AR) $(ARFLAGS) $@ $(LIBOBJFILES)
+
+libbayon.so.$(LIBVER).$(LIBREV).0 : $(LIBOBJFILES)
+	if uname -a | egrep -i 'SunOS' > /dev/null ; \
+	  then \
+	    $(CC) $(CFLAGS) -shared -Wl,-G,-h,libbayon.so.$(LIBVER) -o $@ \
+	      $(LIBOBJFILES) $(LDFLAGS) $(LIBS) ; \
+	  else \
+	    $(CC) $(CFLAGS) -shared -Wl,-soname,libbayon.so.$(LIBVER) -o $@ \
+	      $(LIBOBJFILES) $(LDFLAGS) $(LIBS) ; \
+	  fi
+
+libbayon.so.$(LIBVER) : libbayon.so.$(LIBVER).$(LIBREV).0
+	ln -f -s libbayon.so.$(LIBVER).$(LIBREV).0 $@
+
+libbayon.so : libbayon.so.$(LIBVER).$(LIBREV).0
+	ln -f -s libbayon.so.$(LIBVER).$(LIBREV).0 $@
+
+libbayon.$(LIBVER).$(LIBREV).0.dylib : $(LIBOBJFILES)
+	$(CC) $(CFLAGS) -dynamiclib -o $@ \
+	  -install_name $(LIBDIR)/libbayon.$(LIBVER).dylib \
+	  -current_version $(LIBVER).$(LIBREV).0 -compatibility_version $(LIBVER) \
+	  $(LIBOBJFILES) $(LDFLAGS) $(LIBS)
+
+libbayon.$(LIBVER).dylib : libbayon.$(LIBVER).$(LIBREV).0.dylib
+	ln -f -s libbayon.$(LIBVER).$(LIBREV).0.dylib $@
+
+libbayon.dylib : libbayon.$(LIBVER).$(LIBREV).0.dylib
+	ln -f -s libbayon.$(LIBVER).$(LIBREV).0.dylib $@
+
+bayon : bayon.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
+
+vectest : vectest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
+clutest : clutest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
+bayon.o : clvector.h cluster.h
+
+clvector.o : clvector.h config.h util.h
+
+vectest.o : clvector.h
+
+cluster.o : cluster.h config.h util.h
+
+clutest.o : clvector.h cluster.h
+
+
+# END OF FILE
