@@ -1,0 +1,107 @@
+#================================================================
+# Generic Settings
+#================================================================
+
+# Package name
+AC_INIT(bayon, 0.0.1, mfujisa@gmail.com)
+AC_CONFIG_HEADER([config.h])
+
+# Package information
+MYLIBVER=0
+MYLIBREV=1
+MYFORMATVER="1.0"
+
+# Targets
+MYHEADERFILES="cluster.h clvector.h"
+MYLIBRARYFILES="libbayon.a"
+MYLIBOBJFILES="clvector.o cluster.o"
+MYCOMMANDFILES="bayon"
+MYTESTCOMMANDFILES="vectest clutest"
+MYDOCUMENTFILES="COPYING README TODO"
+
+# Building paths
+PATH="$PATH:$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+PATH="$PATH:/usr/ccs/bin:/usr/ucb:/usr/xpg4/bin:/usr/xpg6/bin:/usr/ucb"
+CPATH="$HOME/include:/usr/local/include:$CPATH"
+LIBRARY_PATH="$HOME/lib:/usr/local/lib:$LIBRARY_PATH"
+LD_LIBRARY_PATH="$HOME/lib:/usr/local/lib:$LD_LIBRARY_PATH"
+export PATH CPATH LIBRARY_PATH LD_LIBRARY_PATH
+
+# Building flags
+MYCFLAGS="-Wall -fPIC -O3"
+MYCPPFLAGS="-I. -I\$(INCLUDEDIR) -I$HOME/include -I/usr/local/include"
+MYCPPFLAGS="$MYCPPFLAGS -D_GNU_SOURCE=1"
+MYLDFLAGS="-L. -L\$(LIBDIR) -L$HOME/lib -L/usr/local/lib"
+MYTESTLDFLAGS="-lgtest"
+MYCMDLDFLAGS=""
+MYRUNPATH="\$(LIBDIR)"
+MYLDLIBPATHENV="LD_LIBRARY_PATH"
+
+
+#================================================================
+# Options
+#================================================================
+
+# Debug mode
+AC_ARG_ENABLE(debug,
+  AC_HELP_STRING([--enable-debug], [build for debugging]))
+if test "$enable_debug" = "yes"
+then
+  MYCFLAGS="-Wall -fPIC -O3 -g"
+  MYCPPFLAGS="$MYCPPFLAGS -DDEBUG"
+fi
+
+
+#================================================================
+# Checking Commands and Libraries
+#================================================================
+
+# C compiler
+AC_PROG_CC
+AC_PROG_CXX
+AC_LANG(C++)
+
+# Checks for header files.
+AC_CHECK_HEADERS([google/dense_hash_map])
+AC_CHECK_HEADERS([ext/hash_map])
+AC_CHECK_HEADERS([gtest/gtest.h])
+ 
+if uname | grep Darwin >/dev/null
+then
+  MYLIBRARYFILES="$MYLIBRARYFILES libbayon.$MYLIBVER.$MYLIBREV.0.dylib"
+  MYLIBRARYFILES="$MYLIBRARYFILES libbayon.$MYLIBVER.dylib"
+  MYLIBRARYFILES="$MYLIBRARYFILES libbayon.dylib"
+  MYLDLIBPATHENV="DYLD_LIBRARY_PATH"
+else
+  MYLIBRARYFILES="$MYLIBRARYFILES libbayon.so.$MYLIBVER.$MYLIBREV.0"
+  MYLIBRARYFILES="$MYLIBRARYFILES libbayon.so.$MYLIBVER"
+  MYLIBRARYFILES="$MYLIBRARYFILES libbayon.so"
+fi
+
+
+#================================================================
+# Generic Settings
+#================================================================
+
+# Export variables
+AC_SUBST(MYLIBVER)
+AC_SUBST(MYLIBREV)
+AC_SUBST(MYFORMATVER)
+AC_SUBST(MYHEADERFILES)
+AC_SUBST(MYCOMMANDFILES)
+AC_SUBST(MYTESTCOMMANDFILES)
+AC_SUBST(MYLIBRARYFILES)
+AC_SUBST(MYLIBOBJFILES)
+AC_SUBST(MYDOCUMENTFILES)
+AC_SUBST(MYCFLAGS)
+AC_SUBST(MYCPPFLAGS)
+AC_SUBST(MYLDFLAGS)
+AC_SUBST(MYTESTLDFLAGS)
+AC_SUBST(MYCMDLDFLAGS)
+AC_SUBST(MYRUNPATH)
+AC_SUBST(MYLDLIBPATHENV)
+
+# Targets
+AC_OUTPUT(Makefile)
+
+# END OF FILE
