@@ -6,6 +6,8 @@ Bayonは
 
 = ダウンロード =
 
+[http://code.google.com/p/bayon/downloads/list ここ]から最新版のソースコードをダウンロードしてください。
+
 = インストール =
 
 最新のソースコードをダウンロードして、以下のようにしてインストールしてください。make testを実行する場合は [http://code.google.com/p/googletest/ googletest] が必要となるため、事前にgoogletestをインストールしておいてください。
