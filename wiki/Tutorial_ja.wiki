@@ -1,0 +1,20 @@
+_Tutorial for Bayon in Japanese_
+
+= はじめに =
+
+Bayonは
+
+= ダウンロード =
+
+= インストール =
+
+最新のソースコードをダウンロードして、以下のようにしてインストールしてください。make testを実行する場合は [http://code.google.com/p/googletest/ googletest] が必要となるため、事前にgoogletestをインストールしておいてください。
+
+{{{
+% tar xvzf bayon-*.tar.gz
+% cd bayon-*
+% ./configure
+% make
+% make test  ( googletest をインストールしておく必要があります )
+% sudo make install
+}}}
