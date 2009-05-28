@@ -2,7 +2,9 @@ _Tutorial for Bayon in Japanese_
 
 = はじめに =
 
-Bayonは
+Bayonは汎用的に利用できるデータクラスタリングツールで、現在は Repeated Bisection と K-means に対応しています。
+
+大規模なデータに対しても高速に実行することができます。
 
 = ダウンロード =
 
@@ -20,3 +22,7 @@ Bayonは
 % make test  ( googletest をインストールしておく必要があります )
 % sudo make install
 }}}
+
+= 使い方 =
+
+= 参考文献 =
