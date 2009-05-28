@@ -6,7 +6,7 @@ Bayonは
 
 = ダウンロード =
 
-[http://code.google.com/p/bayon/downloads/list ここ]から最新版のソースコードをダウンロードしてください。
+[http://code.google.com/p/bayon/downloads/list 最新版のソースコード]をダウンロードしてください。
 
 = インストール =
 
