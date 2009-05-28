@@ -666,7 +666,6 @@ GREP
 EGREP
 MYLIBVER
 MYLIBREV
-MYFORMATVER
 MYHEADERFILES
 MYCOMMANDFILES
 MYTESTCOMMANDFILES
@@ -1716,7 +1715,6 @@ ac_config_headers="$ac_config_headers config.h"
 # Package information
 MYLIBVER=0
 MYLIBREV=1
-MYFORMATVER="1.0"
 
 # Targets
 MYHEADERFILES="cluster.h clvector.h"
@@ -4161,7 +4159,6 @@ fi
 
 
 
-
 # Targets
 ac_config_files="$ac_config_files Makefile"
 
@@ -4832,7 +4829,6 @@ GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
 MYLIBVER!$MYLIBVER$ac_delim
 MYLIBREV!$MYLIBREV$ac_delim
-MYFORMATVER!$MYFORMATVER$ac_delim
 MYHEADERFILES!$MYHEADERFILES$ac_delim
 MYCOMMANDFILES!$MYCOMMANDFILES$ac_delim
 MYTESTCOMMANDFILES!$MYTESTCOMMANDFILES$ac_delim
@@ -4850,7 +4846,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 68; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 67; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
