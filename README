@@ -6,7 +6,7 @@
 
 Overview:
   Bayon is simple and fast hard-clustering tool.
-  Bayon supports 'repeated bisection clustering' and kmeans clustering.
+  Bayon supports repeated-bisection clustering and kmeans clustering.
 
 Install:
   % ./configure
@@ -14,15 +14,15 @@ Install:
   $ make install
 
 Usage:
-  % ./bayon -n num -i file [-m method]
-  % ./bayon -l limit -i file [-m method]
+  % bayon -n num -i file [-m method]
+  % bayon -l limit -i file [-m method]
        -n, --number num    ... number of clusters
        -l, --limit lim     ... limit value of cluster bisection
        -i, --input path    ... input file
        -m, --method method ... clustering method(rb, kmeans), default:rb
   
   Example: (number_of_output_clusters = 100)
-  % ./bayon -n 100 -i input.tsv > result.tsv
+  % bayon -n 100 -i input.tsv > result.tsv
 
 Format of Input Data:
   document_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
