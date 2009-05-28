@@ -2,7 +2,7 @@ _Tutorial for Bayon in Japanese_
 
 = はじめに =
 
-Bayonは汎用的に利用できるデータクラスタリングツールで、現在は Repeated Bisection と K-means に対応しています。
+Bayonは汎用的に利用できるデータクラスタリングツールで、現在は Repeated Bisection と [http://ja.wikipedia.org/wiki/K-means%E6%B3%95 K-means法] に対応しています。
 
 大規模なデータに対しても高速に実行することができます。
 
