@@ -1717,7 +1717,7 @@ MYLIBVER=0
 MYLIBREV=1
 
 # Targets
-MYHEADERFILES="cluster.h clvector.h"
+MYHEADERFILES="cluster.h clvector.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
 MYLIBOBJFILES="clvector.o cluster.o"
 MYCOMMANDFILES="bayon"

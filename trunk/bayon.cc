@@ -17,7 +17,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -138,23 +137,25 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
 
   std::string line;
   while (std::getline(ifs, line)) {
-    size_t p = line.find(DELIMITER);
-    std::string doc_name = line.substr(0, p);
-    line = line.substr(p + DELIMITER.size());
+    if (!line.empty()) {
+      size_t p = line.find(DELIMITER);
+      std::string doc_name = line.substr(0, p);
+      line = line.substr(p + DELIMITER.size());
 
-    bayon::Document doc(doc_id);
-    docidmap[doc_id] = doc_name;
-    doc_id++;
-    Feature feature;
-    parse_tsv(line, feature, MAX_VECTOR_ITEM);
+      bayon::Document doc(doc_id);
+      docidmap[doc_id] = doc_name;
+      doc_id++;
+      Feature feature;
+      parse_tsv(line, feature, MAX_VECTOR_ITEM);
 
-    for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
-      if (str2int.find(it->first) == str2int.end()) {
-        str2int[it->first] = item_id++;
+      for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
+        if (str2int.find(it->first) == str2int.end()) {
+          str2int[it->first] = item_id++;
+        }
+        doc.add_feature(str2int[it->first], it->second);
       }
-      doc.add_feature(str2int[it->first], it->second);
+      analyzer.add_document(doc);
     }
-    analyzer.add_document(doc);
   }
   return doc_id;
 }
