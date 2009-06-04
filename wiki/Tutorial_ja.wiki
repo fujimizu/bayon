@@ -27,15 +27,28 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 
 == コマンドラインツール ==
 
+コマンドラインツールを使用する際は、以下のオプションを指定して実行してください。
+
 {{{
 % bayon -n num -i file [-m method]
 % bayon -l limit -i file [-m method]
-     -n, --number num    ... number of clusters
-     -l, --limit lim     ... limit value of cluster bisection
-     -i, --input path    ... input file
-     -m, --method method ... clustering method(rb, kmeans), default:rb
+     -n, --number num    ... 分割するクラスタの数
+     -l, --limit lim     ... 分割ポイントの閾値
+     -i, --input path    ... 入力ファイル
+     -m, --method method ... クラスタリング手法(rb, kmeans), デフォルトはrb
 }}}
 
+出力するクラスタの分割数を指定する場合は以下のようにして実行してください。
+
+{{{
+% bayon -n 100 -i input.tsv  (100個のクラスタに分割する場合)
+}}}
+
+またクラスタ数をどの程度にすれば適切に分割されるかを事前に予想することが難しい場合は、分割ポイントの閾値を設定して実行する方法を使用すると、ある程度適切な分割が完了するまで分割をしてくれます。入力データにもよりますが、ポイントは1.0〜2.0程度を指定するとよいです。
+
+{{{
+% bayon -l 1.0 -i input.tsv  (分割ポイントの閾値が1.0を下回るまで分割)
+}}}
 
 == 入力データのフォーマット ==
 
@@ -74,3 +87,11 @@ cluster_id1 \t document_id1 \s document_id2 \s document_id3 \s ...\n
 cluster_id2 \t document_id4 \s document_id5 \s document_id6 \s ...\n
 ...
 }}}
+
+= クラスタリング手法の説明 =
+
+編集中。
+
+= 他のクラスタリングツール =
+
+ * [http://glaros.dtc.umn.edu/gkhome/views/cluto CLUTO]
