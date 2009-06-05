@@ -68,17 +68,7 @@ class Document {
   }
 
   /**
-   * Set document id
-   *
-   * @param DocumentId  document id
-   * @return void
-   */
-  void set_id(DocumentId id) {
-    id_ = id;
-  }
-
-  /**
-   * get feature vector
+   * Get feature vector
    *
    * @return Vector *  feature vector
    */
@@ -87,7 +77,7 @@ class Document {
   }
 
   /**
-   * get feature vector
+   * Get feature vector
    *
    * @return const Vector *  feature vector
    */
@@ -96,7 +86,7 @@ class Document {
   }
 
   /**
-   * add feature of document
+   * Add feature of document
    *
    * @param key key of feature
    * @param value value of feature
@@ -107,7 +97,7 @@ class Document {
   }
 
   /**
-   * set feature
+   * Set feature
    *
    * @param feature Vector object
    * @return void
@@ -117,7 +107,7 @@ class Document {
   }
 
   /**
-   * clear features
+   * Clear features
    *
    * @return void
    */
@@ -134,7 +124,7 @@ class Document {
 class Cluster {
  private:
   /**
-   * documents in this cluster
+   * documents in the cluster
    */
   std::vector<Document *> documents_;
 
@@ -182,7 +172,7 @@ class Cluster {
   ~Cluster() { }
 
   /**
-   * clear
+   * Clear
    *
    * @return void
    */
@@ -192,11 +182,11 @@ class Cluster {
     centroid_.clear();
     removed_.clear();
     sectioned_clusters_.clear();
-    sectioned_gain_ = 0;
+    sectioned_gain_ = 0.0;
   }
 
   /**
-   * get size of this cluster
+   * Get size of the cluster
    *
    * @return size_t size of cluster
    */
@@ -205,7 +195,7 @@ class Cluster {
   }
 
   /**
-   * get centroid Vector of this cluster
+   * Get centroid Vector of the cluster
    *
    * @return Vector * centroid vector
    */
@@ -216,7 +206,7 @@ class Cluster {
   }
 
   /**
-   * get composite Vector of this cluster
+   * Get composite Vector of the cluster
    * @return Vector * composite vector
    */
   Vector *composite_vector() {
@@ -256,19 +246,19 @@ class Cluster {
    */
   void refresh() {
     if (removed_.size() > 0) {
-      std::vector<Document *> new_documents;
+      std::vector<Document *> docs;
       for (size_t i = 0; i < documents_.size(); i++) {
         if (!removed_[documents_[i]->id()]) {
-          new_documents.push_back(documents_[i]);
+          docs.push_back(documents_[i]);
         }
       }
-      documents_ = new_documents;
+      documents_ = docs;
       removed_.clear();
     }
   }
 
   /**
-   * Get gain when section this cluster
+   * Get gain when section the cluster
    *
    * @return dobule gain
    */
@@ -277,7 +267,7 @@ class Cluster {
   }
 
   /**
-   * Set gain when section this cluster
+   * Set gain when the cluster was sectioned
    *
    * @return void
    */
@@ -286,7 +276,7 @@ class Cluster {
   /**
    * Get documents
    *
-   * @return std::vector<Document *> &  list of documents in this cluster
+   * @return std::vector<Document *> &  list of documents in the cluster
    */
   const std::vector<Document *> &documents() const  {
     return documents_;
@@ -324,7 +314,7 @@ class Cluster {
   void choose_smartly(size_t ndocs, std::vector<Document *> &docs) const;
 
   /**
-   * Section this cluster
+   * Section the cluster
    *
    * @param nclusters number of clusters
    * @param clusters output clusters
@@ -366,7 +356,7 @@ class Analyzer {
   std::vector<Cluster *> clusters_;
 
   /**
-   * Cluster index
+   * index of cluster
    */
   size_t cluster_index_;
 
@@ -439,6 +429,9 @@ class Analyzer {
 
   /**
    * Get next clustering result
+   *
+   * @param cluster output cluster
+   * @return bool  return true if next result exists
    */
   bool get_next_result(Cluster &cluster) {
     if (cluster_index_ < clusters_.size()) {
@@ -448,10 +441,22 @@ class Analyzer {
     return false;
   }
 
+  /**
+   * Set condition of size of clusters
+   *
+   * @param nclusters size of clusters
+   * @return void
+   */
   void set_cluster_size_limit(size_t nclusters) {
     limit_nclusters_ = nclusters;
   }
 
+  /**
+   * Set condition of point of sectioned gain
+   *
+   * @param limit  sectioned gain
+   * @return void
+   */
   void set_eval_limit(double limit) {
     limit_eval_ = limit;
   }
