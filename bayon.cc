@@ -28,13 +28,12 @@
 typedef std::map<std::string, double> Feature;
 
 /* global variables */
-const std::string DELIMITER = "\t";
+const std::string DELIMITER("\t");
 const size_t MAX_VECTOR_ITEM = 50;
-std::string g_progname;  // program name
 
 /* function prototypes */
 int main(int argc, char **argv);
-static void usage();
+static void usage(std::string progname);
 static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max);
 static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<int, std::string> &docidmap);
@@ -43,13 +42,13 @@ static void parse_options(int argc, char **argv,
 
 /* main function */
 int main(int argc, char **argv) {
-  g_progname = argv[0];
+  std::string progname(argv[0]);
   std::map<std::string, std::string> option;
   parse_options(argc, argv, option);
   if (option.find("input") == option.end()
       || (option.find("number") == option.end()
           && option.find("limit") == option.end())) {
-    usage();
+    usage(progname);
     return 1;
   }
 
@@ -89,12 +88,12 @@ int main(int argc, char **argv) {
 }
 
 /* show usage */
-static void usage() {
+static void usage(std::string progname) {
   std::cerr
-    << g_progname << ": Clustering Tool" << std::endl
+    << progname << ": Clustering Tool" << std::endl
     << "Usage:" << std::endl
-    << " " << g_progname << " -n num -i file [-m method]" << std::endl
-    << " " << g_progname << " -l limit -i file [-m method]" << std::endl
+    << " " << progname << " -n num -i file [-m method]" << std::endl
+    << " " << progname << " -l limit -i file [-m method]" << std::endl
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
     << "    -i, --input path    ... input file" << std::endl
