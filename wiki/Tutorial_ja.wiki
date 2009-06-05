@@ -66,8 +66,6 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 
 {{{
 % bayon -n 100 -i input.tsv -m kmeans (100個のクラスタに分割する場合)
-or
-% bayon -l 1.0 -i input.tsv -m kmeans (分割ポイントの閾値が1.0を下回るまで分割)
 }}}
 
 通常使用する場合は、kmeansと比べてrbの方が高速でかつ精度もよいため、rbのまま実行することをおすすめします。
