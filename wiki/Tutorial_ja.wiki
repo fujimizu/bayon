@@ -119,7 +119,3 @@ Repeated Bisection法は[http://glaros.dtc.umn.edu/gkhome/views/cluto CLUTO]と�
 == K-means ==
 
 K-meansについては、Wikipediaの[http://ja.wikipedia.org/wiki/K-means%E6%B3%95 K-means法のページ]など、説明をしているwebページがたくさんあるのでそちらをご参照下さい。
-
-= 他のクラスタリングツール =
-
- * [http://glaros.dtc.umn.edu/gkhome/views/cluto CLUTO]
