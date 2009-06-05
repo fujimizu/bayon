@@ -21,7 +21,7 @@
 
 namespace bayon {
 
-/* Get keys sorted by value */
+/* Get items sorted by value */
 void Vector::sorted_items(std::vector<VecItem> &items) const {
   for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
     VecItem item;
@@ -32,7 +32,7 @@ void Vector::sorted_items(std::vector<VecItem> &items) const {
   std::sort(items.begin(), items.end(), _compare_items);
 }
 
-/* Normalize a vector */
+/* Normalize the vector */
 void Vector::normalize() {
   double nrm = norm();
   for (VecHashMap::iterator it = vec_.begin(); it != vec_.end(); ++it) {
@@ -41,7 +41,7 @@ void Vector::normalize() {
   }
 }
 
-/* Resize a vector */
+/* Resize the vector */
 void Vector::resize(size_t size) {
   if (vec_.size() < size) return;
   std::vector<VecItem> items;
@@ -54,7 +54,7 @@ void Vector::resize(size_t size) {
 #endif
 }
 
-/* Calculate squared norm of a vector */
+/* Calculate squared norm of the vector */
 double Vector::norm_squared() const {
   double sum = 0;
   for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
@@ -64,7 +64,7 @@ double Vector::norm_squared() const {
   return sum;
 }
 
-/* Calculate norm of a vector */
+/* Calculate norm of the vector */
 double Vector::norm() const {
   return sqrt(norm_squared());
 }
@@ -126,7 +126,7 @@ double Vector::euclid_distance(const Vector &vec1, const Vector &vec2) {
   return sqrt(Vector::euclid_distance_squared(vec1, vec2));
 }
 
-/* Calculate inner product value */
+/* Calculate inner product value between vectors */
 double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
   VecHashMap::const_iterator it, itother, end;
   const Vector *other;
@@ -151,7 +151,7 @@ double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
   return prod;
 }
 
-/* Calculate cosine value */
+/* Calculate cosine value between vectors */
 double Vector::cosine(const Vector &vec1, const Vector &vec2) {
   double norm1 = vec1.norm();
   double norm2 = vec2.norm();
@@ -165,7 +165,7 @@ double Vector::cosine(const Vector &vec1, const Vector &vec2) {
   }
 }
 
-/* Calculate Jaccard coefficient value */
+/* Calculate Jaccard coefficient value between vectors */
 double Vector::jaccard(const Vector &vec1, const Vector &vec2) {
   double norm1 = vec1.norm();
   double norm2 = vec2.norm();

@@ -50,20 +50,6 @@ class Vector {
  private:
   VecHashMap vec_;
 
-  /**
-   * initialize internal hash_map object
-   * for google::dense_hash_map
-   *
-   * @return void
-   */
-  void init_hash_map() {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-    vec_.max_load_factor(0.9);
-    vec_.set_empty_key(VECTOR_EMPTY_KEY);
-    vec_.set_deleted_key(VECTOR_DELETED_KEY);
-#endif
-  }
-
  public:
   Vector() {
     init_hash_map();
@@ -80,9 +66,23 @@ class Vector {
   ~Vector() { }
 
   /**
-   * Set bucket size of internal hash_map object
+   * initialize internal hash_map object
+   * for google::dense_hash_map
    *
-   * @param n bucket size
+   * @return void
+   */
+  void init_hash_map() {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+    vec_.max_load_factor(0.9);
+    vec_.set_empty_key(VECTOR_EMPTY_KEY);
+    vec_.set_deleted_key(VECTOR_DELETED_KEY);
+#endif
+  }
+
+  /**
+   * Set bucket count of internal hash_map object
+   *
+   * @param n bucket count
    * @return void
    */
   void set_bucket_count(size_t n) {
@@ -92,7 +92,7 @@ class Vector {
   /**
    * Copy vector
    *
-   * @param vec  output vector
+   * @param vec output vector
    * @return void
    */
   void copy(Vector &vec) const {
@@ -145,9 +145,9 @@ class Vector {
   }
 
   /**
-   * Get VecHashMap
+   * Get pointer of internal hash_map object
    *
-   * @return VecHashMap pointer of hash_map object
+   * @return VecHashMap* pointer of hash_map object
    */
   const VecHashMap *hash_map() const {
     return &vec_;
@@ -162,14 +162,14 @@ class Vector {
   void sorted_items(std::vector<VecItem> &items) const;
 
   /**
-   * Normalize a vector
+   * Normalize the vector
    *
    * @return void
    */
   void normalize();
 
   /**
-   * Resize a vector
+   * Resize the vector
    *
    * @param size resized size
    * @return void
@@ -177,14 +177,14 @@ class Vector {
   void resize(size_t size);
 
   /**
-   * Calculate squared norm of a vector
+   * Calculate squared norm of the vector
    *
    * @return double squared norm of the vector
    */
   double norm_squared() const;
 
   /**
-   * Calculate norm of a vector
+   * Calculate norm of the vector
    *
    * @return double norm of the vector
    */
@@ -224,7 +224,7 @@ class Vector {
   static double euclid_distance_squared(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate euclid distance bewteen bectors
+   * Calculate euclid distance bewteen vectors
    *
    * @param vec1 input vector
    * @param vec2 input vector
@@ -233,7 +233,7 @@ class Vector {
   static double euclid_distance(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate inner product value
+   * Calculate inner product value between vectors
    *
    * @param vec1 input vector
    * @param vec2 input vector
@@ -242,7 +242,7 @@ class Vector {
   static double inner_product(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate cosine value
+   * Calculate cosine value between vectors
    *
    * @param vec1 input vector
    * @param vec2 input vector
@@ -251,7 +251,7 @@ class Vector {
   static double cosine(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate Jaccard coefficient value
+   * Calculate Jaccard coefficient value between vectors
    *
    * @param vec1 input vector
    * @param vec2 input vector

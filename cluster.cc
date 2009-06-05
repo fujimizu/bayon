@@ -88,7 +88,7 @@ void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) const 
   }
 }
 
-/* Set gain when this cluster was sectioned */
+/* Set gain when the cluster was sectioned */
 void Cluster::set_sectioned_gain() {
   double gain = 0.0;
   if (sectioned_gain_ == 0 && sectioned_clusters_.size() > 1) {
@@ -100,7 +100,7 @@ void Cluster::set_sectioned_gain() {
   sectioned_gain_ = gain;
 }
 
-/* Section this cluster */
+/* Section the cluster */
 void Cluster::section(size_t nclusters) {
   if (size() < nclusters) return;
 
@@ -109,7 +109,6 @@ void Cluster::section(size_t nclusters) {
   choose_smartly(nclusters, centroids);
   for (size_t i = 0; i < centroids.size(); i++) {
     Cluster *cluster = new Cluster();
-    //Cluster *cluster = new Cluster(size() * 2);
     sectioned_clusters_.push_back(cluster);
   }
 
@@ -131,7 +130,6 @@ void Cluster::section(size_t nclusters) {
 /* Do repeated bisection clustering */
 size_t Analyzer::repeated_bisection() {
   Cluster *cluster = new Cluster();
-  //Cluster *cluster = new Cluster(documents_.size() * 2);
   for (size_t i = 0; i < documents_.size(); i++) {
     cluster->add_document(documents_[i]);
   }
@@ -165,6 +163,9 @@ size_t Analyzer::repeated_bisection() {
       sectioned[i]->section(2);
       refine_clusters(sectioned[i]->sectioned_clusters());
       sectioned[i]->set_sectioned_gain();
+      if (sectioned[i]->sectioned_gain() < limit_eval_) {
+        sectioned[i]->composite_vector()->clear();
+      }
       sectioned[i]->composite_vector()->clear();
       que.push(sectioned[i]);
     }
