@@ -99,11 +99,11 @@ valueは特徴の度合いを正しく反映している必要があります。
 
 == 出力データのフォーマット ==
 
-出力データは、以下のようなタブ区切りのフォーマットのテキストになります。1行が1つのクラスタを表し、先頭がクラスタのID、それ以降はそのクラスタに所属するドキュメントのIDをスペース区切りでつなげたリストになります。
+出力データは、以下のようなタブ区切りのフォーマットのテキストになります。1行が1つのクラスタを表し、先頭がクラスタのID、それ以降はそのクラスタに所属するドキュメントのIDをタブ区切りでつなげたリストになります。
 
 {{{
-cluster_id1 \t document_id1 \s document_id2 \s document_id3 \s ...\n
-cluster_id2 \t document_id4 \s document_id5 \s document_id6 \s ...\n
+cluster_id1 \t document_id1 \t document_id2 \t document_id3 \t ...\n
+cluster_id2 \t document_id4 \t document_id5 \t document_id6 \t ...\n
 ...
 }}}
 
