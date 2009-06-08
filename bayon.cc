@@ -37,17 +37,18 @@ static void usage(std::string progname);
 static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max);
 static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<int, std::string> &docidmap);
-static void parse_options(int argc, char **argv,
-                          std::map<std::string, std::string> &option);
+static int parse_options(int argc, char **argv,
+                         std::map<std::string, std::string> &option);
 
 /* main function */
 int main(int argc, char **argv) {
   std::string progname(argv[0]);
   std::map<std::string, std::string> option;
-  parse_options(argc, argv, option);
-  if (option.find("input") == option.end()
-      || (option.find("number") == option.end()
-          && option.find("limit") == option.end())) {
+  int optind = parse_options(argc, argv, option);
+  argc -= optind;
+  argv += optind;
+  if (argc != 1 || (option.find("number") == option.end()
+                    && option.find("limit") == option.end())) {
     usage(progname);
     return 1;
   }
@@ -56,9 +57,9 @@ int main(int argc, char **argv) {
   bayon::Analyzer analyzer;
   std::map<int, std::string> docidmap;
 
-  std::ifstream ifs(option["input"].c_str());
+  std::ifstream ifs(argv[0]);
   if (!ifs) {
-    std::cerr << "[ERROR]File not found: " << option["input"] << std::endl;
+    std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
     return 1;
   }
   add_documents(ifs, analyzer, docidmap);
@@ -92,11 +93,10 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": Clustering Tool" << std::endl
     << "Usage:" << std::endl
-    << " " << progname << " -n num -i file [-m method]" << std::endl
-    << " " << progname << " -l limit -i file [-m method]" << std::endl
+    << " " << progname << " -n num [-m method] file" << std::endl
+    << " " << progname << " -l limit [-m method] file" << std::endl
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
-    << "    -i, --input path    ... input file" << std::endl
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl;
 }
 
@@ -160,17 +160,15 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
 }
 
 /* parse command line options */
-static void parse_options(int argc, char **argv,
-                          std::map<std::string, std::string> &option) {
+static int parse_options(int argc, char **argv,
+                         std::map<std::string, std::string> &option) {
   int opt;
   extern char *optarg;
-  while ((opt = getopt(argc, argv, "n:i:l:m:")) != -1) {
+  extern int optind;
+  while ((opt = getopt(argc, argv, "n:l:m:")) != -1) {
     switch (opt) {
     case 'n': // number
       option["number"] = optarg;
-      break;
-    case 'i': // input
-      option["input"] = optarg;
       break;
     case 'l': // limit
       option["limit"] = optarg;
@@ -182,4 +180,5 @@ static void parse_options(int argc, char **argv,
       break;
     }
   }
+  return optind;
 }
