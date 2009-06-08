@@ -36,11 +36,10 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 コマンドラインツールを使用する際は、以下のオプションを指定して実行してください。クラスタリング結果は標準出力に出力されます。
 
 {{{
-% bayon -n num -i file [-m method]
-% bayon -l limit -i file [-m method]
+% bayon -n num [-m method] file
+% bayon -l limit [-m method] file
      -n, --number num    ... 分割するクラスタの数
      -l, --limit lim     ... 分割ポイントの閾値
-     -i, --input path    ... 入力ファイル
      -m, --method method ... クラスタリング手法(rb, kmeans), デフォルトはrb
 }}}
 
@@ -49,7 +48,7 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 出力するクラスタの数を指定する場合は以下のようにして実行してください。
 
 {{{
-% bayon -n 100 -i input.tsv > output.tsv (100個のクラスタに分割する場合)
+% bayon -n 100 input.tsv > output.tsv (100個のクラスタに分割する場合)
 }}}
 
 === 分割ポイントを指定して実行する場合 ===
@@ -57,7 +56,7 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 クラスタ数をどの程度にすれば適切に分割されるかを事前に予想することが難しい場合は、分割ポイントの閾値を設定して実行する方法を使用すると、ある程度適切な分割が完了するまで分割をしてくれます。入力データにもよりますが、ポイントは1.0〜2.0程度を指定するとよいです。
 
 {{{
-% bayon -l 1.0 -i input.tsv > output.tsv (分割ポイントの閾値が1.0を下回るまで分割)
+% bayon -l 1.0 input.tsv > output.tsv (分割ポイントの閾値が1.0を下回るまで分割)
 }}}
 
 === クラスタリング手法を変える場合 ===
@@ -65,7 +64,7 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 クラスタリング手法はデフォルトの設定ではrb(Repeated Bisection法)を使用します。K-meansを使用してクラスタリングを行いたい場合は、以下のようにクラスタリング手法を指定して実行してください。
 
 {{{
-% bayon -n 100 -i input.tsv -m kmeans (100個のクラスタに分割する場合)
+% bayon -n 100 input.tsv -m kmeans (100個のクラスタに分割する場合)
 }}}
 
 通常使用する場合は、kmeansと比べてrbの方が高速でかつ精度もよいため、rbのまま実行することをおすすめします。
