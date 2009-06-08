@@ -26,7 +26,7 @@
 #include <sstream>
 #include <vector>
 #include "config.h"
-#include "clvector.h"
+#include "byvector.h"
 #include "util.h"
 
 namespace bayon {

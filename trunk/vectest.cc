@@ -20,7 +20,7 @@
 
 #include <map>
 #include <gtest/gtest.h>
-#include "clvector.h"
+#include "byvector.h"
 
 using namespace bayon;
 
