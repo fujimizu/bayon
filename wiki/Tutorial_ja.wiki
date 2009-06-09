@@ -20,6 +20,8 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 
 最新のソースコードをダウンロードして、以下のようにしてインストールしてください。make testを実行する場合は [http://code.google.com/p/googletest/ googletest] が必要となるため、事前にgoogletestをインストールしておいてください。
 
+また[http://code.google.com/p/google-sparsehash/ google-sparsehash]がインストールされていると、さらに高速に実行できるようになるため、事前にインストールしておくことをお勧めします。
+
 {{{
 % tar xvzf bayon-*.tar.gz
 % cd bayon-*
