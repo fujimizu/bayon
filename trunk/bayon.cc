@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     if (cluster.size() > 0) {
       std::cout << cluster_count++ << "\t";
       for (size_t i = 0; i < cluster.documents().size(); i++) {
-        if (i > 0) std::cout << " ";
+        if (i > 0) std::cout << "\t";
         std::cout << docidmap[cluster.documents()[i]->id()];
       }
       std::cout << std::endl;
