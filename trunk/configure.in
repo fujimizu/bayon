@@ -3,7 +3,7 @@
 #================================================================
 
 # Package name
-AC_INIT(bayon, 0.0.1, mfujisa@gmail.com)
+AC_INIT(bayon, 0.0.2, mfujisa@gmail.com)
 AC_CONFIG_HEADER([config.h])
 
 # Package information
