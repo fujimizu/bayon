@@ -76,7 +76,7 @@ clean :
 
 check-valgrind:
 	make RUNCMD="valgrind --tool=memcheck --log-fd=1" check > leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -i data/test.tsv -n 2 >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -i data/test1.tsv -n 2 >> leak.log
 	grep ERROR leak.log
 	grep 'at exit' leak.log
 
