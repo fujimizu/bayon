@@ -161,7 +161,7 @@ double Vector::cosine(const Vector &vec1, const Vector &vec2) {
   } else {
     double prod = Vector::inner_product(vec1, vec2);
     result = prod / (norm1 * norm2);
-    return isnan(result) ? 0.0 : result;
+    return std::isnan(result) ? 0.0 : result;
   }
 }
 
@@ -176,7 +176,7 @@ double Vector::jaccard(const Vector &vec1, const Vector &vec2) {
     return result;
   } else {
     result = prod / denom;
-    return isnan(result) ? 0.0 : result;
+    return std::isnan(result) ? 0.0 : result;
   }
 }
 
