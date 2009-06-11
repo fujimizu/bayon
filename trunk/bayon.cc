@@ -22,6 +22,7 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include "config.h"
 #include "cluster.h"
 #include <unistd.h> 
 
@@ -39,12 +40,17 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<int, std::string> &docidmap);
 static int parse_options(int argc, char **argv,
                          std::map<std::string, std::string> &option);
+static void show_version();
 
 /* main function */
 int main(int argc, char **argv) {
   std::string progname(argv[0]);
   std::map<std::string, std::string> option;
   int optind = parse_options(argc, argv, option);
+  if (option.find("version") != option.end()) {
+    show_version();
+    return 0;
+  }
   argc -= optind;
   argv += optind;
   if (argc != 1 || (option.find("number") == option.end()
@@ -97,7 +103,8 @@ static void usage(std::string progname) {
     << " " << progname << " -l limit [-m method] file" << std::endl
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
-    << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl;
+    << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
+    << "    -v, --version       ... show the version and exit" << std::endl;
 }
 
 /* parse tsv format string */
@@ -165,7 +172,7 @@ static int parse_options(int argc, char **argv,
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:")) != -1) {
+  while ((opt = getopt(argc, argv, "n:l:m:v")) != -1) {
     switch (opt) {
     case 'n': // number
       option["number"] = optarg;
@@ -176,9 +183,18 @@ static int parse_options(int argc, char **argv,
     case 'm': // method
       option["method"] = optarg;
       break;
+    case 'v': // version
+      option["version"] = "dummy";
+      break;
     default:
       break;
     }
   }
   return optind;
+}
+
+/* show version */
+static void show_version() {
+  std::cout << PACKAGE_STRING << std::endl
+            << "Copyright(C) 2009 Mizuki Fujisawa" << std::endl;
 }
