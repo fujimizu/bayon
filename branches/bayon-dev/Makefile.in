@@ -156,11 +156,11 @@ vectest : vectest.o $(LIBRARYFILES)
 clutest : clutest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
-bayon.o : byvector.h cluster.h
+bayon.o : byvector.h cluster.h config.h util.h
 
 byvector.o : byvector.h config.h util.h
 
-vectest.o : byvector.h
+vectest.o : byvector.h config.h util.h
 
 cluster.o : cluster.h config.h util.h
 

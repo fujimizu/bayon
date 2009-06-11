@@ -21,6 +21,16 @@
 
 namespace bayon {
 
+void Cluster::sort_documents(std::vector<std::pair<Document *, double> > &pairs) {
+  Vector *centroid = centroid_vector();
+  for (size_t i = 0; i < documents_.size(); i++) {
+    double similarity = Vector::inner_product(*documents_[i]->feature(),
+                                              *centroid);
+    pairs.push_back(std::pair<Document *, double>(documents_[i], similarity));
+  }
+  std::sort(pairs.begin(), pairs.end(), greater_pairs<Document *, double>);
+}
+
 /* choose documents randomly */
 void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const {
   HashMap<size_t, bool>::type choosed(ndocs);

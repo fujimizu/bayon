@@ -1,5 +1,5 @@
 //
-// Utilities for vector operation
+// Utility class for vector operation
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_CLVECTOR_H
-#define BAYON_CLVECTOR_H
+#ifndef BAYON_BYVECTOR_H
+#define BAYON_BYVECTOR_H
 
 #include <cmath>
 #include <algorithm>
@@ -269,16 +269,6 @@ class Vector {
     return os;
   }
 };
-
-
-/**
- * Compare VecItem for sorting items in a vector
- *
- * @param left   item of vector
- * @param right  item of vector
- * @return bool  return true if left_value > right_value
- */
-bool _compare_items(const VecItem &left, const VecItem &right);
 
 } /* namespace bayon */
 

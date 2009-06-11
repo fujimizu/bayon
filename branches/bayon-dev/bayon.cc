@@ -82,10 +82,15 @@ int main(int argc, char **argv) {
   size_t cluster_count = 1;
   while (analyzer.get_next_result(cluster)) {
     if (cluster.size() > 0) {
-      std::cout << cluster_count++ << "\t";
-      for (size_t i = 0; i < cluster.documents().size(); i++) {
-        if (i > 0) std::cout << "\t";
-        std::cout << docidmap[cluster.documents()[i]->id()];
+      std::vector<std::pair<bayon::Document *, double> > pairs;
+      cluster.sort_documents(pairs);
+
+      std::cout << cluster_count++ << DELIMITER;
+      for (size_t i = 0; i < pairs.size(); i++) {
+        if (i > 0) std::cout << DELIMITER;
+        std::cout << docidmap[pairs[i].first->id()];
+        if (option.find("point") != option.end())
+          std::cout << DELIMITER << pairs[i].second;
       }
       std::cout << std::endl;
     }
@@ -104,6 +109,7 @@ static void usage(std::string progname) {
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
+    << "    -p, --point         ... output similairty point" << std::endl
     << "    -v, --version       ... show the version and exit" << std::endl;
 }
 
@@ -172,7 +178,7 @@ static int parse_options(int argc, char **argv,
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:v")) != -1) {
+  while ((opt = getopt(argc, argv, "n:l:m:pv")) != -1) {
     switch (opt) {
     case 'n': // number
       option["number"] = optarg;
@@ -182,6 +188,9 @@ static int parse_options(int argc, char **argv,
       break;
     case 'm': // method
       option["method"] = optarg;
+      break;
+    case 'p': // point
+      option["point"] = "dummy";
       break;
     case 'v': // version
       option["version"] = "dummy";
