@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 /* show usage */
 static void usage(std::string progname) {
   std::cerr
-    << progname << ": Clustering Tool" << std::endl
+    << progname << ": simple and fast clustering tool" << std::endl
     << "Usage:" << std::endl
     << " " << progname << " -n num [-m method] file" << std::endl
     << " " << progname << " -l limit [-m method] file" << std::endl

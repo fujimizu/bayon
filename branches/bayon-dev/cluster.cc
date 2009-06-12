@@ -28,7 +28,7 @@ void Cluster::sort_documents(std::vector<std::pair<Document *, double> > &pairs)
                                               *centroid);
     pairs.push_back(std::pair<Document *, double>(documents_[i], similarity));
   }
-  std::sort(pairs.begin(), pairs.end(), greater_pairs<Document *, double>);
+  std::sort(pairs.begin(), pairs.end(), greater_pair<Document *, double>);
 }
 
 /* choose documents randomly */

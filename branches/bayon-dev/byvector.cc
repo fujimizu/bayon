@@ -29,7 +29,7 @@ void Vector::sorted_items(std::vector<VecItem> &items) const {
     item.second = it->second;
     items.push_back(item);
   }
-  std::sort(items.begin(), items.end(), greater_pairs<VecKey, VecValue>);
+  std::sort(items.begin(), items.end(), greater_pair<VecKey, VecValue>);
 }
 
 /* Normalize the vector */

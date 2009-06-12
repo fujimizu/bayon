@@ -71,8 +71,8 @@ struct HashMap {
  * @return bool return true if left_value > right_value
  */
 template<typename KeyType, typename ValueType>
-bool greater_pairs(const std::pair<KeyType, ValueType> &left,
-                   const std::pair<KeyType, ValueType> &right) {
+bool greater_pair(const std::pair<KeyType, ValueType> &left,
+                  const std::pair<KeyType, ValueType> &right) {
   return left.second > right.second;
 }
 
