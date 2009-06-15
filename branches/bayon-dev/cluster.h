@@ -254,13 +254,13 @@ class Cluster {
   }
 
   /**
-   * Sort documents in clusters by similarity
+   * Get sorted documents in clusters by similarity
    * between documents and center (desc order)
    *
    * @param pairs pairs of document and similarity point
    * @return void
    */
-  void sort_documents(std::vector<std::pair<Document *, double> > &pairs);
+  void sorted_documents(std::vector<std::pair<Document *, double> > &pairs);
 
   /**
    * delete removed documents from internal container
@@ -427,6 +427,9 @@ class Analyzer {
 
   /**
    * Add a document
+   *
+   * @param doc document object
+   * @return void
    */
   void add_document(Document &doc) {
     Document *ptr = new Document(doc.id(), doc.feature());
@@ -437,6 +440,7 @@ class Analyzer {
   /**
    * Do clustering
    *
+   * @param mode clustering mode(rb, kmeans)
    * @return size_t number of clusters
    */
   size_t do_clustering(const std::string &mode);
@@ -474,6 +478,9 @@ class Analyzer {
   void set_eval_limit(double limit) {
     limit_eval_ = limit;
   }
+
+  void cluster_similarities(Document * document,
+    std::vector<std::pair<size_t, double> > &similarities);
 };
 
 

@@ -24,7 +24,6 @@
 #include <utility>
 #include "config.h"
 #include "cluster.h"
-#include <unistd.h> 
 
 typedef std::map<std::string, double> Feature;
 
@@ -83,7 +82,7 @@ int main(int argc, char **argv) {
   while (analyzer.get_next_result(cluster)) {
     if (cluster.size() > 0) {
       std::vector<std::pair<bayon::Document *, double> > pairs;
-      cluster.sort_documents(pairs);
+      cluster.sorted_documents(pairs);
 
       std::cout << cluster_count++ << DELIMITER;
       for (size_t i = 0; i < pairs.size(); i++) {

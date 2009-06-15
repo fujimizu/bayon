@@ -86,7 +86,11 @@ class Vector {
    * @return void
    */
   void set_bucket_count(size_t n) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
     vec_.resize(n);
+#elif HAVE_EXT_HASH_MAP
+    vec_.resize(n);
+#endif
   }
 
   /**
@@ -136,7 +140,7 @@ class Vector {
   }
 
   /**
-   * clear all items in vector
+   * Clear all items in vector
    *
    * @return void
    */
@@ -259,6 +263,9 @@ class Vector {
    */
   static double jaccard(const Vector &vec1, const Vector &vec2);
 
+  /**
+   * Output stream
+   */
   friend std::ostream &operator <<(std::ostream &os, Vector &vec) {
     os.precision(4);
     for (VecHashMap::const_iterator it = vec.vec_.begin();
