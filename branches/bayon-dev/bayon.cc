@@ -126,7 +126,7 @@ static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max) {
     } else {
       double point = 0.0;
       point = atof(s.c_str());
-      if (!word.empty() && point > 0) {
+      if (!word.empty() && point != 0) {
         feature[word] = point;
         kwcnt++;
       }
