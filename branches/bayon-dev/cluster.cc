@@ -287,15 +287,4 @@ size_t Analyzer::do_clustering(const std::string &mode) {
   return num;
 }
 
-void Analyzer::cluster_similarities(Document *document,
-  std::vector<std::pair<size_t, double> > &similarities) {
-  for (size_t i = 0; i < clusters_.size(); i++) {
-    double similarity = Vector::inner_product(*clusters_[i]->centroid_vector(),
-                                              *document->feature());
-    if (similarity > 0) {
-      similarities.push_back(std::pair<size_t, double>(i, similarity));
-    }
-  }
-}
-
 } /* namespace bayon */

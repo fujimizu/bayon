@@ -163,6 +163,8 @@ byvector.o : byvector.h config.h util.h
 
 vectest.o : byvector.h config.h util.h
 
+classifier.o : byvector.h classifier.h
+
 cluster.o : cluster.h config.h util.h
 
 clutest.o : byvector.h cluster.h

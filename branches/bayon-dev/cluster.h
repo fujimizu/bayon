@@ -478,9 +478,6 @@ class Analyzer {
   void set_eval_limit(double limit) {
     limit_eval_ = limit;
   }
-
-  void cluster_similarities(Document * document,
-    std::vector<std::pair<size_t, double> > &similarities);
 };
 
 
