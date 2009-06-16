@@ -23,7 +23,7 @@
 #include <map>
 #include <utility>
 #include "config.h"
-#include "cluster.h"
+#include "analyzer.h"
 
 typedef std::map<std::string, double> Feature;
 

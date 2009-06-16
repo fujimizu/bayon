@@ -27,19 +27,41 @@
 
 namespace bayon {
 
+/* typedef */
+typedef uint32_t ClusterId;  // Cluster ID
+
 /*********************************************************************
  * Classifier class
  ********************************************************************/
 class Classifier {
  private:
-  HashMap<size_t, Vector>::type vectors_;
+  HashMap<ClusterId, Vector>::type vectors_;
 
  public:
-  void similar_clusters(
+  /**
+   * Get list of id and points of similar vectors
+   *
+   * @param document document object
+   * @param items pairs of id and similarity point
+   * @return void
+   */
+  void similar_vectors(
     const Document &document,
-    std::vector<std::pair<size_t, double> > &items) const;
+    std::vector<std::pair<ClusterId, double> > &items) const;
+
+  /**
+   * Add vector
+   *
+   * @param id cluster id
+   * @param vec Vector object
+   * @return void
+   */
+  void add_vector(ClusterId id, const Vector &vec) {
+    vectors_[id] = vec;
+  }
+
 };
 
-} // namespace bayon
+} /* namespace bayon */
 
 #endif

@@ -1,5 +1,5 @@
 //
-// Document Classifier
+// Tests for Document class
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -17,22 +17,17 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
-#include "classifier.h"
+#include <gtest/gtest.h>
+#include "analyzer.h"
 
-namespace bayon {
+using namespace bayon;
 
-void Classifier::similar_vectors(
-  const Document &document, 
-  std::vector<std::pair<ClusterId, double> > &items) const {
-  for (HashMap<ClusterId, Vector>::type::const_iterator it = vectors_.begin();
-       it != vectors_.end(); ++it) {
-    double similarity = Vector::inner_product(it->second,
-                                              *document.feature());
-    if (similarity != 0) {
-      items.push_back(std::pair<ClusterId, double>(it->first, similarity));
-    }
-  }
-  std::sort(items.begin(), items.end(), greater_pair<ClusterId, double>);
+namespace {
+
+} /* namespace */
+
+/* main function */
+int main(int argc, char **argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
-
-} /* namespace bayon */

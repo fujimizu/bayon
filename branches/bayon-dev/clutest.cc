@@ -17,13 +17,13 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
-
 #include <ctime>
 #include <iostream>
 #include <iterator>
 #include <map>
 #include <vector>
 #include <gtest/gtest.h>
+#include "analyzer.h"
 #include "cluster.h"
 
 using namespace bayon;
@@ -83,20 +83,6 @@ void set_cluster(Cluster &cluster) {
   for (size_t i = 0; i < documents.size(); i++) {
     cluster.add_document(documents[i]);
   }
-}
-
-TEST(DocumentTest, SizeTest) {
-  init_documents();
-  Document doc(1);
-  size_t max = 10;
-  for (size_t i = 0; i < max; i++) {
-    doc.add_feature(i, i * 2.0);
-  }
-  EXPECT_EQ(doc.feature()->size(), 10);
-
-  doc.clear();
-  EXPECT_EQ(doc.feature()->size(), 0);
-  delete_documents();
 }
 
 TEST(ClusterTest, SizeTest) {
