@@ -118,7 +118,6 @@ class Document {
    * @return void
    */
   void set_feature(Vector *feature) {
-    delete feature_;
     feature_ = feature;
   }
 

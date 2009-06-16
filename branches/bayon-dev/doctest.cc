@@ -55,6 +55,7 @@ TEST(DocumentTest, SetFeatureTest) {
   Vector *vec = new Vector();
   size_t max = 10;
   for (size_t i = 0; i < max; i++) vec->set(i, i * 10);
+  delete doc.feature();
   doc.set_feature(vec);
 
   EXPECT_EQ(doc.feature()->size(), vec->size());
