@@ -1,5 +1,5 @@
 //
-// Document 
+// Document class
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -26,7 +26,11 @@
 namespace bayon {
 
 /* Typedef */
-typedef int32_t DocumentId;  // Document ID
+#if SIZEOF_LONG == 8
+typedef int64_t DocumentId; // Document ID
+#else
+typedef int32_t DocumentId;
+#endif
 
 /* Constants */
 const DocumentId DOCUMENT_ID_EMPTY = -1;

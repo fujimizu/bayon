@@ -73,8 +73,11 @@ int main(int argc, char **argv) {
   } else if (option.find("limit") != option.end()) {
     analyzer.set_eval_limit(atof(option["limit"].c_str()));
   }
-  std::string method = "rb"; // default
-  if (option.find("method") != option.end()) method = option["method"];
+  bayon::clustering_method method = bayon::REPEATED_BISECTION; // default
+  if (option.find("method") != option.end()) {
+    if (option["method"] == "kmeans") method = bayon::KMEANS;
+    else if (option["method"] == "rb") method = bayon::REPEATED_BISECTION;
+  }
   analyzer.do_clustering(method);
 
   bayon::Cluster cluster;

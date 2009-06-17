@@ -31,8 +31,11 @@
 namespace bayon {
 
 /* typedef */
-typedef int32_t                         VecKey;   // key of vector
-//typedef int64_t                         VecKey;   // key of vector
+#if SIZEOF_LONG == 8
+typedef int64_t                         VecKey;   // key of vector
+#else
+typedef int32_t                         VecKey;
+#endif
 typedef double                          VecValue; // value of vector
 typedef std::pair<VecKey, VecValue>     VecItem;  // key-value pair
 typedef HashMap<VecKey, VecValue>::type VecHashMap;
@@ -43,18 +46,31 @@ const VecKey   VECTOR_DELETED_KEY = -2;
 const VecValue VECTOR_NULL_VALUE  = 0.0;
 
 
-/*********************************************************************
+/**
  * Vector class
- ********************************************************************/
+ *
+ * This is utility class for vector operations.
+ */
 class Vector {
  private:
+  /**
+   * internal hash_map object
+   */
   VecHashMap vec_;
 
  public:
+  /**
+   * Constructor
+   */
   Vector() {
     init_hash_map();
   }
 
+  /**
+   * Constructor
+   *
+   * @param vec Vector object
+   */
   Vector(const Vector &vec) {
     init_hash_map();
     for (VecHashMap::const_iterator it = vec.hash_map()->begin();
@@ -63,6 +79,9 @@ class Vector {
     }
   }
 
+  /**
+   * Destructor
+   */
   ~Vector() { }
 
   /**

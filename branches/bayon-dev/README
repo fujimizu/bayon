@@ -1,11 +1,11 @@
 ================================================================
- Bayon : simple and fast clustering tool
+ Bayon : a simple and fast clustering tool
 
  Copyright(C) Mizuki Fujisawa <mfujisa@gmail.com>
 ================================================================
 
 Overview:
-  Bayon is simple and fast hard-clustering tool.
+  Bayon is a simple and fast hard-clustering tool.
   Bayon supports repeated-bisection clustering and kmeans clustering.
 
 Install:

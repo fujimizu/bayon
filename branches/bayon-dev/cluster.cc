@@ -1,5 +1,5 @@
 //
-// Clustering API
+// Cluster class
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //

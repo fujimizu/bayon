@@ -1,5 +1,6 @@
 //
-// Analyzer
+// Cluster Analyzer
+// which manages input documents, and executes clustering.
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -28,9 +29,18 @@
 namespace bayon {
 
 /**
+ * Clustering methods
+ */
+typedef enum {
+  REPEATED_BISECTION,
+  KMEANS
+} clustering_method;
+
+
+/**
  * Analyzer class
  *
- * Analyzer manages input documents, and do clustering
+ * This class manages input documents, and executes clustering.
  */
 class Analyzer {
  private:
@@ -126,10 +136,10 @@ class Analyzer {
   /**
    * Do clustering
    *
-   * @param mode clustering mode(rb, kmeans)
+   * @param method clustering method
    * @return size_t number of clusters
    */
-  size_t do_clustering(const std::string &mode);
+  size_t do_clustering(const clustering_method &method);
 
   /**
    * Get next clustering result

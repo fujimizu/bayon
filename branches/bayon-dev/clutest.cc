@@ -18,12 +18,10 @@
 // 
 
 #include <ctime>
-#include <iostream>
 #include <iterator>
 #include <map>
 #include <vector>
 #include <gtest/gtest.h>
-#include "analyzer.h"
 #include "cluster.h"
 
 using namespace bayon;
@@ -200,58 +198,6 @@ TEST(ClusterTest, SectionTest) {
   for (size_t i = 0; i < cluster.sectioned_clusters().size(); i++) {
     delete cluster.sectioned_clusters()[i];
   }
-  delete_documents();
-}
-
-TEST(AnalyzerTest, DoClusteringRBTest) {
-  init_documents();
-  Analyzer analyzer;
-
-  for (size_t i = 0; i < documents.size(); i++) {
-    analyzer.add_document(*documents[i]);
-  }
-  int nclusters = 2;
-  analyzer.set_cluster_size_limit(nclusters);
-  analyzer.do_clustering("rb");
-
-  std::map<DocumentId, size_t> choosed;
-  int count = 0;
-  Cluster cluster;
-  while (analyzer.get_next_result(cluster)) {
-    ++count;
-    //std::cout << cluster << std::endl;
-    for (size_t i = 0; i < cluster.size(); i++) {
-      EXPECT_TRUE(choosed.find(cluster.documents()[i]->id()) == choosed.end());
-      choosed[cluster.documents()[i]->id()] = count;
-    }
-  }
-  EXPECT_EQ(count, nclusters);
-  delete_documents();
-}
-
-TEST(AnalyzerTest, DoClusteringKmeansTest) {
-  init_documents();
-  Analyzer analyzer;
-
-  for (size_t i = 0; i < documents.size(); i++) {
-    analyzer.add_document(*documents[i]);
-  }
-  int nclusters = 2;
-  analyzer.set_cluster_size_limit(nclusters);
-  analyzer.do_clustering("kmeans");
-
-  std::map<DocumentId, size_t> choosed;
-  int count = 0;
-  Cluster cluster;
-  while (analyzer.get_next_result(cluster)) {
-    ++count;
-    //std::cout << cluster << std::endl;
-    for (size_t i = 0; i < cluster.size(); i++) {
-      EXPECT_TRUE(choosed.find(cluster.documents()[i]->id()) == choosed.end());
-      choosed[cluster.documents()[i]->id()] = count;
-    }
-  }
-  EXPECT_EQ(count, nclusters);
   delete_documents();
 }
 

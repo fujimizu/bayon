@@ -1,6 +1,6 @@
 //
-// Analyzer class
-// Analyzer manage input documents, and do clustering
+// Cluster Analyzer
+// which manages input documents, and executes clustering.
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -163,10 +163,10 @@ size_t Analyzer::kmeans() {
 }
 
 /* Do clustering */
-size_t Analyzer::do_clustering(const std::string &mode) {
+size_t Analyzer::do_clustering(const clustering_method &method) {
   size_t num = 0;
-  if      (mode == "kmeans") num = kmeans();
-  else if (mode == "rb")     num = repeated_bisection();
+  if      (method == KMEANS)             num = kmeans();
+  else if (method == REPEATED_BISECTION) num = repeated_bisection();
   return num;
 }
 
