@@ -11,7 +11,7 @@ MYLIBVER=0
 MYLIBREV=1
 
 # Targets
-MYHEADERFILES="analyzer.h byvector.h classifier.h cluster.h document.h util.h config.h"
+MYHEADERFILES="analyzer.h bayon.h byvector.h classifier.h cluster.h document.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
 MYLIBOBJFILES="analyzer.o byvector.o classifier.o cluster.o"
 MYCOMMANDFILES="bayon"
@@ -77,6 +77,7 @@ else
   MYLIBRARYFILES="$MYLIBRARYFILES libbayon.so"
 fi
 
+AC_CHECK_SIZEOF(long)
 
 #================================================================
 # Generic Settings
