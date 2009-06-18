@@ -22,22 +22,18 @@
 
 #include <algorithm>
 #include "byvector.h"
+#include "util.h"
 
 namespace bayon {
 
 /* Typedef */
-#if SIZEOF_LONG == 8
-typedef int64_t DocumentId; // Document ID
-#else
-typedef int32_t DocumentId;
-#endif
+typedef LongType DocumentId; // Document ID
 
-/* Constants */
-const DocumentId DOCUMENT_ID_EMPTY = -1;
-
-/*********************************************************************
+/**
  * Document class
- ********************************************************************/
+ *
+ * This class manages input document, and its features.
+ */
 class Document {
  private:
   /**

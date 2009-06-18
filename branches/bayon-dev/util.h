@@ -34,6 +34,9 @@
 
 namespace bayon {
 
+/********************************************************************
+ * Typedef
+ *******************************************************************/
 /**
  * typedef HashMap
  *
@@ -51,6 +54,24 @@ struct HashMap {
 };
 
 /**
+ * typedef long int
+ */
+#if SIZEOF_LONG == 8
+typedef int64_t LongType;   // key of vector
+#else
+typedef int32_t LongType;
+#endif
+
+/********************************************************************
+ * Constatns
+ *******************************************************************/
+const LongType EMPTY_KEY   = -1;
+const LongType DELETED_KEY = -2;
+
+/********************************************************************
+ * Macro and Functions
+ *******************************************************************/
+/**
  * Print debug messages
  *
  * @param msg debug message
@@ -62,6 +83,23 @@ struct HashMap {
 #define show_log(msg) \
   do { } while (false);
 #endif
+
+/**
+ * Initialize hash_map object (for google::dense_hash_map)
+ *
+ * @param empty_key key of empty entry
+ * @param deleted_key key of deleted entry
+ * @return void
+ */
+template<typename KeyType, typename HashType>
+void init_hash_map(const KeyType &empty_key, const KeyType &deleted_key,
+                   HashType &hmap) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.max_load_factor(0.9);
+  hmap.set_empty_key(empty_key);
+  hmap.set_deleted_key(deleted_key);
+#endif
+}
 
 /**
  * Compare pair items

@@ -96,9 +96,7 @@ void Vector::delete_vector(const Vector &vec) {
 /* Calculate squared euclid distance between vectors */
 double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   HashMap<VecKey, bool>::type done;
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-  done.set_empty_key(VECTOR_EMPTY_KEY);
-#endif
+  init_hash_map(EMPTY_KEY, DELETED_KEY, done);
   VecHashMap::const_iterator it1, it2;
   double dist = 0;
 

@@ -1,5 +1,5 @@
 //
-// Document Classifier
+// Classifier
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -23,42 +23,63 @@
 #include <utility>
 #include <vector>
 #include "byvector.h"
-#include "cluster.h"
 
 namespace bayon {
 
-/* typedef */
-typedef uint32_t ClusterId;  // Cluster ID
+/* Typedef */
+typedef LongType VectorId;  // Vector ID
 
-/*********************************************************************
+/**
  * Classifier class
- ********************************************************************/
+ */
 class Classifier {
  private:
-  HashMap<ClusterId, Vector>::type vectors_;
+  HashMap<VectorId, Vector>::type vectors_;
 
  public:
   /**
-   * Get list of id and points of similar vectors
-   *
-   * @param document document object
-   * @param items pairs of id and similarity point
-   * @return void
+   * Constructor
    */
-  void similar_vectors(
-    const Document &document,
-    std::vector<std::pair<ClusterId, double> > &items) const;
+  Classifier() {
+    init_hash_map(EMPTY_KEY, DELETED_KEY, vectors_);  
+  }
+
+  /**
+   * Destructor
+   */
+  ~Classifier() { }
 
   /**
    * Add vector
    *
-   * @param id cluster id
+   * @param id vector id
    * @param vec Vector object
    * @return void
    */
-  void add_vector(ClusterId id, const Vector &vec) {
+  void add_vector(VectorId id, const Vector &vec) {
     vectors_[id] = vec;
+    vectors_[id].normalize();
   }
+
+  void remove_vector(VectorId id) {
+    HashMap<VectorId, Vector>::type::iterator it = vectors_.find(id);
+    if (it != vectors_.end()) vectors_.erase(it);
+  }
+
+  size_t count_vectors() {
+    return vectors_.size();
+  }
+
+  /**
+   * Get list of id and points of similar vectors
+   *
+   * @param vec Vector object (must be normalized)
+   * @param items pairs of id and similarity point
+   * @return void
+   */
+  void similar_vectors(
+    const Vector &vec,
+    std::vector<std::pair<VectorId, double> > &items) const;
 
 };
 

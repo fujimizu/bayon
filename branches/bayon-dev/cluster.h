@@ -32,9 +32,9 @@
 
 namespace bayon {
 
-/*********************************************************************
+/**
  * Cluster class
- ********************************************************************/
+ */
 class Cluster {
  private:
   /**
@@ -69,15 +69,11 @@ class Cluster {
 
  public:
   Cluster() : sectioned_gain_(0) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-    removed_.set_empty_key(DOCUMENT_ID_EMPTY);
-#endif
+    init_hash_map(EMPTY_KEY, DELETED_KEY, removed_);
   }
 
   Cluster(size_t n) : sectioned_gain_(0) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-    removed_.set_empty_key(DOCUMENT_ID_EMPTY);
-#endif
+    init_hash_map(EMPTY_KEY, DELETED_KEY, removed_);
     composite_.set_bucket_count(n);
 //    centroid_.set_bucket_count(n);
 //    removed_.resize(n);

@@ -30,21 +30,14 @@
 
 namespace bayon {
 
-/* typedef */
-#if SIZEOF_LONG == 8
-typedef int64_t                         VecKey;   // key of vector
-#else
-typedef int32_t                         VecKey;
-#endif
+/* Typedef */
+typedef LongType                        VecKey;   // key of vector
 typedef double                          VecValue; // value of vector
 typedef std::pair<VecKey, VecValue>     VecItem;  // key-value pair
 typedef HashMap<VecKey, VecValue>::type VecHashMap;
 
 /* Constants */
-const VecKey   VECTOR_EMPTY_KEY   = -1;
-const VecKey   VECTOR_DELETED_KEY = -2;
 const VecValue VECTOR_NULL_VALUE  = 0.0;
-
 
 /**
  * Vector class
@@ -63,7 +56,7 @@ class Vector {
    * Constructor
    */
   Vector() {
-    init_hash_map();
+    init_hash_map(EMPTY_KEY, DELETED_KEY, vec_);
   }
 
   /**
@@ -72,7 +65,7 @@ class Vector {
    * @param vec Vector object
    */
   Vector(const Vector &vec) {
-    init_hash_map();
+    init_hash_map(EMPTY_KEY, DELETED_KEY, vec_);
     for (VecHashMap::const_iterator it = vec.hash_map()->begin();
          it != vec.hash_map()->end(); ++it) {
       vec_[it->first] = it->second;
@@ -83,20 +76,6 @@ class Vector {
    * Destructor
    */
   ~Vector() { }
-
-  /**
-   * initialize internal hash_map object
-   * for google::dense_hash_map
-   *
-   * @return void
-   */
-  void init_hash_map() {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-    vec_.max_load_factor(0.9);
-    vec_.set_empty_key(VECTOR_EMPTY_KEY);
-    vec_.set_deleted_key(VECTOR_DELETED_KEY);
-#endif
-  }
 
   /**
    * Set bucket count of internal hash_map object

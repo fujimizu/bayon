@@ -67,6 +67,7 @@ check : $(TESTCOMMANDFILES)
 	$(RUNENV) $(RUNCMD) ./doctest
 	$(RUNENV) $(RUNCMD) ./clutest
 	$(RUNENV) $(RUNCMD) ./analtest
+	$(RUNENV) $(RUNCMD) ./clatest
 	@printf '\n'
 	@printf '#================================================================\n'
 	@printf '# Checking completed.\n'
@@ -165,17 +166,22 @@ doctest : doctest.o $(LIBRARYFILES)
 analtest : analtest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
+clatest : clatest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
+bayon.o : byvector.h cluster.h config.h util.h
+
 analyzer.o : analyzer.h
 
 analtest.o : analyzer.h
-
-bayon.o : byvector.h cluster.h config.h util.h
 
 byvector.o : byvector.h config.h util.h
 
 vectest.o : byvector.h config.h util.h
 
 classifier.o : byvector.h classifier.h
+
+clatest.o : classifier.h
 
 cluster.o : cluster.h config.h document.h util.h
 

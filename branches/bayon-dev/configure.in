@@ -15,7 +15,7 @@ MYHEADERFILES="analyzer.h bayon.h byvector.h classifier.h cluster.h document.h u
 MYLIBRARYFILES="libbayon.a"
 MYLIBOBJFILES="analyzer.o byvector.o classifier.o cluster.o"
 MYCOMMANDFILES="bayon"
-MYTESTCOMMANDFILES="analtest clutest doctest vectest"
+MYTESTCOMMANDFILES="analtest clatest clutest doctest vectest"
 MYDOCUMENTFILES="COPYING README TODO"
 
 # Building paths

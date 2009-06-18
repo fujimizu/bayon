@@ -1,5 +1,5 @@
 //
-// Document Classifier
+// Classifier
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -22,17 +22,16 @@
 namespace bayon {
 
 void Classifier::similar_vectors(
-  const Document &document, 
-  std::vector<std::pair<ClusterId, double> > &items) const {
-  for (HashMap<ClusterId, Vector>::type::const_iterator it = vectors_.begin();
+  const Vector &vec, 
+  std::vector<std::pair<VectorId, double> > &items) const {
+  for (HashMap<VectorId, Vector>::type::const_iterator it = vectors_.begin();
        it != vectors_.end(); ++it) {
-    double similarity = Vector::inner_product(it->second,
-                                              *document.feature());
+    double similarity = Vector::inner_product(it->second, vec);
     if (similarity != 0) {
-      items.push_back(std::pair<ClusterId, double>(it->first, similarity));
+      items.push_back(std::pair<VectorId, double>(it->first, similarity));
     }
   }
-  std::sort(items.begin(), items.end(), greater_pair<ClusterId, double>);
+  std::sort(items.begin(), items.end(), greater_pair<VectorId, double>);
 }
 
 } /* namespace bayon */
