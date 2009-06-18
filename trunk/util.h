@@ -1,5 +1,5 @@
 //
-// Utilities
+// Utility functions
 //
 // Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
 //
@@ -17,7 +17,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
-
 #ifndef BAYON_UTIL_H
 #define BAYON_UTIL_H
 
@@ -32,6 +31,8 @@
 #else
 #include <map>
 #endif
+
+namespace bayon {
 
 /**
  * typedef HashMap
@@ -51,6 +52,8 @@ struct HashMap {
 
 /**
  * Print debug messages
+ *
+ * @param msg debug message
  */
 #ifdef DEBUG
 #define show_log(msg) \
@@ -59,5 +62,20 @@ struct HashMap {
 #define show_log(msg) \
   do { } while (false);
 #endif
+
+/**
+ * Compare pair items
+ *
+ * @param left  item
+ * @param right item
+ * @return bool return true if left_value > right_value
+ */
+template<typename KeyType, typename ValueType>
+bool greater_pair(const std::pair<KeyType, ValueType> &left,
+                  const std::pair<KeyType, ValueType> &right) {
+  return left.second > right.second;
+}
+
+} /* namespace bayon */
 
 #endif

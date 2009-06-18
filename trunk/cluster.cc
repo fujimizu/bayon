@@ -20,6 +20,18 @@
 #include "cluster.h"
 
 namespace bayon {
+  
+/* Get sorted documents in clusters */
+void Cluster::sorted_documents(
+  std::vector<std::pair<Document *, double> > &pairs) {
+  Vector *centroid = centroid_vector();
+  for (size_t i = 0; i < documents_.size(); i++) {
+    double similarity = Vector::inner_product(*documents_[i]->feature(),
+                                              *centroid);
+    pairs.push_back(std::pair<Document *, double>(documents_[i], similarity));
+  }
+  std::sort(pairs.begin(), pairs.end(), greater_pair<Document *, double>);
+}
 
 /* choose documents randomly */
 void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const {
@@ -273,6 +285,17 @@ size_t Analyzer::do_clustering(const std::string &mode) {
   if      (mode == "kmeans") num = kmeans();
   else if (mode == "rb")     num = repeated_bisection();
   return num;
+}
+
+void Analyzer::cluster_similarities(Document *document,
+  std::vector<std::pair<size_t, double> > &similarities) {
+  for (size_t i = 0; i < clusters_.size(); i++) {
+    double similarity = Vector::inner_product(*clusters_[i]->centroid_vector(),
+                                              *document->feature());
+    if (similarity > 0) {
+      similarities.push_back(std::pair<size_t, double>(i, similarity));
+    }
+  }
 }
 
 } /* namespace bayon */

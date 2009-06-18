@@ -36,6 +36,7 @@ static void set_input_values();
 TestData input1, input2, normalized1, normalized2;
 std::vector<VecKey> sorted_keys;
 
+/* initialize vector */
 static void init_vector(Vector &vec, const TestData &m) {
   vec.clear();
   for (TestData::const_iterator it = m.begin(); it != m.end(); ++it) {
@@ -43,6 +44,7 @@ static void init_vector(Vector &vec, const TestData &m) {
   }
 }
 
+/* set test data */
 static void set_input_values() {
   input1[1] = 1.0;
   input1[2] = 2.0;
@@ -61,7 +63,7 @@ static void set_input_values() {
   input2[3] = 9.0;
 }
 
-}  // namespace
+} // namespace
 
 /* copy */
 TEST(VectorTest, CopyTest) {
@@ -189,6 +191,7 @@ TEST(VectorTest, AddVectorTest) {
   }
 }
 
+/* delete_vector */
 TEST(VectorTest, DeleteVectorTest) {
   Vector vec1, vec2;
   init_vector(vec1, input1);
@@ -247,6 +250,7 @@ TEST(VectorTest, JaccardTest) {
   }
 }
 
+/* main function */
 int main(int argc, char **argv) {
   set_input_values();
   testing::InitGoogleTest(&argc, argv);
