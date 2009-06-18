@@ -47,11 +47,13 @@ Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 コマンドラインツールを使用する際は、以下のオプションを指定して実行してください。クラスタリング結果は標準出力に出力されます。
 
 {{{
-% bayon -n num [-m method] file
-% bayon -l limit [-m method] file
+% bayon -n num [-m method | -p] file
+% bayon -l limit [-m method | -p] file
      -n, --number num    ... 分割するクラスタの数
      -l, --limit lim     ... 分割ポイントの閾値
      -m, --method method ... クラスタリング手法(rb, kmeans), デフォルトはrb
+     -p, --point         ... クラスタ中の各要素と中心との類似度を出力
+     -v, --version       ... システムのバージョンを表示
 }}}
 
 === クラスタ数を指定して実行する場合 ===
