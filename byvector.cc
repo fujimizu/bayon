@@ -29,7 +29,7 @@ void Vector::sorted_items(std::vector<VecItem> &items) const {
     item.second = it->second;
     items.push_back(item);
   }
-  std::sort(items.begin(), items.end(), _compare_items);
+  std::sort(items.begin(), items.end(), greater_pair<VecKey, VecValue>);
 }
 
 /* Normalize the vector */
@@ -178,11 +178,6 @@ double Vector::jaccard(const Vector &vec1, const Vector &vec2) {
     result = prod / denom;
     return std::isnan(result) ? 0.0 : result;
   }
-}
-
-/* Compare VecItem for sorting items in a vector */
-bool _compare_items(const VecItem &left, const VecItem &right) {
-  return left.second > right.second;
 }
 
 } /* namespace bayon */

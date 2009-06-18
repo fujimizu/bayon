@@ -200,6 +200,11 @@ class Cluster {
    * @return Vector * centroid vector
    */
   Vector *centroid_vector() {
+    if (documents_.size() > 0 && composite_.size() == 0) {
+      for (size_t i = 0; i < documents_.size(); i++) {
+        composite_.add_vector(*documents_[i]->feature());
+      }
+    }
     composite_.copy(centroid_);
     centroid_.normalize();
     return &centroid_;
@@ -215,6 +220,15 @@ class Cluster {
 
   const Vector *composite_vector() const {
     return &composite_;
+  }
+
+  /**
+   * Get documents
+   *
+   * @return std::vector<Document *> &  list of documents in the cluster
+   */
+  const std::vector<Document *> &documents() const  {
+    return documents_;
   }
 
   /**
@@ -238,6 +252,15 @@ class Cluster {
     composite_.delete_vector(*documents_[index]->feature());
     removed_[documents_[index]->id()] = true;
   }
+
+  /**
+   * Get sorted documents in clusters by similarity
+   * between documents and center (desc order)
+   *
+   * @param pairs pairs of document and similarity point
+   * @return void
+   */
+  void sorted_documents(std::vector<std::pair<Document *, double> > &pairs);
 
   /**
    * delete removed documents from internal container
@@ -272,15 +295,6 @@ class Cluster {
    * @return void
    */
   void set_sectioned_gain();
-
-  /**
-   * Get documents
-   *
-   * @return std::vector<Document *> &  list of documents in the cluster
-   */
-  const std::vector<Document *> &documents() const  {
-    return documents_;
-  }
 
   /**
    * Get sectioned clusters
@@ -327,7 +341,7 @@ class Cluster {
    */
   friend std::ostream & operator <<(std::ostream &os, Cluster &cluster) {
     for (size_t i = 0; i < cluster.documents_.size(); i++) {
-      if (i > 0) os << " ";
+      if (i > 0) os << "\t";
       os << cluster.documents_[i]->id();
     }
     return os;
@@ -413,6 +427,9 @@ class Analyzer {
 
   /**
    * Add a document
+   *
+   * @param doc document object
+   * @return void
    */
   void add_document(Document &doc) {
     Document *ptr = new Document(doc.id(), doc.feature());
@@ -423,6 +440,7 @@ class Analyzer {
   /**
    * Do clustering
    *
+   * @param mode clustering mode(rb, kmeans)
    * @return size_t number of clusters
    */
   size_t do_clustering(const std::string &mode);
@@ -460,6 +478,9 @@ class Analyzer {
   void set_eval_limit(double limit) {
     limit_eval_ = limit;
   }
+
+  void cluster_similarities(Document * document,
+    std::vector<std::pair<size_t, double> > &similarities);
 };
 
 
