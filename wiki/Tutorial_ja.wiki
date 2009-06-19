@@ -141,7 +141,7 @@ cluster_id2 \t document_id4 \t document_id5 \t document_id6 \t ...\n
 
 bayonでは、Repeated Bisectionと呼ばれるクラスタリング手法を採用しています。Repeated Bisectionはクラスタリングツール[[http://glaros.dtc.umn.edu/gkhome/views/cluto CLUTO]で使用されているクラスタリング手法で、データ集合を繰り返し2分割することでクラスタリングを実行します。K-means法などと比較して、高速に実行でき、また精度も良好なようです。
 
-より詳しく説明しますと、 Repeated Bisectionは以下の1-4の処理を実行し、繰り返しクラスタを2分割していくことでクラスタリンを行います。
+より詳しく説明しますと、 Repeated Bisectionは以下の1-4の処理を実行し、繰り返しクラスタを2分割していくことでクラスタリングを行います。
 
 
  # 分割するクラスタを1つ選択する(一番クラスタ内のまとまりが悪いものを選択)
