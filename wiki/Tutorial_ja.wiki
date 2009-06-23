@@ -1,10 +1,10 @@
-_Tutorial for Bayon in Japanese_
+_Tutorial for bayon in Japanese_
 
 <wiki:toc />
 
 = はじめに =
 
-Bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・クラスタリング データクラスタリング]ツールで、現在は Repeated Bisection法 と [http://ja.wikipedia.org/wiki/K-means%E6%B3%95 K-means法] に対応しています。
+bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・クラスタリング データクラスタリング]ツールで、現在は Repeated Bisection法 と [http://ja.wikipedia.org/wiki/K-means%E6%B3%95 K-means法] に対応しています。
 
 シンプルな構成で、かつ大規模なデータに対しても高速に実行できるところが特徴です。大量のデータを俯瞰したいときに、似た者同士のグループにサクッと分けて確認する、といったユースケースに利用できます。
 
