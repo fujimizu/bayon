@@ -25,6 +25,7 @@
 #include "byvector.h"
 #include "cluster.h"
 #include "document.h"
+#include "util.h"
 
 namespace bayon {
 
@@ -58,6 +59,11 @@ class Analyzer {
    * clustering result
    */
   std::vector<Cluster *> clusters_;
+
+  /**
+   * random number generator
+   */
+  Random random_;
 
   /**
    * index of cluster
@@ -100,6 +106,14 @@ class Analyzer {
   inline double refined_vector_value(const Vector &composite,
                                      const Vector &vec, int sign);
 
+  /**
+   * Count document frequency(DF) of words
+   *
+   * @param df document frequency
+   * @return void
+   */
+  void count_df(HashMap<VecKey, size_t>::type &df) const;
+
  public:
   /**
    * Constructor
@@ -132,6 +146,13 @@ class Analyzer {
     doc.set_feature(NULL);
     documents_.push_back(ptr);
   }
+
+  /**
+   * Calc inverse document frequency(IDF)
+   *
+   * @return void
+   */
+  void idf();
 
   /**
    * Do clustering
@@ -173,6 +194,16 @@ class Analyzer {
    */
   void set_eval_limit(double limit) {
     limit_eval_ = limit;
+  }
+
+  /**
+   * Set seed of random number generator
+   *
+   * @param seed seed
+   * @return void
+   */
+  void set_random_seed(unsigned int seed) {
+    random_.set_seed(seed);
   }
 };
 

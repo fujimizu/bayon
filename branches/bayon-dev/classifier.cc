@@ -21,6 +21,7 @@
 
 namespace bayon {
 
+/* Get list of id and points of similar vectors */
 void Classifier::similar_vectors(
   const Vector &vec, 
   std::vector<std::pair<VectorId, double> > &items) const {

@@ -65,8 +65,80 @@ typedef int32_t LongType;
 /********************************************************************
  * Constatns
  *******************************************************************/
-const LongType EMPTY_KEY   = -1;
-const LongType DELETED_KEY = -2;
+/* empty key for google::dense_hash_map */
+const LongType EMPTY_KEY        = -1;
+
+/* deleted key for google::dense_hash_map */
+const LongType DELETED_KEY      = -2;
+
+/********************************************************************
+ * Classes
+ *******************************************************************/
+/**
+ * Random number generator class
+ */
+class Random {
+ private:
+  /* seed */
+  unsigned int seed_;
+
+  /* default seed value for random number generator */
+  static const unsigned int DEFAULT_SEED = 1;
+
+ public:
+  /**
+   * Constructor
+   */
+  Random() : seed_(DEFAULT_SEED) { }
+
+  /**
+   * Constructor
+   *
+   * @param seed seed of rand
+   */
+  Random(unsigned int seed) : seed_(seed) {
+#if (_POSIX_C_SOURCE < 1) && !defined(_XOPEN_SOURCE) && !defined(_POSIX_SOURCE)
+    srand(seed_);
+#endif
+  }
+
+  /**
+   * Set seed
+   *
+   * @param seed seed
+   * @return void
+   */
+  void set_seed(unsigned int seed) {
+    seed_ = seed;
+#if (_POSIX_C_SOURCE < 1) && !defined(_XOPEN_SOURCE) && !defined(_POSIX_SOURCE)
+    srand(seed_);
+#endif
+  }
+
+  /**
+   * Set random number [0, RAND_MAX]
+   *
+   * @return int random number
+   */
+  int randint() {
+#if (_POSIX_C_SOURCE >= 1) || defined(_XOPEN_SOURCE) || defined(_POSIX_SOURCE)
+    return rand_r(&seed_);
+#else
+    return rand();
+#endif
+  }
+
+  /**
+   * get random number [0, max)
+   *
+   * @param max max random number
+   * @return unsigned int random number
+   */
+  unsigned int operator()(unsigned int max) {
+    double ratio =  static_cast<double>(randint()) / static_cast<double>(RAND_MAX);
+    return static_cast<unsigned int>(ratio * max);
+  }
+};
 
 /********************************************************************
  * Macro and Functions

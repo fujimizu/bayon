@@ -84,9 +84,7 @@ class Vector {
    * @return void
    */
   void set_bucket_count(size_t n) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-    vec_.resize(n);
-#elif HAVE_EXT_HASH_MAP
+#if defined(HAVE_GOOGLE_DENSE_HASH_MAP) || defined(HAVE_EXT_HASH_MAP)
     vec_.resize(n);
 #endif
   }
@@ -149,9 +147,18 @@ class Vector {
   /**
    * Get pointer of internal hash_map object
    *
-   * @return VecHashMap* pointer of hash_map object
+   * @return const VecHashMap* pointer of hash_map object
    */
   const VecHashMap *hash_map() const {
+    return &vec_;
+  }
+
+  /**
+   * Get pointer of internal hash_map object
+   *
+   * @return VecHashMap* pointer of hash_map object
+   */
+  VecHashMap *hash_map() {
     return &vec_;
   }
 

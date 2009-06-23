@@ -63,6 +63,11 @@ class Cluster {
   std::vector<Cluster *> sectioned_clusters_;
 
   /**
+   * Pointer of random generator
+   */
+  Random *random_;
+
+  /**
    * sectioned gain
    */
   double sectioned_gain_;
@@ -245,6 +250,10 @@ class Cluster {
    * @return void
    */
   void section(size_t nclusters);
+
+  void set_random_generator(Random *r) {
+    random_ = r;
+  }
 
   /**
    * output stream

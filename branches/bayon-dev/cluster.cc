@@ -41,7 +41,7 @@ void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const
   if (siz < ndocs) ndocs = siz;
   size_t count = 0;
   while (count < ndocs) {
-    size_t index = rand() % siz;
+    size_t index = random_->randint() % siz;
     if (choosed.find(index) == choosed.end()) {
       choosed.insert(std::pair<size_t, bool>(index, true));
       docs.push_back(documents_[index]);
@@ -58,7 +58,7 @@ void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) const 
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;
   
-  index = rand() % siz; // initial center
+  index = random_->randint() % siz; // initial center
   docs.push_back(documents_[index]);
   ++count;
   double potential = 0.0;
@@ -71,7 +71,8 @@ void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) const 
 
   // choose each center
   while (count < ndocs) {
-    double randval = (double)rand() / RAND_MAX * potential;
+    double randval = static_cast<double>(random_->randint())
+                     / RAND_MAX * potential;
     for (index = 0; index < documents_.size(); index++) {
       double dist = closest[index];
       if (randval <= dist) break;
@@ -117,6 +118,7 @@ void Cluster::section(size_t nclusters) {
   choose_smartly(nclusters, centroids);
   for (size_t i = 0; i < centroids.size(); i++) {
     Cluster *cluster = new Cluster();
+    cluster->set_random_generator(random_);
     sectioned_clusters_.push_back(cluster);
   }
 

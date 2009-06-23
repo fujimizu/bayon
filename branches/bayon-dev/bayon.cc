@@ -24,8 +24,13 @@
 #include <utility>
 #include "config.h"
 #include "analyzer.h"
+#include "classifier.h"
 
+/* typedef */
 typedef std::map<std::string, double> Feature;
+
+/* constants */
+const std::string DUMMY_OPTARG = "dummy";
 
 /* global variables */
 const std::string DELIMITER("\t");
@@ -39,6 +44,9 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<int, std::string> &docidmap);
 static int parse_options(int argc, char **argv,
                          std::map<std::string, std::string> &option);
+static void show_clusters(bayon::Analyzer &analyzer,
+                          std::map<int, std::string> &docidmap,
+                          bool show_point);
 static void show_version();
 
 /* main function */
@@ -58,46 +66,44 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  srand((unsigned int)time(NULL));
   bayon::Analyzer analyzer;
   std::map<int, std::string> docidmap;
 
+  // set seed of random number generator
+  if (option.find("random") != option.end()) {
+    analyzer.set_random_seed(static_cast<unsigned int>(time(NULL)));
+  }
+  
+  // read input file
   std::ifstream ifs(argv[0]);
   if (!ifs) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
     return 1;
   }
   add_documents(ifs, analyzer, docidmap);
+  analyzer.idf();
+
+  // set condition
   if (option.find("number") != option.end()) {
     analyzer.set_cluster_size_limit(atoi(option["number"].c_str()));
   } else if (option.find("limit") != option.end()) {
     analyzer.set_eval_limit(atof(option["limit"].c_str()));
   }
+  // set clustering method
   bayon::clustering_method method = bayon::REPEATED_BISECTION; // default
   if (option.find("method") != option.end()) {
     if (option["method"] == "kmeans") method = bayon::KMEANS;
     else if (option["method"] == "rb") method = bayon::REPEATED_BISECTION;
   }
+
   analyzer.do_clustering(method);
-
-  bayon::Cluster cluster;
-  size_t cluster_count = 1;
-  while (analyzer.get_next_result(cluster)) {
-    if (cluster.size() > 0) {
-      std::vector<std::pair<bayon::Document *, double> > pairs;
-      cluster.sorted_documents(pairs);
-
-      std::cout << cluster_count++ << DELIMITER;
-      for (size_t i = 0; i < pairs.size(); i++) {
-        if (i > 0) std::cout << DELIMITER;
-        std::cout << docidmap[pairs[i].first->id()];
-        if (option.find("point") != option.end())
-          std::cout << DELIMITER << pairs[i].second;
-      }
-      std::cout << std::endl;
-    }
+  // show clustering result
+  if (option.find("point") != option.end()) {
+    show_clusters(analyzer, docidmap, true);
+  } else {
+    show_clusters(analyzer, docidmap, false);
   }
-  
+
   return 0;
 }
 
@@ -106,12 +112,13 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": simple and fast clustering tool" << std::endl
     << "Usage:" << std::endl
-    << " " << progname << " -n num [-m method] file" << std::endl
-    << " " << progname << " -l limit [-m method] file" << std::endl
+    << " " << progname << " -n num [-m method | -p | -r] file" << std::endl
+    << " " << progname << " -l limit [-m method | -p | -r] file" << std::endl
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
     << "    -p, --point         ... output similairty point" << std::endl
+    << "    -r, --random        ... set seed of random number generator" << std::endl
     << "    -v, --version       ... show the version and exit" << std::endl;
 }
 
@@ -180,7 +187,7 @@ static int parse_options(int argc, char **argv,
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:pv")) != -1) {
+  while ((opt = getopt(argc, argv, "n:l:m:prv")) != -1) {
     switch (opt) {
     case 'n': // number
       option["number"] = optarg;
@@ -192,16 +199,40 @@ static int parse_options(int argc, char **argv,
       option["method"] = optarg;
       break;
     case 'p': // point
-      option["point"] = "dummy";
+      option["point"] = DUMMY_OPTARG;
+      break;
+    case 'r': // random
+      option["random"] = DUMMY_OPTARG;
       break;
     case 'v': // version
-      option["version"] = "dummy";
+      option["version"] = DUMMY_OPTARG;
       break;
     default:
       break;
     }
   }
   return optind;
+}
+
+static void show_clusters(bayon::Analyzer &analyzer,
+                          std::map<int, std::string> &docidmap,
+                          bool show_point) {
+  bayon::Cluster cluster;
+  size_t cluster_count = 1;
+  while (analyzer.get_next_result(cluster)) {
+    if (cluster.size() > 0) {
+      std::vector<std::pair<bayon::Document *, double> > pairs;
+      cluster.sorted_documents(pairs);
+
+      std::cout << cluster_count++ << DELIMITER;
+      for (size_t i = 0; i < pairs.size(); i++) {
+        if (i > 0) std::cout << DELIMITER;
+        std::cout << docidmap[pairs[i].first->id()];
+        if (show_point) std::cout << DELIMITER << pairs[i].second;
+      }
+      std::cout << std::endl;
+    }
+  }
 }
 
 /* show version */

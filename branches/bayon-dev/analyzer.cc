@@ -25,6 +25,7 @@ namespace bayon {
 /* Do repeated bisection clustering */
 size_t Analyzer::repeated_bisection() {
   Cluster *cluster = new Cluster();
+  cluster->set_random_generator(&random_);
   for (size_t i = 0; i < documents_.size(); i++) {
     cluster->add_document(documents_[i]);
   }
@@ -90,7 +91,7 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
         items.push_back(std::pair<size_t, size_t>(i, j));
       }
     }
-    random_shuffle(items.begin(), items.end());
+    random_shuffle(items.begin(), items.end(), random_);
 
     bool changed = false;
     for (size_t i = 0; i < items.size(); i++) {
@@ -146,9 +147,36 @@ double Analyzer::refined_vector_value(const Vector &composite,
   return sum;
 }
 
+/* Count document frequency of words */
+void Analyzer::count_df(HashMap<VecKey, size_t>::type &df) const {
+  df.set_empty_key(EMPTY_KEY);
+  for (size_t i = 0; i < documents_.size(); i++) {
+    VecHashMap *hmap = documents_[i]->feature()->hash_map();
+    for (VecHashMap::iterator it = hmap->begin();
+         it != hmap->end(); ++it) {
+      if (df.find(it->first) == df.end()) df[it->first] = 1;
+      else                                df[it->first]++;
+    }
+  }
+}
+
+/* Calc inverse document frequency(IDF) */
+void  Analyzer::idf() {
+  HashMap<VecKey, size_t>::type df;
+  count_df(df);
+  size_t ndocs = documents_.size();
+  for (size_t i = 0; i < documents_.size(); i++) {
+    VecHashMap *hmap = documents_[i]->feature()->hash_map();
+    for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
+      (*hmap)[it->first] = it->second * log((double)ndocs / (df[it->first] + 1));
+    }
+  }
+}
+
 /* Do k-means clustering */
 size_t Analyzer::kmeans() {
   Cluster *cluster = new Cluster;
+  cluster->set_random_generator(&random_);
   for (size_t i = 0; i < documents_.size(); i++) {
     cluster->add_document(documents_[i]);
   }
