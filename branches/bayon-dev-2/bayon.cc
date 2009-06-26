@@ -25,7 +25,11 @@
 #include "config.h"
 #include "cluster.h"
 
+/* typdef */
 typedef std::map<std::string, double> Feature;
+
+/* constants */
+const std::string DUMMY_OPTARG = "dummy";
 
 /* global variables */
 const std::string DELIMITER("\t");
@@ -34,11 +38,14 @@ const size_t MAX_VECTOR_ITEM = 50;
 /* function prototypes */
 int main(int argc, char **argv);
 static void usage(std::string progname);
-static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max);
-static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
-                            std::map<int, std::string> &docidmap);
 static int parse_options(int argc, char **argv,
                          std::map<std::string, std::string> &option);
+static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max);
+static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
+                            std::map<bayon::DocumentId, std::string> &docidmap);
+static void show_clusters(bayon::Analyzer &analyzer,
+                          std::map<bayon::DocumentId, std::string> &docidmap,
+                          bool show_point);
 static void show_version();
 
 /* main function */
@@ -60,7 +67,7 @@ int main(int argc, char **argv) {
 
   srand((unsigned int)time(NULL));
   bayon::Analyzer analyzer;
-  std::map<int, std::string> docidmap;
+  std::map<bayon::DocumentId, std::string> docidmap;
 
   std::ifstream ifs(argv[0]);
   if (!ifs) {
@@ -77,24 +84,9 @@ int main(int argc, char **argv) {
   if (option.find("method") != option.end()) method = option["method"];
   analyzer.do_clustering(method);
 
-  bayon::Cluster cluster;
-  size_t cluster_count = 1;
-  while (analyzer.get_next_result(cluster)) {
-    if (cluster.size() > 0) {
-      std::vector<std::pair<bayon::Document *, double> > pairs;
-      cluster.sorted_documents(pairs);
+  bool flag_point = (option.find("point") != option.end()) ? true : false;
+  show_clusters(analyzer, docidmap, flag_point);
 
-      std::cout << cluster_count++ << DELIMITER;
-      for (size_t i = 0; i < pairs.size(); i++) {
-        if (i > 0) std::cout << DELIMITER;
-        std::cout << docidmap[pairs[i].first->id()];
-        if (option.find("point") != option.end())
-          std::cout << DELIMITER << pairs[i].second;
-      }
-      std::cout << std::endl;
-    }
-  }
-  
   return 0;
 }
 
@@ -110,6 +102,36 @@ static void usage(std::string progname) {
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
     << "    -p, --point         ... output similairty point" << std::endl
     << "    -v, --version       ... show the version and exit" << std::endl;
+}
+
+/* parse command line options */
+static int parse_options(int argc, char **argv,
+                         std::map<std::string, std::string> &option) {
+  int opt;
+  extern char *optarg;
+  extern int optind;
+  while ((opt = getopt(argc, argv, "n:l:m:pv")) != -1) {
+    switch (opt) {
+    case 'n': // number
+      option["number"] = optarg;
+      break;
+    case 'l': // limit
+      option["limit"] = optarg;
+      break;
+    case 'm': // method
+      option["method"] = optarg;
+      break;
+    case 'p': // point
+      option["point"] = DUMMY_OPTARG;
+      break;
+    case 'v': // version
+      option["version"] = DUMMY_OPTARG;
+      break;
+    default:
+      break;
+    }
+  }
+  return optind;
 }
 
 /* parse tsv format string */
@@ -141,10 +163,10 @@ static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max) {
 
 /* read input dbm and add documents to analyzer */
 static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
-                            std::map<int, std::string> &docidmap) {
-  std::map<std::string, int> str2int;
-  int item_id = 1;
-  int doc_id = 1;
+                            std::map<bayon::DocumentId, std::string> &docidmap) {
+  std::map<std::string, bayon::VecKey> str2num;
+  bayon::VecKey item_id = 1;
+  bayon::DocumentId doc_id = 1;
 
   std::string line;
   while (std::getline(ifs, line)) {
@@ -160,10 +182,10 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
       parse_tsv(line, feature, MAX_VECTOR_ITEM);
 
       for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
-        if (str2int.find(it->first) == str2int.end()) {
-          str2int[it->first] = item_id++;
+        if (str2num.find(it->first) == str2num.end()) {
+          str2num[it->first] = item_id++;
         }
-        doc.add_feature(str2int[it->first], it->second);
+        doc.add_feature(str2num[it->first], it->second);
       }
       analyzer.add_document(doc);
     }
@@ -171,34 +193,25 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
   return doc_id;
 }
 
-/* parse command line options */
-static int parse_options(int argc, char **argv,
-                         std::map<std::string, std::string> &option) {
-  int opt;
-  extern char *optarg;
-  extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:pv")) != -1) {
-    switch (opt) {
-    case 'n': // number
-      option["number"] = optarg;
-      break;
-    case 'l': // limit
-      option["limit"] = optarg;
-      break;
-    case 'm': // method
-      option["method"] = optarg;
-      break;
-    case 'p': // point
-      option["point"] = "dummy";
-      break;
-    case 'v': // version
-      option["version"] = "dummy";
-      break;
-    default:
-      break;
+static void show_clusters(bayon::Analyzer &analyzer,
+                          std::map<bayon::DocumentId, std::string> &docidmap,
+                          bool show_point) {
+  bayon::Cluster cluster;
+  size_t cluster_count = 1;
+  while (analyzer.get_next_result(cluster)) {
+    if (cluster.size() > 0) {
+      std::vector<std::pair<bayon::Document *, double> > pairs;
+      cluster.sorted_documents(pairs);
+
+      std::cout << cluster_count++ << DELIMITER;
+      for (size_t i = 0; i < pairs.size(); i++) {
+        if (i > 0) std::cout << DELIMITER;
+        std::cout << docidmap[pairs[i].first->id()];
+        if (show_point) std::cout << DELIMITER << pairs[i].second;
+      }
+      std::cout << std::endl;
     }
   }
-  return optind;
 }
 
 /* show version */

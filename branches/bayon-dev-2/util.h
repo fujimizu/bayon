@@ -23,7 +23,7 @@
 #include <iostream>
 #include "config.h"
 
-// include hash_map header
+/* include hash_map header */
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP
 #include <google/dense_hash_map>
 #elif HAVE_EXT_HASH_MAP
@@ -32,8 +32,21 @@
 #include <map>
 #endif
 
+/* Print debug messages */
+#ifdef DEBUG
+#define show_log(msg) \
+  do { std::cerr << "[log] " << msg << std::endl; } while (false);
+#else
+#define show_log(msg) \
+  do { } while (false);
+#endif
+
+
 namespace bayon {
 
+/********************************************************************
+ * Typedef
+ *******************************************************************/
 /**
  * typedef HashMap
  *
@@ -50,18 +63,31 @@ struct HashMap {
 #endif
 };
 
+
+/********************************************************************
+ * Constatns
+ *******************************************************************/
+const long EMPTY_KEY   = -1;  /* empty key for google::dense_hash_map */
+const long DELETED_KEY = -2;  /* deleted key for google::dense_hash_map */
+
+
+/********************************************************************
+ * Functions
+ *******************************************************************/
 /**
- * Print debug messages
+ * Initialize hash_map object (for google::dense_hash_map)
  *
- * @param msg debug message
+ * @param empty_key key of empty entry
+ * @param deleted_key key of deleted entry
+ * @return void
  */
-#ifdef DEBUG
-#define show_log(msg) \
-  do { std::cerr << "[log] " << msg << std::endl; } while (false);
-#else
-#define show_log(msg) \
-  do { } while (false);
+template<typename KeyType, typename HashType>
+void init_hash_map(const KeyType &empty_key, HashType &hmap) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.max_load_factor(0.9);
+  hmap.set_empty_key(empty_key);
 #endif
+}
 
 /**
  * Compare pair items

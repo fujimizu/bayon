@@ -70,10 +70,6 @@ check : $(TESTCOMMANDFILES)
 	@printf '# Checking completed.\n'
 	@printf '#================================================================\n'
 
-clean :
-	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
-	  *.o *~ a.out gmon.out leak.log
-
 check-valgrind : $(COMMANDFILES)
 	make RUNCMD="valgrind --tool=memcheck --log-fd=1" check > leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 data/test1.tsv >> leak.log
@@ -81,6 +77,10 @@ check-valgrind : $(COMMANDFILES)
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -m kmeans data/test1.tsv >> leak.log
 	grep ERROR leak.log
 	grep 'at exit' leak.log
+
+clean :
+	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
+	  *.o *~ a.out gmon.out leak.log
 
 untabify :
 	ls *.cc *.h | while read name ; \
@@ -104,6 +104,7 @@ uninstall :
 
 dist :
 	make distclean
+	rm -rf .svn; rm -rf data/.svn
 	cd .. && tar cvf - $(PACKAGEDIR) | gzip -c > $(PACKAGETGZ)
 	sync ; sync
 

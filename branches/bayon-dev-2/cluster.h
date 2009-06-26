@@ -32,11 +32,7 @@
 namespace bayon {
 
 /* typedef */
-typedef int32_t DocumentId;  // Document ID
-//typedef int64_t DocumentId;  // Document ID
-
-/* constants */
-const DocumentId DOCUMENT_ID_EMPTY = -1;
+typedef long DocumentId;  // Document ID
 
 
 /*********************************************************************
@@ -48,12 +44,28 @@ class Document {
   Vector *feature_;
 
  public:
+  /**
+   * Constructor
+   *
+   * @param id document id
+   */
   Document(DocumentId id) : id_(id) {
     feature_ = new Vector;
   }
 
+  /**
+   * Constructor
+   *
+   * @param id document id
+   * @param feature features of document
+   */
   Document(DocumentId id, Vector *feature) : id_(id), feature_(feature) { }
 
+  /**
+   * Destructor
+   *
+   * if feature_ is null, delete it
+   */
   ~Document() {
     if (feature_) delete feature_;
   }
@@ -155,15 +167,11 @@ class Cluster {
 
  public:
   Cluster() : sectioned_gain_(0) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-    removed_.set_empty_key(DOCUMENT_ID_EMPTY);
-#endif
+    init_hash_map(EMPTY_KEY, removed_);
   }
 
   Cluster(size_t n) : sectioned_gain_(0) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-    removed_.set_empty_key(DOCUMENT_ID_EMPTY);
-#endif
+    init_hash_map(EMPTY_KEY, removed_);
     composite_.set_bucket_count(n);
 //    centroid_.set_bucket_count(n);
 //    removed_.resize(n);

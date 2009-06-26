@@ -36,9 +36,7 @@ void Cluster::sorted_documents(
 /* choose documents randomly */
 void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const {
   HashMap<size_t, bool>::type choosed(ndocs);
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-  choosed.set_empty_key(documents_.size());
-#endif
+  init_hash_map(EMPTY_KEY, choosed);
   size_t siz = size();
   if (siz < ndocs) ndocs = siz;
   size_t count = 0;
@@ -55,9 +53,7 @@ void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const
 /* choose documents smartly */
 void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) const {
   HashMap<size_t, double>::type closest(docs.size());
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-  closest.set_empty_key(documents_.size());
-#endif
+  init_hash_map(EMPTY_KEY, closest);
   size_t siz = size();
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;

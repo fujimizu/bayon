@@ -17,7 +17,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
-
 #include <map>
 #include <gtest/gtest.h>
 #include "byvector.h"
@@ -33,7 +32,7 @@ static void init_vector(Vector &vec, const TestData &m);
 static void set_input_values();
 
 /* global variables */
-TestData input1, input2, normalized1, normalized2;
+TestData input1, input2, input3, normalized1, normalized2;
 std::vector<VecKey> sorted_keys;
 
 /* initialize vector */
@@ -61,6 +60,10 @@ static void set_input_values() {
   input2[1] = 3.0;
   input2[2] = 6.0;
   input2[3] = 9.0;
+
+  input3[1] = 3.0;
+  input3[2] = 2.0;
+  input3[3] = 1.0;
 }
 
 } // namespace
@@ -236,7 +239,7 @@ TEST(VectorTest, CosineTest) {
 TEST(VectorTest, JaccardTest) {
   Vector vec1, vec2;
   init_vector(vec1, input1);
-  init_vector(vec2, input2);
+  init_vector(vec2, input3);
   double jaccard = Vector::jaccard(vec1, vec2);
 
   double prod = Vector::inner_product(vec1, vec2);
