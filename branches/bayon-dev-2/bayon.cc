@@ -66,8 +66,11 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  unsigned int seed = (unsigned int)time(NULL);
-  bayon::Analyzer analyzer(seed);
+  bayon::Analyzer analyzer;
+  if (option.find("seed") != option.end()) {
+    unsigned int seed = static_cast<unsigned int>(atoi(option["seed"].c_str()));
+    analyzer.set_seed(seed);
+  }
   std::map<bayon::DocumentId, std::string> docidmap;
 
   std::ifstream ifs(argv[0]);
@@ -96,12 +99,13 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": simple and fast clustering tool" << std::endl
     << "Usage:" << std::endl
-    << " " << progname << " -n num [-m method] file" << std::endl
-    << " " << progname << " -l limit [-m method] file" << std::endl
+    << " " << progname << " -n num [-m method] [-p] [-s seed] file" << std::endl
+    << " " << progname << " -l limit [-m method] [-p] [-s seed] file" << std::endl
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
     << "    -p, --point         ... output similairty point" << std::endl
+    << "    -s, --seed seed     ... set seed for random number generator" << std::endl
     << "    -v, --version       ... show the version and exit" << std::endl;
 }
 
@@ -111,7 +115,7 @@ static int parse_options(int argc, char **argv,
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:pv")) != -1) {
+  while ((opt = getopt(argc, argv, "n:l:m:ps:v")) != -1) {
     switch (opt) {
     case 'n': // number
       option["number"] = optarg;
@@ -124,6 +128,9 @@ static int parse_options(int argc, char **argv,
       break;
     case 'p': // point
       option["point"] = DUMMY_OPTARG;
+      break;
+    case 's': // point
+      option["seed"] = optarg;
       break;
     case 'v': // version
       option["version"] = DUMMY_OPTARG;

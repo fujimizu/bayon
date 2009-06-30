@@ -14,12 +14,13 @@ Install:
   $ make install
 
 Usage:
-  % bayon -n num [-m method] file
-  % bayon -l limit [-m method] file
+  % bayon -n num [-m method] [-p] [-s seed] file
+  % bayon -l limit [-m method] [-p] [-s seed] file
        -n, --number num    ... number of clusters
        -l, --limit lim     ... limit value of cluster bisection
        -m, --method method ... clustering method(rb, kmeans), default:rb
        -p, --point         ... output similairty point
+       -s, --seed seed     ... set seed for random number generator
        -v, --version       ... show the version and exit
   
   Example: (number_of_output_clusters = 100)
