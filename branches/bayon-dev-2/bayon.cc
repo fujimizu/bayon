@@ -24,6 +24,7 @@
 #include <utility>
 #include "config.h"
 #include "cluster.h"
+#include "util.h"
 
 /* typdef */
 typedef std::map<std::string, double> Feature;
@@ -65,8 +66,8 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  srand((unsigned int)time(NULL));
-  bayon::Analyzer analyzer;
+  unsigned int seed = (unsigned int)time(NULL);
+  bayon::Analyzer analyzer(seed);
   std::map<bayon::DocumentId, std::string> docidmap;
 
   std::ifstream ifs(argv[0]);

@@ -165,12 +165,17 @@ class Cluster {
    */
   double sectioned_gain_;
 
+  /**
+   * seed for random number generator
+   */
+  unsigned int seed_;
+
  public:
-  Cluster() : sectioned_gain_(0) {
+  Cluster() : sectioned_gain_(0), seed_(DEFAULT_SEED) {
     init_hash_map(EMPTY_KEY, removed_);
   }
 
-  Cluster(size_t n) : sectioned_gain_(0) {
+  Cluster(size_t n) : sectioned_gain_(0), seed_(DEFAULT_SEED) {
     init_hash_map(EMPTY_KEY, removed_);
     composite_.set_bucket_count(n);
 //    centroid_.set_bucket_count(n);
@@ -191,6 +196,16 @@ class Cluster {
     removed_.clear();
     sectioned_clusters_.clear();
     sectioned_gain_ = 0.0;
+  }
+
+  /**
+   * Set seed for random number generator
+   *
+   * @param seed seed
+   * @return void
+   */
+  void set_seed(unsigned int seed) {
+    seed_ = seed;
   }
 
   /**
@@ -324,7 +339,7 @@ class Cluster {
    * @param docs documents
    * @return void
    */
-  void choose_randomly(size_t ndocs, std::vector<Document *> &docs) const;
+  void choose_randomly(size_t ndocs, std::vector<Document *> &docs);
 
   /**
    * Choose documents smartly
@@ -333,7 +348,7 @@ class Cluster {
    * @param docs documents
    * @return void
    */
-  void choose_smartly(size_t ndocs, std::vector<Document *> &docs) const;
+  void choose_smartly(size_t ndocs, std::vector<Document *> &docs);
 
   /**
    * Section the cluster
@@ -393,6 +408,11 @@ class Analyzer {
   double limit_eval_;
 
   /**
+   * seed for random number generator
+   */
+  unsigned int seed_;
+
+  /**
    * Do repeated bisection clustering
    *
    * @return size_t number of clusters
@@ -419,8 +439,23 @@ class Analyzer {
                                      const Vector &vec, int sign);
 
  public:
-  Analyzer() : cluster_index_(0), limit_nclusters_(0), limit_eval_(-1.0) { }
+  /**
+   * Constructor
+   */
+  Analyzer() : cluster_index_(0), limit_nclusters_(0), limit_eval_(-1.0),
+               seed_(DEFAULT_SEED) { }
 
+ /**
+  * Constructor
+  *
+  * @param seed seed for random number generator
+  */
+  Analyzer(unsigned int seed) : cluster_index_(0), limit_nclusters_(0),
+                                limit_eval_(-1.0), seed_(seed) { }
+
+ /**
+  * Destructor
+  */
   ~Analyzer() {
     for (size_t i = 0; i < documents_.size(); i++) {
       delete documents_[i];
@@ -431,6 +466,16 @@ class Analyzer {
       }
       delete clusters_[i];
     }
+  }
+
+  /**
+   * Set seed for random number generator
+   *
+   * @param seed seed
+   * @return void
+   */
+  void set_seed(unsigned int seed) {
+    seed_ = seed;
   }
 
   /**

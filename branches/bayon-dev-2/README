@@ -19,6 +19,8 @@ Usage:
        -n, --number num    ... number of clusters
        -l, --limit lim     ... limit value of cluster bisection
        -m, --method method ... clustering method(rb, kmeans), default:rb
+       -p, --point         ... output similairty point
+       -v, --version       ... show the version and exit
   
   Example: (number_of_output_clusters = 100)
   % bayon -n 100 input.tsv > result.tsv

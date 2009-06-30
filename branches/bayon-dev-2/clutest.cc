@@ -32,44 +32,21 @@ namespace {
 
 std::vector<Document *> documents;
 
+const size_t NUM_DOCUMENT   = 10;
+const size_t NUM_FEATURE    = 5;
+const size_t MAX_FEATURE_ID = 10;
+const double MAX_POINT      = 10.0;
+
 void init_documents() {
-  Document *d1 = new Document(1);
-  d1->add_feature(1, 1.0);
-  d1->add_feature(2, 1.0);
-  d1->add_feature(3, 1.0);
-  d1->feature()->normalize();
-  documents.push_back(d1);
-
-  Document *d2 = new Document(2);
-  d2->add_feature(1, 1.0);
-  d2->add_feature(3, 1.0);
-  d2->feature()->normalize();
-  documents.push_back(d2);
-  
-  Document *d3 = new Document(3);
-  d3->add_feature(1, 1.0);
-  d3->add_feature(2, 1.0);
-  d3->feature()->normalize();
-  documents.push_back(d3);
-
-  Document *d4 = new Document(4);
-  d4->add_feature(4, 1.0);
-  d4->add_feature(5, 1.0);
-  d4->add_feature(6, 1.0);
-  d4->feature()->normalize();
-  documents.push_back(d4);
-
-  Document *d5 = new Document(5);
-  d5->add_feature(4, 1.0);
-  d5->add_feature(6, 1.0);
-  d5->feature()->normalize();
-  documents.push_back(d5);
-
-  Document *d6 = new Document(6);
-  d6->add_feature(4, 1.0);
-  d6->add_feature(5, 1.0);
-  d6->feature()->normalize();
-  documents.push_back(d6);
+  for (size_t i = 0; i < NUM_DOCUMENT; i++) {
+    Document *doc = new Document(i);
+    for (size_t j = 0; j < NUM_FEATURE; j++) {
+      size_t id = rand() % MAX_FEATURE_ID;
+      double point = rand() / (double)RAND_MAX * MAX_POINT;
+      doc->add_feature(id, point);
+    }
+    documents.push_back(doc);
+  }
 }
 
 void delete_documents() {
@@ -85,20 +62,58 @@ void set_cluster(Cluster &cluster) {
   }
 }
 
-TEST(DocumentTest, SizeTest) {
-  init_documents();
-  Document doc(1);
-  size_t max = 10;
-  for (size_t i = 0; i < max; i++) {
-    doc.add_feature(i, i * 2.0);
-  }
-  EXPECT_EQ(doc.feature()->size(), 10);
-
-  doc.clear();
-  EXPECT_EQ(doc.feature()->size(), 0);
-  delete_documents();
+/* Document::id */
+TEST(DocumentTest, IdTest) {
+  DocumentId id = 100;
+  Document doc(id);
+  EXPECT_EQ(doc.id(), id);
 }
 
+/* Document::add_feature */
+TEST(DocumentTest, AddFeatureTest) {
+  Document doc(1);
+  std::vector<std::pair<VecKey, VecValue> > items;
+  size_t max = 10;
+  for (size_t i = 0; i < max; i++) {
+    VecKey key = i;
+    VecValue val = i * 10;
+    items.push_back(std::pair<VecKey, VecValue>(key, val));
+    doc.add_feature(key, val);
+  }
+
+  for (size_t i = 0; i < max; i++) {
+    EXPECT_EQ(doc.feature()->get(items[i].first), items[i].second);
+  }
+}
+
+/* Document::set_feature */
+TEST(DocumentTest, SetFeatureTest) {
+  Document doc(1);
+  Vector *vec = new Vector();
+  size_t max = 10;
+  for (size_t i = 0; i < max; i++) vec->set(i, i * 10);
+  delete doc.feature();
+  doc.set_feature(vec);
+
+  EXPECT_EQ(doc.feature()->size(), vec->size());
+  const VecHashMap *hmap = vec->hash_map();
+  for (VecHashMap::const_iterator it = hmap->begin(); it != hmap->end(); ++it) {
+    EXPECT_EQ(doc.feature()->get(it->first), it->second);
+  }
+}
+
+/* Document::clear */
+TEST(DocumentTest, ClearTest) {
+  Document doc(1);
+  size_t max = 10;
+  for (size_t i = 0; i < max; i++) doc.add_feature(i, i * 10);
+
+  EXPECT_TRUE(doc.feature()->size() != 0);
+  doc.clear();
+  EXPECT_EQ(doc.feature()->size(), 0);
+}
+
+/* Cluster::size */
 TEST(ClusterTest, SizeTest) {
   init_documents();
   Document d1(1), d2(2), d3(3);
@@ -110,6 +125,7 @@ TEST(ClusterTest, SizeTest) {
   delete_documents();
 }
 
+/* Cluster::composite_vector */
 TEST(ClusterTest, CompositeTest) {
   init_documents();
   Cluster cluster;
@@ -131,6 +147,7 @@ TEST(ClusterTest, CompositeTest) {
   delete_documents();
 }
 
+/* Cluster::centroid_vector */
 TEST(ClusterTest, CentroidTest) {
   init_documents();
   Cluster cluster;
@@ -153,6 +170,7 @@ TEST(ClusterTest, CentroidTest) {
   delete_documents();
 }
 
+/* Cluster::choose_randomly */
 TEST(ClusterTest, ChooseRandomlyTest) {
   init_documents();
   Cluster cluster;
@@ -173,6 +191,7 @@ TEST(ClusterTest, ChooseRandomlyTest) {
   delete_documents();
 }
 
+/* Cluster::choose_smartly */
 TEST(ClusterTest, ChooseSmartlyTest) {
   init_documents();
   Cluster cluster;
@@ -193,6 +212,7 @@ TEST(ClusterTest, ChooseSmartlyTest) {
   delete_documents();
 }
 
+/* Cluster::section */
 TEST(ClusterTest, SectionTest) {
   init_documents();
   Cluster cluster;
@@ -217,6 +237,7 @@ TEST(ClusterTest, SectionTest) {
   delete_documents();
 }
 
+/* Analyzer::do_clustering(RB) */
 TEST(AnalyzerTest, DoClusteringRBTest) {
   init_documents();
   Analyzer analyzer;
@@ -243,6 +264,7 @@ TEST(AnalyzerTest, DoClusteringRBTest) {
   delete_documents();
 }
 
+/* Analyzer::do_clustering(k-means) */
 TEST(AnalyzerTest, DoClusteringKmeansTest) {
   init_documents();
   Analyzer analyzer;
@@ -272,7 +294,6 @@ TEST(AnalyzerTest, DoClusteringKmeansTest) {
 } /* namespace */
 
 int main(int argc, char **argv) {
-  srand((unsigned int)time(NULL));
   testing::InitGoogleTest(&argc, argv);
   int result = RUN_ALL_TESTS();
   return result;

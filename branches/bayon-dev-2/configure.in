@@ -13,7 +13,7 @@ MYLIBREV=1
 # Targets
 MYHEADERFILES="cluster.h byvector.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
-MYLIBOBJFILES="byvector.o cluster.o"
+MYLIBOBJFILES="byvector.o cluster.o util.o"
 MYCOMMANDFILES="bayon"
 MYTESTCOMMANDFILES="vectest clutest"
 MYDOCUMENTFILES="COPYING README TODO"

@@ -20,6 +20,7 @@
 #ifndef BAYON_UTIL_H
 #define BAYON_UTIL_H
 
+#include <cstdlib>
 #include <iostream>
 #include "config.h"
 
@@ -67,8 +68,14 @@ struct HashMap {
 /********************************************************************
  * Constatns
  *******************************************************************/
-const long EMPTY_KEY   = -1;  /* empty key for google::dense_hash_map */
-const long DELETED_KEY = -2;  /* deleted key for google::dense_hash_map */
+/* empty key for google::dense_hash_map */
+const long EMPTY_KEY   = -1;
+
+/* deleted key for google::dense_hash_map */
+const long DELETED_KEY = -2;
+
+/* default seed value for random number generator */
+const unsigned int DEFAULT_SEED = 12345;
 
 
 /********************************************************************
@@ -101,6 +108,46 @@ bool greater_pair(const std::pair<KeyType, ValueType> &left,
                   const std::pair<KeyType, ValueType> &right) {
   return left.second > right.second;
 }
+
+/**
+ * Set seed for random number generator
+ *
+ * @param seed seed
+ * @return void
+ */
+void mysrand(unsigned int seed);
+
+/**
+ * Get random number
+ *
+ * @param seed pointer of seed
+ * @return int random number
+ */
+int myrand(unsigned int *seed);
+
+
+/********************************************************************
+ * Classes
+ *******************************************************************/
+/**
+ * Random number generator class
+ */
+class Random {
+ private:
+  unsigned int seed_;
+
+ public:
+  Random() : seed_(DEFAULT_SEED) { }
+  Random(unsigned int seed) : seed_(seed) { }
+  ~Random() { }
+
+  void set_seed(unsigned int seed) { seed_ = seed; }
+  unsigned int operator()(unsigned int max) {
+    double ratio =  static_cast<double>(myrand(&seed_))
+                    / static_cast<double>(RAND_MAX);
+    return static_cast<unsigned int>(ratio * max);
+  }
+};
 
 } /* namespace bayon */
 

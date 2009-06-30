@@ -168,5 +168,6 @@ cluster.o : cluster.h config.h util.h
 
 clutest.o : byvector.h cluster.h
 
+util.o : util.h
 
 # END OF FILE
