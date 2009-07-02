@@ -1717,11 +1717,11 @@ MYLIBVER=0
 MYLIBREV=1
 
 # Targets
-MYHEADERFILES="cluster.h byvector.h util.h config.h"
+MYHEADERFILES="bayon.h byvector.h classifier.h cluster.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
-MYLIBOBJFILES="byvector.o cluster.o util.o"
+MYLIBOBJFILES="byvector.o classifier.o cluster.o util.o"
 MYCOMMANDFILES="bayon"
-MYTESTCOMMANDFILES="vectest clutest"
+MYTESTCOMMANDFILES="vectest clatest clutest"
 MYDOCUMENTFILES="COPYING README TODO"
 
 # Building paths

@@ -22,9 +22,7 @@
 #include <iostream>
 #include <map>
 #include <utility>
-#include "config.h"
-#include "cluster.h"
-#include "util.h"
+#include "bayon.h"
 
 /* typdef */
 typedef std::map<std::string, double> Feature;
@@ -129,7 +127,7 @@ static int parse_options(int argc, char **argv,
     case 'p': // point
       option["point"] = DUMMY_OPTARG;
       break;
-    case 's': // point
+    case 's': // seed
       option["seed"] = optarg;
       break;
     case 'v': // version

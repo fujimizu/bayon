@@ -30,15 +30,24 @@
 
 namespace bayon {
 
-/* Typedef */
+/********************************************************************
+ * Typedef
+ *******************************************************************/
 typedef long                            VecKey;   // key of vector
 typedef double                          VecValue; // value of vector
 typedef std::pair<VecKey, VecValue>     VecItem;  // key-value pair
 typedef HashMap<VecKey, VecValue>::type VecHashMap;
 
-/* Constants */
+
+/********************************************************************
+ * Constants
+ *******************************************************************/
 const VecValue VECTOR_NULL_VALUE  = 0.0;
 
+
+/********************************************************************
+ * Classes
+ *******************************************************************/
 /**
  * Vector class
  *

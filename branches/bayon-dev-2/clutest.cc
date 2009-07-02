@@ -26,11 +26,9 @@
 #include <gtest/gtest.h>
 #include "cluster.h"
 
-using namespace bayon;
-
 namespace {
 
-std::vector<Document *> documents;
+std::vector<bayon::Document *> documents;
 
 const size_t NUM_DOCUMENT   = 10;
 const size_t NUM_FEATURE    = 5;
@@ -39,7 +37,7 @@ const double MAX_POINT      = 10.0;
 
 void init_documents() {
   for (size_t i = 0; i < NUM_DOCUMENT; i++) {
-    Document *doc = new Document(i);
+    bayon::Document *doc = new bayon::Document(i);
     for (size_t j = 0; j < NUM_FEATURE; j++) {
       size_t id = rand() % MAX_FEATURE_ID;
       double point = rand() / (double)RAND_MAX * MAX_POINT;
@@ -56,7 +54,7 @@ void delete_documents() {
   documents.clear();
 }
 
-void set_cluster(Cluster &cluster) {
+void set_cluster(bayon::Cluster &cluster) {
   for (size_t i = 0; i < documents.size(); i++) {
     cluster.add_document(documents[i]);
   }
@@ -64,20 +62,20 @@ void set_cluster(Cluster &cluster) {
 
 /* Document::id */
 TEST(DocumentTest, IdTest) {
-  DocumentId id = 100;
-  Document doc(id);
+  bayon::DocumentId id = 100;
+  bayon::Document doc(id);
   EXPECT_EQ(doc.id(), id);
 }
 
 /* Document::add_feature */
 TEST(DocumentTest, AddFeatureTest) {
-  Document doc(1);
-  std::vector<std::pair<VecKey, VecValue> > items;
+  bayon::Document doc(1);
+  std::vector<std::pair<bayon::VecKey, bayon::VecValue> > items;
   size_t max = 10;
   for (size_t i = 0; i < max; i++) {
-    VecKey key = i;
-    VecValue val = i * 10;
-    items.push_back(std::pair<VecKey, VecValue>(key, val));
+    bayon::VecKey key = i;
+    bayon::VecValue val = i * 10;
+    items.push_back(std::pair<bayon::VecKey, bayon::VecValue>(key, val));
     doc.add_feature(key, val);
   }
 
@@ -88,23 +86,23 @@ TEST(DocumentTest, AddFeatureTest) {
 
 /* Document::set_feature */
 TEST(DocumentTest, SetFeatureTest) {
-  Document doc(1);
-  Vector *vec = new Vector();
+  bayon::Document doc(1);
+  bayon::Vector *vec = new bayon::Vector();
   size_t max = 10;
   for (size_t i = 0; i < max; i++) vec->set(i, i * 10);
   delete doc.feature();
   doc.set_feature(vec);
 
   EXPECT_EQ(doc.feature()->size(), vec->size());
-  const VecHashMap *hmap = vec->hash_map();
-  for (VecHashMap::const_iterator it = hmap->begin(); it != hmap->end(); ++it) {
+  const bayon::VecHashMap *hmap = vec->hash_map();
+  for (bayon::VecHashMap::const_iterator it = hmap->begin(); it != hmap->end(); ++it) {
     EXPECT_EQ(doc.feature()->get(it->first), it->second);
   }
 }
 
 /* Document::clear */
 TEST(DocumentTest, ClearTest) {
-  Document doc(1);
+  bayon::Document doc(1);
   size_t max = 10;
   for (size_t i = 0; i < max; i++) doc.add_feature(i, i * 10);
 
@@ -116,8 +114,8 @@ TEST(DocumentTest, ClearTest) {
 /* Cluster::size */
 TEST(ClusterTest, SizeTest) {
   init_documents();
-  Document d1(1), d2(2), d3(3);
-  Cluster cluster;
+  bayon::Document d1(1), d2(2), d3(3);
+  bayon::Cluster cluster;
   cluster.add_document(&d1);
   cluster.add_document(&d2);
   cluster.add_document(&d3);
@@ -128,18 +126,18 @@ TEST(ClusterTest, SizeTest) {
 /* Cluster::composite_vector */
 TEST(ClusterTest, CompositeTest) {
   init_documents();
-  Cluster cluster;
+  bayon::Cluster cluster;
   set_cluster(cluster);
 
-  Vector vec;
+  bayon::Vector vec;
   for (size_t i = 0; i < documents.size(); i++) {
     vec.add_vector(*documents[i]->feature());
   }
 
-  Vector compvec = *cluster.composite_vector();
+  bayon::Vector compvec = *cluster.composite_vector();
   EXPECT_EQ(compvec.size(), vec.size());
 
-  std::vector<VecItem> items;
+  std::vector<bayon::VecItem> items;
   compvec.sorted_items(items);
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].second, vec.get(items[i].first));
@@ -150,19 +148,19 @@ TEST(ClusterTest, CompositeTest) {
 /* Cluster::centroid_vector */
 TEST(ClusterTest, CentroidTest) {
   init_documents();
-  Cluster cluster;
+  bayon::Cluster cluster;
   set_cluster(cluster);
 
-  Vector vec;
+  bayon::Vector vec;
   for (size_t i = 0; i < documents.size(); i++) {
     vec.add_vector(*documents[i]->feature());
   }
   vec.normalize();
 
-  Vector centvec = *cluster.centroid_vector();
+  bayon::Vector centvec = *cluster.centroid_vector();
   EXPECT_EQ(centvec.size(), vec.size());
 
-  std::vector<VecItem> items;
+  std::vector<bayon::VecItem> items;
   centvec.sorted_items(items);
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].second, vec.get(items[i].first));
@@ -173,16 +171,16 @@ TEST(ClusterTest, CentroidTest) {
 /* Cluster::choose_randomly */
 TEST(ClusterTest, ChooseRandomlyTest) {
   init_documents();
-  Cluster cluster;
+  bayon::Cluster cluster;
   set_cluster(cluster);
 
   for (size_t i = 0; i < 100; i++) {
-    std::vector<Document *> docs;
+    std::vector<bayon::Document *> docs;
     size_t ndocs = 3;
     cluster.choose_randomly(ndocs, docs);
     EXPECT_EQ(docs.size(), ndocs);
 
-    std::map<DocumentId, bool> choosed;
+    std::map<bayon::DocumentId, bool> choosed;
     for (size_t j = 0; j < docs.size(); j++) {
       EXPECT_TRUE(choosed.find(docs[j]->id()) == choosed.end());
       choosed[docs[j]->id()] = true;
@@ -194,16 +192,16 @@ TEST(ClusterTest, ChooseRandomlyTest) {
 /* Cluster::choose_smartly */
 TEST(ClusterTest, ChooseSmartlyTest) {
   init_documents();
-  Cluster cluster;
+  bayon::Cluster cluster;
   set_cluster(cluster);
 
   for (size_t i = 0; i < 100; i++) {
-    std::vector<Document *> docs;
+    std::vector<bayon::Document *> docs;
     size_t ndocs = 3;
     cluster.choose_smartly(ndocs, docs);
     EXPECT_EQ(docs.size(), ndocs);
 
-    std::map<DocumentId, bool> choosed;
+    std::map<bayon::DocumentId, bool> choosed;
     for (size_t j = 0; j < docs.size(); j++) {
       EXPECT_TRUE(choosed.find(docs[j]->id()) == choosed.end());
       choosed[docs[j]->id()] = true;
@@ -215,15 +213,15 @@ TEST(ClusterTest, ChooseSmartlyTest) {
 /* Cluster::section */
 TEST(ClusterTest, SectionTest) {
   init_documents();
-  Cluster cluster;
+  bayon::Cluster cluster;
   set_cluster(cluster);
 
   size_t nclusters = 2;
   cluster.section(nclusters);
-  std::vector<Cluster *> clusters = cluster.sectioned_clusters();
+  std::vector<bayon::Cluster *> clusters = cluster.sectioned_clusters();
   EXPECT_EQ(clusters.size(), nclusters);
 
-  std::map<DocumentId, size_t> choosed;
+  std::map<bayon::DocumentId, size_t> choosed;
   for (size_t i = 0; i < clusters.size(); i++) {
     for (size_t j = 0; j < clusters[i]->size(); j++) {
       EXPECT_TRUE(choosed.find(clusters[i]->documents()[j]->id()) == choosed.end());
@@ -240,7 +238,7 @@ TEST(ClusterTest, SectionTest) {
 /* Analyzer::do_clustering(RB) */
 TEST(AnalyzerTest, DoClusteringRBTest) {
   init_documents();
-  Analyzer analyzer;
+  bayon::Analyzer analyzer;
 
   for (size_t i = 0; i < documents.size(); i++) {
     analyzer.add_document(*documents[i]);
@@ -249,9 +247,9 @@ TEST(AnalyzerTest, DoClusteringRBTest) {
   analyzer.set_cluster_size_limit(nclusters);
   analyzer.do_clustering("rb");
 
-  std::map<DocumentId, size_t> choosed;
+  std::map<bayon::DocumentId, size_t> choosed;
   int count = 0;
-  Cluster cluster;
+  bayon::Cluster cluster;
   while (analyzer.get_next_result(cluster)) {
     ++count;
     //std::cout << cluster << std::endl;
@@ -267,7 +265,7 @@ TEST(AnalyzerTest, DoClusteringRBTest) {
 /* Analyzer::do_clustering(k-means) */
 TEST(AnalyzerTest, DoClusteringKmeansTest) {
   init_documents();
-  Analyzer analyzer;
+  bayon::Analyzer analyzer;
 
   for (size_t i = 0; i < documents.size(); i++) {
     analyzer.add_document(*documents[i]);
@@ -276,9 +274,9 @@ TEST(AnalyzerTest, DoClusteringKmeansTest) {
   analyzer.set_cluster_size_limit(nclusters);
   analyzer.do_clustering("kmeans");
 
-  std::map<DocumentId, size_t> choosed;
+  std::map<bayon::DocumentId, size_t> choosed;
   int count = 0;
-  Cluster cluster;
+  bayon::Cluster cluster;
   while (analyzer.get_next_result(cluster)) {
     ++count;
     //std::cout << cluster << std::endl;

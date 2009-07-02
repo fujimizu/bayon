@@ -65,6 +65,7 @@ test : $(TESTCOMMANDFILES)
 check : $(TESTCOMMANDFILES)
 	$(RUNENV) $(RUNCMD) ./vectest
 	$(RUNENV) $(RUNCMD) ./clutest
+	$(RUNENV) $(RUNCMD) ./clatest
 	@printf '\n'
 	@printf '#================================================================\n'
 	@printf '# Checking completed.\n'
@@ -155,19 +156,26 @@ bayon : bayon.o $(LIBRARYFILES)
 vectest : vectest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
+clatest : clatest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
 clutest : clutest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
-bayon.o : byvector.h cluster.h config.h util.h
+bayon.o : byvector.h classifier.h cluster.h config.h util.h
 
 byvector.o : byvector.h config.h util.h
 
 vectest.o : byvector.h config.h util.h
 
+classifier.o : byvector.h classifier.h util.h
+
+clatest.o : byvector.h classifier.h util.h
+
 cluster.o : cluster.h config.h util.h
 
-clutest.o : byvector.h cluster.h
+clutest.o : byvector.h cluster.h util.h
 
-util.o : util.h
+util.o : config.h util.h
 
 # END OF FILE
