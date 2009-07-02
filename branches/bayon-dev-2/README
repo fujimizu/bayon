@@ -14,8 +14,8 @@ Install:
   $ make install
 
 Usage:
-  % bayon -n num [-m method] [-p] [-s seed] file
-  % bayon -l limit [-m method] [-p] [-s seed] file
+  % bayon -n num [-m method] [-p] [-i] [-s seed] file
+  % bayon -l limit [-m method] [-p] [-i] [-s seed] file
        -n, --number num    ... number of clusters
        -l, --limit lim     ... limit value of cluster bisection
        -m, --method method ... clustering method(rb, kmeans), default:rb

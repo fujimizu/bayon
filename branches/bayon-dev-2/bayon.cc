@@ -77,8 +77,10 @@ int main(int argc, char **argv) {
     return 1;
   }
   add_documents(ifs, analyzer, docidmap);
-  analyzer.idf();
+
+  if (option.find("idf") != option.end()) analyzer.idf();
   analyzer.resize_document_features(MAX_VECTOR_ITEM);
+
   if (option.find("number") != option.end()) {
     analyzer.set_cluster_size_limit(atoi(option["number"].c_str()));
   } else if (option.find("limit") != option.end()) {
@@ -99,12 +101,13 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": simple and fast clustering tool" << std::endl
     << "Usage:" << std::endl
-    << " " << progname << " -n num [-m method] [-p] [-s seed] file" << std::endl
-    << " " << progname << " -l limit [-m method] [-p] [-s seed] file" << std::endl
+    << " " << progname << " -n num [-m method] [-p] [-i] [-s seed] file" << std::endl
+    << " " << progname << " -l limit [-m method] [-p] [-i] [-s seed] file" << std::endl
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
     << "    -p, --point         ... output similairty point" << std::endl
+    << "    -i, --idf           ... apply idf to input vectors" << std::endl
     << "    -s, --seed seed     ... set seed for random number generator" << std::endl
     << "    -v, --version       ... show the version and exit" << std::endl;
 }
@@ -128,6 +131,9 @@ static int parse_options(int argc, char **argv,
       break;
     case 'p': // point
       option["point"] = DUMMY_OPTARG;
+      break;
+    case 'i': // idf
+      option["idf"] = DUMMY_OPTARG;
       break;
     case 's': // seed
       option["seed"] = optarg;
