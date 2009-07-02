@@ -163,6 +163,15 @@ class Vector {
   }
 
   /**
+   * Get pointer of internal hash_map object
+   *
+   * @return VecHashMap* pointer of hash_map object
+   */
+  VecHashMap *hash_map() {
+    return &vec_;
+  }
+
+  /**
    * Get items sorted by value (desc order)
    *
    * @param items sorted keys

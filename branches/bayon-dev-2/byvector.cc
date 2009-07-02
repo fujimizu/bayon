@@ -43,7 +43,7 @@ void Vector::normalize() {
 
 /* Resize the vector */
 void Vector::resize(size_t size) {
-  if (vec_.size() < size) return;
+  if (vec_.size() <= size) return;
   std::vector<VecItem> items;
   sorted_items(items);
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP

@@ -444,6 +444,14 @@ class Analyzer {
   inline double refined_vector_value(const Vector &composite,
                                      const Vector &vec, int sign);
 
+  /**
+   * Count document frequency(DF) of vector keys
+   *
+   * @param df document frequency
+   * @return void
+   */
+  void count_df(HashMap<VecKey, size_t>::type &df) const;
+
  public:
   /**
    * Constructor
@@ -495,6 +503,20 @@ class Analyzer {
     doc.set_feature(NULL);
     documents_.push_back(ptr);
   }
+
+  void resize_document_features(size_t siz) {
+    for (size_t i = 0; i < documents_.size(); i++) {
+      documents_[i]->feature()->resize(siz);
+    }
+  }
+
+  /**
+   * Calculate inverse document frequency(IDF)
+   * and apply it to document vectors
+   *
+   * @return void
+   */
+  void idf();
 
   /**
    * Do clustering

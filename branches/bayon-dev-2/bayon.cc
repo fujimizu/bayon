@@ -39,7 +39,7 @@ int main(int argc, char **argv);
 static void usage(std::string progname);
 static int parse_options(int argc, char **argv,
                          std::map<std::string, std::string> &option);
-static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max);
+static size_t parse_tsv(std::string &tsv, Feature &feature);
 static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<bayon::DocumentId, std::string> &docidmap);
 static void show_clusters(bayon::Analyzer &analyzer,
@@ -77,6 +77,8 @@ int main(int argc, char **argv) {
     return 1;
   }
   add_documents(ifs, analyzer, docidmap);
+  analyzer.idf();
+  analyzer.resize_document_features(MAX_VECTOR_ITEM);
   if (option.find("number") != option.end()) {
     analyzer.set_cluster_size_limit(atoi(option["number"].c_str()));
   } else if (option.find("limit") != option.end()) {
@@ -141,22 +143,22 @@ static int parse_options(int argc, char **argv,
 }
 
 /* parse tsv format string */
-static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max) {
-  std::string word;
+static size_t parse_tsv(std::string &tsv, Feature &feature) {
+  std::string key;
   int cnt = 0;
-  size_t kwcnt = 0;
+  size_t keycnt = 0;
 
   size_t p = tsv.find(DELIMITER);
-  while (max > 0 && kwcnt < max) {
+  while (true) {
     std::string s = tsv.substr(0, p);
     if (cnt % 2 == 0) {
-      word = s;
+      key = s;
     } else {
       double point = 0.0;
       point = atof(s.c_str());
-      if (!word.empty() && point != 0) {
-        feature[word] = point;
-        kwcnt++;
+      if (!key.empty() && point != 0) {
+        feature[key] = point;
+        keycnt++;
       }
     }
     if (p == tsv.npos) break;
@@ -164,7 +166,7 @@ static size_t parse_tsv(std::string &tsv, Feature &feature, size_t max) {
     tsv = tsv.substr(p + DELIMITER.size());
     p = tsv.find(DELIMITER);
   }
-  return kwcnt;
+  return keycnt;
 }
 
 /* read input dbm and add documents to analyzer */
@@ -185,7 +187,7 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
       docidmap[doc_id] = doc_name;
       doc_id++;
       Feature feature;
-      parse_tsv(line, feature, MAX_VECTOR_ITEM);
+      parse_tsv(line, feature);
 
       for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
         if (str2num.find(it->first) == str2num.end()) {
