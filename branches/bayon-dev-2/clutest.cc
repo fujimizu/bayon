@@ -28,14 +28,13 @@
 
 namespace {
 
-std::vector<bayon::Document *> documents;
 
 const size_t NUM_DOCUMENT   = 10;
 const size_t NUM_FEATURE    = 5;
 const size_t MAX_FEATURE_ID = 10;
 const double MAX_POINT      = 10.0;
 
-void init_documents() {
+void init_documents(std::vector<bayon::Document *> &documents) {
   for (size_t i = 0; i < NUM_DOCUMENT; i++) {
     bayon::Document *doc = new bayon::Document(i);
     for (size_t j = 0; j < NUM_FEATURE; j++) {
@@ -47,14 +46,15 @@ void init_documents() {
   }
 }
 
-void delete_documents() {
+void delete_documents(std::vector<bayon::Document *> &documents) {
   for (size_t i = 0; i < documents.size(); i++) {
     delete documents[i];
   }
   documents.clear();
 }
 
-void set_cluster(bayon::Cluster &cluster) {
+void set_cluster(bayon::Cluster &cluster,
+                 std::vector<bayon::Document *> &documents) {
   for (size_t i = 0; i < documents.size(); i++) {
     cluster.add_document(documents[i]);
   }
@@ -113,21 +113,23 @@ TEST(DocumentTest, ClearTest) {
 
 /* Cluster::size */
 TEST(ClusterTest, SizeTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Document d1(1), d2(2), d3(3);
   bayon::Cluster cluster;
   cluster.add_document(&d1);
   cluster.add_document(&d2);
   cluster.add_document(&d3);
   EXPECT_EQ(cluster.size(), 3);
-  delete_documents();
+  delete_documents(documents);
 }
 
 /* Cluster::composite_vector */
 TEST(ClusterTest, CompositeTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Cluster cluster;
-  set_cluster(cluster);
+  set_cluster(cluster, documents);
 
   bayon::Vector vec;
   for (size_t i = 0; i < documents.size(); i++) {
@@ -142,14 +144,15 @@ TEST(ClusterTest, CompositeTest) {
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].second, vec.get(items[i].first));
   }
-  delete_documents();
+  delete_documents(documents);
 }
 
 /* Cluster::centroid_vector */
 TEST(ClusterTest, CentroidTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Cluster cluster;
-  set_cluster(cluster);
+  set_cluster(cluster, documents);
 
   bayon::Vector vec;
   for (size_t i = 0; i < documents.size(); i++) {
@@ -165,14 +168,15 @@ TEST(ClusterTest, CentroidTest) {
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].second, vec.get(items[i].first));
   }
-  delete_documents();
+  delete_documents(documents);
 }
 
 /* Cluster::choose_randomly */
 TEST(ClusterTest, ChooseRandomlyTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Cluster cluster;
-  set_cluster(cluster);
+  set_cluster(cluster, documents);
 
   for (size_t i = 0; i < 100; i++) {
     std::vector<bayon::Document *> docs;
@@ -186,14 +190,15 @@ TEST(ClusterTest, ChooseRandomlyTest) {
       choosed[docs[j]->id()] = true;
     }
   }
-  delete_documents();
+  delete_documents(documents);
 }
 
 /* Cluster::choose_smartly */
 TEST(ClusterTest, ChooseSmartlyTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Cluster cluster;
-  set_cluster(cluster);
+  set_cluster(cluster, documents);
 
   for (size_t i = 0; i < 100; i++) {
     std::vector<bayon::Document *> docs;
@@ -207,14 +212,15 @@ TEST(ClusterTest, ChooseSmartlyTest) {
       choosed[docs[j]->id()] = true;
     }
   }
-  delete_documents();
+  delete_documents(documents);
 }
 
 /* Cluster::section */
 TEST(ClusterTest, SectionTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Cluster cluster;
-  set_cluster(cluster);
+  set_cluster(cluster, documents);
 
   size_t nclusters = 2;
   cluster.section(nclusters);
@@ -232,12 +238,50 @@ TEST(ClusterTest, SectionTest) {
   for (size_t i = 0; i < cluster.sectioned_clusters().size(); i++) {
     delete cluster.sectioned_clusters()[i];
   }
-  delete_documents();
+  delete_documents(documents);
+}
+
+/* Analzyer::idf */
+TEST(AnalyzerTest, IdfTest) {
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
+  bayon::Analyzer analyzer;
+
+  std::vector<bayon::Vector> vectors_org;
+  bayon::HashMap<bayon::VecKey, size_t>::type df;
+  df.set_empty_key(bayon::EMPTY_KEY);
+  for (size_t i = 0; i < documents.size(); i++) {
+    bayon::Vector vec;
+    bayon::VecHashMap *hmap = documents[i]->feature()->hash_map();
+    for (bayon::VecHashMap::iterator it = hmap->begin();
+         it != hmap->end(); ++it) {
+      df[it->first]++;
+    }
+    documents[i]->feature()->copy(vec);
+    vectors_org.push_back(vec);
+    analyzer.add_document(*documents[i]);
+  }
+  
+  analyzer.idf();
+
+  std::vector<bayon::Document *> documents_idf = analyzer.documents();
+  for (size_t i = 0; i < documents_idf.size(); i++) {
+    bayon::VecHashMap *hmap = documents_idf[i]->feature()->hash_map();
+    for (bayon::VecHashMap::iterator it = hmap->begin();
+         it != hmap->end(); ++it) {
+      double val = vectors_org[i].get(it->first) * 
+                   log((double)vectors_org.size() / (df[it->first] + 1));
+      EXPECT_EQ(it->second, val);
+    }
+  }
+
+  delete_documents(documents);
 }
 
 /* Analyzer::do_clustering(RB) */
 TEST(AnalyzerTest, DoClusteringRBTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Analyzer analyzer;
 
   for (size_t i = 0; i < documents.size(); i++) {
@@ -259,12 +303,13 @@ TEST(AnalyzerTest, DoClusteringRBTest) {
     }
   }
   EXPECT_EQ(count, nclusters);
-  delete_documents();
+  delete_documents(documents);
 }
 
 /* Analyzer::do_clustering(k-means) */
 TEST(AnalyzerTest, DoClusteringKmeansTest) {
-  init_documents();
+  std::vector<bayon::Document *> documents;
+  init_documents(documents);
   bayon::Analyzer analyzer;
 
   for (size_t i = 0; i < documents.size(); i++) {
@@ -286,7 +331,7 @@ TEST(AnalyzerTest, DoClusteringKmeansTest) {
     }
   }
   EXPECT_EQ(count, nclusters);
-  delete_documents();
+  delete_documents(documents);
 }
 
 } /* namespace */

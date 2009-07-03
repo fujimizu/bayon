@@ -264,7 +264,6 @@ double Analyzer::refined_vector_value(const Vector &composite,
 
 /* Count document frequency of vector keys */
 void Analyzer::count_df(HashMap<VecKey, size_t>::type &df) const {
-  df.set_empty_key(EMPTY_KEY);
   for (size_t i = 0; i < documents_.size(); i++) {
     VecHashMap *hmap = documents_[i]->feature()->hash_map();
     for (VecHashMap::iterator it = hmap->begin();
@@ -278,6 +277,7 @@ void Analyzer::count_df(HashMap<VecKey, size_t>::type &df) const {
 /* Calc inverse document frequency(IDF) and apply it */
 void  Analyzer::idf() {
   HashMap<VecKey, size_t>::type df;
+  df.set_empty_key(EMPTY_KEY);
   count_df(df);
   size_t ndocs = documents_.size();
   for (size_t i = 0; i < documents_.size(); i++) {

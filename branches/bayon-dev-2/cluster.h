@@ -504,6 +504,21 @@ class Analyzer {
     documents_.push_back(ptr);
   }
 
+  /**
+   * Get documents
+   *
+   * @return std::vector<Document *> & documents
+   */
+  std::vector<Document *> &documents() {
+    return documents_;
+  }
+
+  /**
+   * Resize size of feature vectors of documents
+   *
+   * @param siz size of feature vectors
+   * @return void
+   */
   void resize_document_features(size_t siz) {
     for (size_t i = 0; i < documents_.size(); i++) {
       documents_[i]->feature()->resize(siz);
