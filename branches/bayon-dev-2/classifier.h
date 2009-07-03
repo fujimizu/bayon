@@ -39,8 +39,36 @@ typedef long VectorId;
  * Classifier class
  */
 class Classifier {
+ public:
+   typedef HashMap<VecKey, std::vector<VectorId> *>::type InvertedIndex;
  private:
+  /* max number of key of vector added to inverted index */
+  static const size_t MAX_VECTOR_KEY = 100;
+
+  /* input vectors */
   HashMap<VectorId, Vector>::type vectors_;
+
+  /* inverted index */
+   InvertedIndex inverted_index_;
+
+  /**
+   * Add vector keys to inverted index
+   *
+   * @param id vector id
+   * @param vec Vector object
+   * @return void
+   */
+  void add_inverted_index(VectorId id, const Vector &vec);
+
+  /**
+   * Look up inverted index
+   *
+   * @param vec input vectors
+   * @param ids list of VectorId
+   * @return size_t the number of output VectorId
+   */
+  size_t lookup_inverted_index(const Vector &vec,
+                               std::vector<VectorId> &ids) const;
 
  public:
   /**
@@ -48,12 +76,18 @@ class Classifier {
    */
   Classifier() {
     init_hash_map(EMPTY_KEY, vectors_);  
+    init_hash_map(EMPTY_KEY, inverted_index_);  
   }
 
   /**
    * Destructor
    */
-  ~Classifier() { }
+  ~Classifier() {
+    for (InvertedIndex::iterator it = inverted_index_.begin();
+         it != inverted_index_.end(); ++it) {
+      if (it->second) delete it->second;    
+    }
+  }
 
   /**
    * Add vector
@@ -65,6 +99,7 @@ class Classifier {
   void add_vector(VectorId id, const Vector &vec) {
     vectors_[id] = vec;
     vectors_[id].normalize();
+    add_inverted_index(id, vec);
   }
 
   /**

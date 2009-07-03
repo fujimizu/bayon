@@ -280,7 +280,7 @@ class Vector {
   /**
    * Output stream
    */
-  friend std::ostream &operator <<(std::ostream &os, Vector &vec) {
+  friend std::ostream &operator <<(std::ostream &os, const Vector &vec) {
     os.precision(4);
     for (VecHashMap::const_iterator it = vec.vec_.begin();
          it != vec.vec_.end(); ++it) {

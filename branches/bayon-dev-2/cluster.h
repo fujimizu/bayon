@@ -368,7 +368,7 @@ class Cluster {
   /**
    * output stream
    */
-  friend std::ostream & operator <<(std::ostream &os, Cluster &cluster) {
+  friend std::ostream & operator <<(std::ostream &os, const Cluster &cluster) {
     for (size_t i = 0; i < cluster.documents_.size(); i++) {
       if (i > 0) os << "\t";
       os << cluster.documents_[i]->id();

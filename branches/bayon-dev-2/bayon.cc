@@ -32,7 +32,8 @@ const std::string DUMMY_OPTARG = "dummy";
 
 /* global variables */
 const std::string DELIMITER("\t");
-const size_t MAX_VECTOR_ITEM = 50;
+const size_t MAX_VECTOR_ITEM     = 50;
+const size_t MAX_SIMILAR_CLUSTER = 20;
 
 /* function prototypes */
 int main(int argc, char **argv);
@@ -45,6 +46,9 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
 static void show_clusters(bayon::Analyzer &analyzer,
                           std::map<bayon::DocumentId, std::string> &docidmap,
                           bool show_point);
+static void show_multi_clusters(bayon::Analyzer &analyzer,
+                                std::map<bayon::DocumentId, std::string> &docidmap,
+                                size_t max);
 static void show_version();
 
 /* main function */
@@ -91,7 +95,8 @@ int main(int argc, char **argv) {
   analyzer.do_clustering(method);
 
   bool flag_point = (option.find("point") != option.end()) ? true : false;
-  show_clusters(analyzer, docidmap, flag_point);
+  if (true) show_multi_clusters(analyzer, docidmap, MAX_SIMILAR_CLUSTER);
+  else      show_clusters(analyzer, docidmap, flag_point);
 
   return 0;
 }
@@ -207,6 +212,7 @@ static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
   return doc_id;
 }
 
+/* show clustering result */
 static void show_clusters(bayon::Analyzer &analyzer,
                           std::map<bayon::DocumentId, std::string> &docidmap,
                           bool show_point) {
@@ -225,6 +231,30 @@ static void show_clusters(bayon::Analyzer &analyzer,
       }
       std::cout << std::endl;
     }
+  }
+}
+
+static void show_multi_clusters(bayon::Analyzer &analyzer,
+                                std::map<bayon::DocumentId, std::string> &docidmap,
+                                size_t max) {
+  bayon::Classifier classifier;
+  bayon::Cluster cluster;
+  size_t cluster_count = 1;
+  while (analyzer.get_next_result(cluster)) {
+    classifier.add_vector(cluster_count++, *cluster.centroid_vector());
+  }
+
+  std::vector<bayon::Document *> documents = analyzer.documents();
+  for (size_t i = 0; i < documents.size(); i++) {
+    std::vector<std::pair<bayon::VectorId, double> > pairs;
+    classifier.similar_vectors(*documents[i]->feature(), pairs);
+
+    std::cout << docidmap[documents[i]->id()];
+    for (size_t j = 0; j < pairs.size() && j < max; j++) {
+      std::cout << DELIMITER << pairs[j].first
+                << DELIMITER << pairs[j].second;
+    }
+    std::cout << std::endl;
   }
 }
 
