@@ -118,7 +118,7 @@ static int parse_options(int argc, char **argv,
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:ps:v")) != -1) {
+  while ((opt = getopt(argc, argv, "n:l:m:pis:v")) != -1) {
     switch (opt) {
     case 'n': // number
       option["number"] = optarg;
