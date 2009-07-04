@@ -247,7 +247,7 @@ TEST(VectorTest, JaccardTest) {
   if (!denom) {
     EXPECT_EQ(jaccard, 0);
   } else {
-    EXPECT_EQ(jaccard, prod/denom);
+    EXPECT_EQ((int)(jaccard * 10), (int)(prod/denom *  10));
   }
 }
 
