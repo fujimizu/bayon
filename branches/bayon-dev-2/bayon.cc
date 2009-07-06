@@ -17,6 +17,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
+#include <getopt.h>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -27,6 +28,17 @@
 /* typdef */
 typedef std::map<std::string, double> Feature;
 
+typedef enum {
+  OPT_NUMBER  = 'n',
+  OPT_LIMIT   = 'l',
+  OPT_METHOD  = 'm',
+  OPT_POINT   = 'p',
+  OPT_IDF     = 'i',
+  OPT_SEED    = 's',
+  OPT_HELP    = 'h',
+  OPT_VERSION = 'v',
+} bayon_options;
+
 /* constants */
 const std::string DUMMY_OPTARG = "dummy";
 
@@ -34,6 +46,18 @@ const std::string DUMMY_OPTARG = "dummy";
 const std::string DELIMITER("\t");
 const size_t MAX_VECTOR_ITEM     = 50;
 const size_t MAX_SIMILAR_CLUSTER = 20;
+
+struct option longopts[] = {
+  {"number",  required_argument, NULL, OPT_NUMBER },
+  {"limit",   required_argument, NULL, OPT_LIMIT  },
+  {"method",  required_argument, NULL, OPT_METHOD },
+  {"point",   no_argument,       NULL, OPT_POINT  },
+  {"idf",     no_argument,       NULL, OPT_IDF    },
+  {"seed",    required_argument, NULL, OPT_SEED   },
+  {"help",    no_argument,       NULL, OPT_HELP   },
+  {"version", no_argument,       NULL, OPT_VERSION},
+  {0, 0, 0, 0}
+};
 
 /* function prototypes */
 int main(int argc, char **argv);
@@ -123,27 +147,31 @@ static int parse_options(int argc, char **argv,
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt(argc, argv, "n:l:m:pis:v")) != -1) {
+  while ((opt = getopt_long(argc, argv, "n:l:m:pis:hv", longopts, NULL))
+         != -1) {
     switch (opt) {
-    case 'n': // number
+    case OPT_NUMBER:
       option["number"] = optarg;
       break;
-    case 'l': // limit
+    case OPT_LIMIT:
       option["limit"] = optarg;
       break;
-    case 'm': // method
+    case OPT_METHOD:
       option["method"] = optarg;
       break;
-    case 'p': // point
+    case OPT_POINT:
       option["point"] = DUMMY_OPTARG;
       break;
-    case 'i': // idf
+    case OPT_IDF:
       option["idf"] = DUMMY_OPTARG;
       break;
-    case 's': // seed
+    case OPT_SEED:
       option["seed"] = optarg;
       break;
-    case 'v': // version
+    case OPT_HELP:
+      option["help"] = DUMMY_OPTARG;
+      break;
+    case OPT_VERSION:
       option["version"] = DUMMY_OPTARG;
       break;
     default:
