@@ -42,6 +42,11 @@
   do { } while (false);
 #endif
 
+/* isnan for win32 */
+#ifdef _WIN32
+#include <cfloat>
+#define isnan(x) _isnan(x)
+#endif
 
 namespace bayon {
 

@@ -20,6 +20,7 @@ Usage:
        -l, --limit lim     ... limit value of cluster bisection
        -m, --method method ... clustering method(rb, kmeans), default:rb
        -p, --point         ... output similairty point
+       -i, --idf           ... apply idf to input vectors
        -s, --seed seed     ... set seed for random number generator
        -v, --version       ... show the version and exit
   
