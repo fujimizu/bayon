@@ -41,6 +41,7 @@ typedef long VectorId;
 class Classifier {
  public:
    typedef HashMap<VecKey, std::vector<VectorId> *>::type InvertedIndex;
+
  private:
   /* max number of key of vector added to inverted index */
   static const size_t MAX_VECTOR_KEY = 100;
@@ -116,11 +117,13 @@ class Classifier {
    *
    * @param vec Vector object (must be normalized)
    * @param items pairs of id and similarity point
+   * @param use_inverted_index if true, use inverted index
    * @return void
    */
   void similar_vectors(
     const Vector &vec,
-    std::vector<std::pair<VectorId, double> > &items) const;
+    std::vector<std::pair<VectorId, double> > &items,
+    bool use_inverted_index = true) const;
 };
 
 } /* namespace bayon */

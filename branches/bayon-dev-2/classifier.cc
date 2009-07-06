@@ -59,19 +59,31 @@ size_t Classifier::lookup_inverted_index(
 /* Get list of id and points of similar vectors */
 void Classifier::similar_vectors(
   const Vector &vec, 
-  std::vector<std::pair<VectorId, double> > &items) const {
+  std::vector<std::pair<VectorId, double> > &items,
+  bool use_inverted_index) const {
 
-  std::vector<VectorId> ids;
-  lookup_inverted_index(vec, ids);
-  for (size_t i = 0; i < ids.size(); i++) {
-    HashMap<VectorId, Vector>::type::const_iterator it = vectors_.find(ids[i]);
-    if (it != vectors_.end()) {
+  if (use_inverted_index) { // inverted index
+    std::vector<VectorId> ids;
+    lookup_inverted_index(vec, ids);
+    for (size_t i = 0; i < ids.size(); i++) {
+      HashMap<VectorId, Vector>::type::const_iterator it = vectors_.find(ids[i]);
+      if (it != vectors_.end()) {
+        double similarity = Vector::inner_product(it->second, vec);
+        if (similarity != 0) {
+          items.push_back(std::pair<VectorId, double>(it->first, similarity));
+        }
+      }
+    }
+  } else { // all
+    for (HashMap<VectorId, Vector>::type::const_iterator it = vectors_.begin();
+         it != vectors_.end(); ++it) {
       double similarity = Vector::inner_product(it->second, vec);
       if (similarity != 0) {
         items.push_back(std::pair<VectorId, double>(it->first, similarity));
       }
     }
   }
+
   std::sort(items.begin(), items.end(), greater_pair<VectorId, double>);
 }
 
