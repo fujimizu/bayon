@@ -40,13 +40,12 @@ typedef enum {
 } bayon_options;
 
 /* constants */
-const std::string DUMMY_OPTARG = "dummy";
-
-/* global variables */
 const std::string DELIMITER("\t");
+const std::string DUMMY_OPTARG   = "dummy";
 const size_t MAX_VECTOR_ITEM     = 50;
 const size_t MAX_SIMILAR_CLUSTER = 20;
 
+/* global variables */
 struct option longopts[] = {
   {"number",  required_argument, NULL, OPT_NUMBER },
   {"limit",   required_argument, NULL, OPT_LIMIT  },
