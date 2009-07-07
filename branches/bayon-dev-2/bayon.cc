@@ -134,7 +134,7 @@ static void usage(std::string progname) {
     << "    -n, --number num    ... number of clusters" << std::endl
     << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
     << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
-    << "    -p, --point         ... output similairty point" << std::endl
+    << "    -p, --point         ... output similarity point" << std::endl
     << "    -i, --idf           ... apply idf to input vectors" << std::endl
     << "    -s, --seed seed     ... set seed for random number generator" << std::endl
     << "    -v, --version       ... show the version and exit" << std::endl;
@@ -288,5 +288,5 @@ static void show_multi_clusters(bayon::Analyzer &analyzer,
 /* show version */
 static void show_version() {
   std::cout << PACKAGE_STRING << std::endl
-            << "Copyright(C) 2009 Mizuki Fujisawa" << std::endl;
+            << "Copyright(C) 2009 " << AUTHOR << std::endl;
 }

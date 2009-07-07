@@ -1711,6 +1711,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 ac_config_headers="$ac_config_headers config.h"
 
+cat >>confdefs.h <<\_ACEOF
+#define AUTHOR "Mizuki Fujisawa"
+_ACEOF
+
 
 # Package information
 MYLIBVER=0
