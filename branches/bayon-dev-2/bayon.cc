@@ -67,12 +67,13 @@ static size_t parse_tsv(std::string &tsv, Feature &feature);
 static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<bayon::DocumentId, std::string> &docidmap);
 static void show_clusters(bayon::Analyzer &analyzer,
-                          std::map<bayon::DocumentId, std::string> &docidmap,
-                          bool show_point);
+                           std::map<bayon::DocumentId, std::string> &docidmap,
+                           bool show_point);
 static void show_multi_clusters(bayon::Analyzer &analyzer,
-                                std::map<bayon::DocumentId, std::string> &docidmap,
-                                size_t max);
-static void show_version();
+                                 std::map<bayon::DocumentId,
+                                 std::string> &docidmap, size_t max);
+static void print_cluster_vector(std::ofstream &ofs, bayon::Cluster &cluster);
+static void version();
 
 /* main function */
 int main(int argc, char **argv) {
@@ -80,7 +81,7 @@ int main(int argc, char **argv) {
   std::map<std::string, std::string> option;
   int optind = parse_options(argc, argv, option);
   if (option.find("version") != option.end()) {
-    show_version();
+    version();
     return 0;
   }
   argc -= optind;
@@ -131,13 +132,13 @@ static void usage(std::string progname) {
     << "Usage:" << std::endl
     << " " << progname << " -n num [-m method] [-p] [-i] [-s seed] file" << std::endl
     << " " << progname << " -l limit [-m method] [-p] [-i] [-s seed] file" << std::endl
-    << "    -n, --number num    ... number of clusters" << std::endl
-    << "    -l, --limit lim     ... limit value of cluster bisection" << std::endl
-    << "    -m, --method method ... clustering method(rb, kmeans), default:rb" << std::endl
-    << "    -p, --point         ... output similarity point" << std::endl
-    << "    -i, --idf           ... apply idf to input vectors" << std::endl
-    << "    -s, --seed seed     ... set seed for random number generator" << std::endl
-    << "    -v, --version       ... show the version and exit" << std::endl;
+    << "    -n, --number num      number of clusters" << std::endl
+    << "    -l, --limit lim       limit value of cluster bisection" << std::endl
+    << "    -m, --method method   clustering method(rb, kmeans), default:rb" << std::endl
+    << "    -p, --point           output similarity point" << std::endl
+    << "    -i, --idf             apply idf to input vectors" << std::endl
+    << "    -s, --seed seed       set seed for random number generator" << std::endl
+    << "    -v, --version         show the version and exit" << std::endl;
 }
 
 /* parse command line options */
@@ -261,6 +262,7 @@ static void show_clusters(bayon::Analyzer &analyzer,
   }
 }
 
+/* ... */
 static void show_multi_clusters(bayon::Analyzer &analyzer,
                                 std::map<bayon::DocumentId, std::string> &docidmap,
                                 size_t max) {
@@ -285,8 +287,13 @@ static void show_multi_clusters(bayon::Analyzer &analyzer,
   }
 }
 
+/* Print vector of cluster centroid */
+static void print_cluster_vector(bayon::Cluster &cluster, std::ofstream &ofs) {
+  ofs << cluster.centroid_vector() << std::endl;
+}
+
 /* show version */
-static void show_version() {
+static void version() {
   std::cout << PACKAGE_STRING << std::endl
             << "Copyright(C) 2009 " << AUTHOR << std::endl;
 }
