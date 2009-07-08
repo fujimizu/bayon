@@ -42,6 +42,8 @@ typedef HashMap<VecKey, VecValue>::type VecHashMap;
 /********************************************************************
  * Constants
  *******************************************************************/
+const VecKey   VECTOR_EMPTY_KEY   = -1;
+const VecKey   VECTOR_DELETED_KEY = -2;
 const VecValue VECTOR_NULL_VALUE  = 0.0;
 
 
@@ -65,7 +67,7 @@ class Vector {
    * Constructor
    */
   Vector() {
-    init_hash_map(EMPTY_KEY, vec_);
+    init_hash_map(VECTOR_EMPTY_KEY, vec_);
   }
 
   /**
@@ -74,7 +76,7 @@ class Vector {
    * @param vec Vector object
    */
   Vector(const Vector &vec) {
-    init_hash_map(EMPTY_KEY, vec_);
+    init_hash_map(VECTOR_EMPTY_KEY, vec_);
     for (VecHashMap::const_iterator it = vec.hash_map()->begin();
          it != vec.hash_map()->end(); ++it) {
       vec_[it->first] = it->second;
@@ -284,8 +286,8 @@ class Vector {
     os.precision(4);
     for (VecHashMap::const_iterator it = vec.vec_.begin();
          it != vec.vec_.end(); ++it) {
-      if (it != vec.vec_.begin()) os << " ";
-      os << it->first << ":" << it->second;
+      if (it != vec.vec_.begin()) os << DELIMITER;
+      os << it->first << DELIMITER << it->second;
     }
     return os;
   }

@@ -47,7 +47,7 @@ void Vector::resize(size_t size) {
   std::vector<VecItem> items;
   sorted_items(items);
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-  vec_.set_deleted_key(DELETED_KEY);
+  vec_.set_deleted_key(VECTOR_DELETED_KEY);
 #endif
   for (size_t i = size; i < items.size(); i++) {
     vec_.erase(items[i].first);
@@ -99,7 +99,7 @@ void Vector::delete_vector(const Vector &vec) {
 /* Calculate squared euclid distance between vectors */
 double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   HashMap<VecKey, bool>::type done;
-  init_hash_map(EMPTY_KEY, done);
+  init_hash_map(VECTOR_EMPTY_KEY, done);
   VecHashMap::const_iterator it1, it2;
   double dist = 0;
 

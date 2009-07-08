@@ -249,7 +249,7 @@ TEST(AnalyzerTest, IdfTest) {
 
   std::vector<bayon::Vector> vectors_org;
   bayon::HashMap<bayon::VecKey, size_t>::type df;
-  df.set_empty_key(bayon::EMPTY_KEY);
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, df);
   for (size_t i = 0; i < documents.size(); i++) {
     bayon::Vector vec;
     bayon::VecHashMap *hmap = documents[i]->feature()->hash_map();

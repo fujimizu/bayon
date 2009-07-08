@@ -73,14 +73,11 @@ struct HashMap {
 /********************************************************************
  * Constatns
  *******************************************************************/
-/* empty key for google::dense_hash_map */
-const long EMPTY_KEY   = -1;
-
-/* deleted key for google::dense_hash_map */
-const long DELETED_KEY = -2;
-
 /* default seed value for random number generator */
 const unsigned int DEFAULT_SEED = 12345;
+
+/* delimiter string */
+const std::string DELIMITER("\t");
 
 
 /********************************************************************

@@ -32,6 +32,13 @@ namespace bayon {
 /* Vector ID */
 typedef long VectorId;
 
+
+/********************************************************************
+ * Constants
+ *******************************************************************/
+const VectorId VECID_EMPTY_KEY = -1;
+
+
 /********************************************************************
  * Classes
  *******************************************************************/
@@ -76,8 +83,8 @@ class Classifier {
    * Constructor
    */
   Classifier() {
-    init_hash_map(EMPTY_KEY, vectors_);  
-    init_hash_map(EMPTY_KEY, inverted_index_);  
+    init_hash_map(VECID_EMPTY_KEY, vectors_);  
+    init_hash_map(VECID_EMPTY_KEY, inverted_index_);  
   }
 
   /**

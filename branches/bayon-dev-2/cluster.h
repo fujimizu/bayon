@@ -38,6 +38,12 @@ namespace bayon {
 typedef long DocumentId;
 
 
+/********************************************************************
+ * Typedef
+ *******************************************************************/
+const DocumentId DOC_EMPTY_KEY   = -1;
+
+
 /*********************************************************************
  * Classes
  ********************************************************************/
@@ -178,11 +184,11 @@ class Cluster {
 
  public:
   Cluster() : sectioned_gain_(0), seed_(DEFAULT_SEED) {
-    init_hash_map(EMPTY_KEY, removed_);
+    init_hash_map(DOC_EMPTY_KEY, removed_);
   }
 
   Cluster(size_t n) : sectioned_gain_(0), seed_(DEFAULT_SEED) {
-    init_hash_map(EMPTY_KEY, removed_);
+    init_hash_map(DOC_EMPTY_KEY, removed_);
     composite_.set_bucket_count(n);
 //    centroid_.set_bucket_count(n);
 //    removed_.resize(n);
@@ -377,7 +383,7 @@ class Cluster {
    */
   friend std::ostream & operator <<(std::ostream &os, const Cluster &cluster) {
     for (size_t i = 0; i < cluster.documents_.size(); i++) {
-      if (i > 0) os << "\t";
+      if (i > 0) os << DELIMITER;
       os << cluster.documents_[i]->id();
     }
     return os;
@@ -530,6 +536,15 @@ class Analyzer {
     for (size_t i = 0; i < documents_.size(); i++) {
       documents_[i]->feature()->resize(siz);
     }
+  }
+
+  /**
+   * Get clusters
+   *
+   * @return std::vector<Cluster *> & clusters
+   */
+  std::vector<Cluster *> &clusters() {
+    return clusters_;
   }
 
   /**

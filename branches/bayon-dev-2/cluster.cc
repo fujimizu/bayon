@@ -36,8 +36,8 @@ void Cluster::sorted_documents(
 /* choose documents randomly */
 void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) {
   HashMap<size_t, bool>::type choosed(ndocs);
-  init_hash_map(EMPTY_KEY, choosed);
   size_t siz = size();
+  init_hash_map(siz, choosed);
   if (siz < ndocs) ndocs = siz;
   size_t count = 0;
   while (count < ndocs) {
@@ -53,8 +53,8 @@ void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) {
 /* choose documents smartly */
 void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) {
   HashMap<size_t, double>::type closest(docs.size());
-  init_hash_map(EMPTY_KEY, closest);
   size_t siz = size();
+  init_hash_map(siz, closest);
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;
   
@@ -277,7 +277,7 @@ void Analyzer::count_df(HashMap<VecKey, size_t>::type &df) const {
 /* Calc inverse document frequency(IDF) and apply it */
 void  Analyzer::idf() {
   HashMap<VecKey, size_t>::type df;
-  df.set_empty_key(EMPTY_KEY);
+  init_hash_map(VECTOR_EMPTY_KEY, df);
   count_df(df);
   size_t ndocs = documents_.size();
   for (size_t i = 0; i < documents_.size(); i++) {

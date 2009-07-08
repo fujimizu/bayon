@@ -40,7 +40,7 @@ void Classifier::add_inverted_index(VectorId id, const Vector &vec) {
 size_t Classifier::lookup_inverted_index(
   const Vector &vec, std::vector<VectorId> &ids) const {
   HashMap<VectorId, bool>::type idmap;
-  idmap.set_empty_key(EMPTY_KEY);
+  init_hash_map(VECID_EMPTY_KEY, idmap);
   for (VecHashMap::const_iterator it = vec.hash_map()->begin();
        it != vec.hash_map()->end(); ++it) {
     InvertedIndex::const_iterator itidx = inverted_index_.find(it->first);

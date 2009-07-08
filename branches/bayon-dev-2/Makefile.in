@@ -41,6 +41,9 @@ LIBS = @LIBS@
 LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
 RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
 
+# tmp file
+tmpfile = tmp_cluster_vector.tsv
+
 
 #================================================================
 # Suffix rules
@@ -79,6 +82,8 @@ check-valgrind : $(COMMANDFILES)
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -p data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -i data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -s 1234 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) data/test1.tsv >> leak.log
+	rm $(tmpfile)
 	grep ERROR leak.log
 	grep 'at exit' leak.log
 
