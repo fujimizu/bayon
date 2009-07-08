@@ -84,14 +84,14 @@ TEST(DocumentTest, AddFeatureTest) {
   }
 }
 
-/* Document::set_feature */
+/* Document::set_features */
 TEST(DocumentTest, SetFeatureTest) {
   bayon::Document doc(1);
   bayon::Vector *vec = new bayon::Vector();
   size_t max = 10;
   for (size_t i = 0; i < max; i++) vec->set(i, i * 10);
   delete doc.feature();
-  doc.set_feature(vec);
+  doc.set_features(vec);
 
   EXPECT_EQ(doc.feature()->size(), vec->size());
   const bayon::VecHashMap *hmap = vec->hash_map();

@@ -62,7 +62,7 @@ struct option longopts[] = {
 int main(int argc, char **argv);
 static void usage(std::string progname);
 static int parse_options(int argc, char **argv,
-                         std::map<std::string, std::string> &option);
+                         std::map<bayon_options, std::string> &option);
 static size_t parse_tsv(std::string &tsv, Feature &feature);
 static size_t add_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                             std::map<bayon::DocumentId, std::string> &docidmap);
@@ -78,23 +78,23 @@ static void version();
 /* main function */
 int main(int argc, char **argv) {
   std::string progname(argv[0]);
-  std::map<std::string, std::string> option;
+  std::map<bayon_options, std::string> option;
   int optind = parse_options(argc, argv, option);
-  if (option.find("version") != option.end()) {
+  if (option.find(OPT_VERSION) != option.end()) {
     version();
     return 0;
   }
   argc -= optind;
   argv += optind;
-  if (argc != 1 || (option.find("number") == option.end()
-                    && option.find("limit") == option.end())) {
+  if (argc != 1 || (option.find(OPT_NUMBER) == option.end()
+                    && option.find(OPT_LIMIT) == option.end())) {
     usage(progname);
     return 1;
   }
 
   bayon::Analyzer analyzer;
-  if (option.find("seed") != option.end()) {
-    unsigned int seed = static_cast<unsigned int>(atoi(option["seed"].c_str()));
+  if (option.find(OPT_SEED) != option.end()) {
+    unsigned int seed = static_cast<unsigned int>(atoi(option[OPT_SEED].c_str()));
     analyzer.set_seed(seed);
   }
   std::map<bayon::DocumentId, std::string> docidmap;
@@ -106,19 +106,19 @@ int main(int argc, char **argv) {
   }
   add_documents(ifs, analyzer, docidmap);
 
-  if (option.find("idf") != option.end()) analyzer.idf();
+  if (option.find(OPT_IDF) != option.end()) analyzer.idf();
   analyzer.resize_document_features(MAX_VECTOR_ITEM);
 
-  if (option.find("number") != option.end()) {
-    analyzer.set_cluster_size_limit(atoi(option["number"].c_str()));
-  } else if (option.find("limit") != option.end()) {
-    analyzer.set_eval_limit(atof(option["limit"].c_str()));
+  if (option.find(OPT_NUMBER) != option.end()) {
+    analyzer.set_cluster_size_limit(atoi(option[OPT_NUMBER].c_str()));
+  } else if (option.find(OPT_LIMIT) != option.end()) {
+    analyzer.set_eval_limit(atof(option[OPT_LIMIT].c_str()));
   }
   std::string method = "rb"; // default
-  if (option.find("method") != option.end()) method = option["method"];
+  if (option.find(OPT_METHOD) != option.end()) method = option[OPT_METHOD];
   analyzer.do_clustering(method);
 
-  bool flag_point = (option.find("point") != option.end()) ? true : false;
+  bool flag_point = (option.find(OPT_POINT) != option.end()) ? true : false;
   if (true) show_multi_clusters(analyzer, docidmap, MAX_SIMILAR_CLUSTER);
   else      show_clusters(analyzer, docidmap, flag_point);
 
@@ -143,7 +143,7 @@ static void usage(std::string progname) {
 
 /* parse command line options */
 static int parse_options(int argc, char **argv,
-                         std::map<std::string, std::string> &option) {
+                         std::map<bayon_options, std::string> &option) {
   int opt;
   extern char *optarg;
   extern int optind;
@@ -151,28 +151,28 @@ static int parse_options(int argc, char **argv,
          != -1) {
     switch (opt) {
     case OPT_NUMBER:
-      option["number"] = optarg;
+      option[OPT_NUMBER] = optarg;
       break;
     case OPT_LIMIT:
-      option["limit"] = optarg;
+      option[OPT_LIMIT] = optarg;
       break;
     case OPT_METHOD:
-      option["method"] = optarg;
+      option[OPT_METHOD] = optarg;
       break;
     case OPT_POINT:
-      option["point"] = DUMMY_OPTARG;
+      option[OPT_POINT] = DUMMY_OPTARG;
       break;
     case OPT_IDF:
-      option["idf"] = DUMMY_OPTARG;
+      option[OPT_POINT] = DUMMY_OPTARG;
       break;
     case OPT_SEED:
-      option["seed"] = optarg;
+      option[OPT_SEED] = optarg;
       break;
     case OPT_HELP:
-      option["help"] = DUMMY_OPTARG;
+      option[OPT_HELP] = DUMMY_OPTARG;
       break;
     case OPT_VERSION:
-      option["version"] = DUMMY_OPTARG;
+      option[OPT_VERSION] = DUMMY_OPTARG;
       break;
     default:
       break;

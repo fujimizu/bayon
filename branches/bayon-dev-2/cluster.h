@@ -115,12 +115,12 @@ class Document {
   }
 
   /**
-   * Set feature
+   * Set features
    *
    * @param feature Vector object
    * @return void
    */
-  void set_feature(Vector *feature) {
+  void set_features(Vector *feature) {
     feature_ = feature;
   }
 
@@ -162,7 +162,7 @@ class Cluster {
   HashMap<DocumentId, bool>::type removed_;
 
   /**
-   * Sectioned clusters
+   * sectioned clusters
    */
   std::vector<Cluster *> sectioned_clusters_;
 
@@ -241,12 +241,18 @@ class Cluster {
 
   /**
    * Get composite Vector of the cluster
+   *
    * @return Vector * composite vector
    */
   Vector *composite_vector() {
     return &composite_;
   }
 
+  /**
+   * Get composite Vector of the cluster
+   *
+   * @return const Vector * composite vector
+   */
   const Vector *composite_vector() const {
     return &composite_;
   }
@@ -254,7 +260,7 @@ class Cluster {
   /**
    * Get documents
    *
-   * @return std::vector<Document *> &  list of documents in the cluster
+   * @return const std::vector<Document *> &  list of documents in the cluster
    */
   const std::vector<Document *> &documents() const  {
     return documents_;
@@ -276,6 +282,7 @@ class Cluster {
    * Remove a document
    *
    * @param index  index of vector container of documents
+   * @return void
    */
   void remove_document(size_t index) {
     composite_.delete_vector(*documents_[index]->feature());
@@ -500,7 +507,7 @@ class Analyzer {
    */
   void add_document(Document &doc) {
     Document *ptr = new Document(doc.id(), doc.feature());
-    doc.set_feature(NULL);
+    doc.set_features(NULL);
     documents_.push_back(ptr);
   }
 
@@ -578,6 +585,7 @@ class Analyzer {
   void cluster_similarities(Document * document,
     std::vector<std::pair<size_t, double> > &similarities);
 };
+
 
 /********************************************************************
  * Functions

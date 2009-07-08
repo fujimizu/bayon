@@ -103,21 +103,16 @@ double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   VecHashMap::const_iterator it1, it2;
   double dist = 0;
 
-  it1 = vec1.hash_map()->begin();
-  while (it1 != vec1.hash_map()->end()) {
-    if ((it2 = vec2.hash_map()->find(it1->first)) != vec2.hash_map()->end()) {
-      dist += (it1->second - it2->second) * (it1->second - it2->second);
-      done[it1->first] = true;
-    }
-    ++it1;
+  for (it1 = vec1.hash_map()->begin(); it1 != vec1.hash_map()->end(); ++it1) {
+    double val = vec2.get(it1->first);
+    dist += (it1->second - val) * (it1->second - val);
+    done[it1->first] = true;
   }
-  it2 = vec2.hash_map()->begin();
-  while (it2 != vec2.hash_map()->end()) {
-    if (!done[it2->first] &&
-        (it1 = vec1.hash_map()->find(it2->first)) != vec1.hash_map()->end()) {
-      dist += (it1->second - it2->second) * (it1->second - it2->second);
+  for (it2 = vec2.hash_map()->begin(); it2 != vec2.hash_map()->end(); ++it2) {
+    if (done.find(it2->first) == done.end()) {
+      double val = vec1.get(it2->first);
+      dist += (it2->second - val) * (it2->second - val);
     }
-    ++it2;
   }
   return dist;
 }
