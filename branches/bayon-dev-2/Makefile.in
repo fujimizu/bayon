@@ -83,6 +83,7 @@ check-valgrind : $(COMMANDFILES)
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -i data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -s 1234 data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -C $(tmpfile) data/test1.tsv >> leak.log
 	rm $(tmpfile)
 	grep ERROR leak.log
 	grep 'at exit' leak.log
