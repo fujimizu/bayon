@@ -140,7 +140,7 @@ TEST(ClusterTest, CompositeTest) {
   EXPECT_EQ(compvec.size(), vec.size());
 
   std::vector<bayon::VecItem> items;
-  compvec.sorted_items(items);
+  compvec.sorted_items_abs(items);
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].second, vec.get(items[i].first));
   }
@@ -164,7 +164,7 @@ TEST(ClusterTest, CentroidTest) {
   EXPECT_EQ(centvec.size(), vec.size());
 
   std::vector<bayon::VecItem> items;
-  centvec.sorted_items(items);
+  centvec.sorted_items_abs(items);
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].second, vec.get(items[i].first));
   }

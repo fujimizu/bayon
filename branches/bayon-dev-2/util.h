@@ -112,6 +112,18 @@ bool greater_pair(const std::pair<KeyType, ValueType> &left,
 }
 
 /**
+ * Compare pair items by absolute value
+ *
+ * @param left  item
+ * @param right item
+ * @return bool return true if abs(left_value) > abs(right_value)
+ */
+template<typename KeyType, typename ValueType>
+bool greater_pair_abs(const std::pair<KeyType, ValueType> &left,
+                      const std::pair<KeyType, ValueType> &right) {
+  return std::abs(left.second) > std::abs(right.second);
+}
+/**
  * Set seed for random number generator
  *
  * @param seed seed

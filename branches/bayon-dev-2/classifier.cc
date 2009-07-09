@@ -24,7 +24,7 @@ namespace bayon {
 /* Add vector keys to inverted index */
 void Classifier::add_inverted_index(VectorId id, const Vector &vec) {
   std::vector<VecItem> items;
-  vec.sorted_items(items);
+  vec.sorted_items_abs(items);
   for (size_t i = 0; i < items.size() && i < MAX_VECTOR_KEY; i++) {
     if (inverted_index_.find(items[i].first) == inverted_index_.end()) {
       std::vector<VectorId> *v = new std::vector<VectorId>;

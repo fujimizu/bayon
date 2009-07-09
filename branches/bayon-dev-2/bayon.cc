@@ -31,11 +31,12 @@
 typedef enum {
   OPT_NUMBER   = 'n',
   OPT_LIMIT    = 'l',
-  OPT_METHOD   = 'm',
   OPT_POINT    = 'p',
-  OPT_CLVECTOR = 'c',
-  OPT_IDF      = 'i',
-  OPT_SEED     = 's',
+  OPT_METHOD,
+  OPT_CLASSIFY,
+  OPT_CLVECTOR,
+  OPT_IDF,
+  OPT_SEED,
   OPT_HELP     = 'h',
   OPT_VERSION  = 'v',
 } bayon_options;
@@ -60,9 +61,10 @@ const size_t MAX_SIMILAR_CLUSTER = 20;
 struct option longopts[] = {
   {"number",         required_argument, NULL, OPT_NUMBER  },
   {"limit",          required_argument, NULL, OPT_LIMIT   },
-  {"method",         required_argument, NULL, OPT_METHOD  },
   {"point",          no_argument,       NULL, OPT_POINT   },
-  {"cluster_vector", required_argument, NULL, OPT_CLVECTOR},
+  {"method",         required_argument, NULL, OPT_METHOD  },
+  {"classify",       required_argument, NULL, OPT_CLASSIFY},
+  {"cluster-vector", required_argument, NULL, OPT_CLVECTOR},
   {"idf",            no_argument,       NULL, OPT_IDF     },
   {"seed",           required_argument, NULL, OPT_SEED    },
   {"help",           no_argument,       NULL, OPT_HELP    },
@@ -157,18 +159,19 @@ int main(int argc, char **argv) {
 /* show usage */
 static void usage(std::string progname) {
   std::cerr
-    << progname << ": simple and fast clustering tool" << std::endl
+    << progname << ": simple and fast clustering tool" << std::endl << std::endl
     << "Usage:" << std::endl
-    << " " << progname << " -n num [-m method] [-p] [-c file] [-i] [-s seed] file" << std::endl
-    << " " << progname << " -l limit [-m method] [-p] [-c file] [-i] [-s seed] file" << std::endl
-    << "    -n, --number num            number of clusters" << std::endl
-    << "    -l, --limit lim             limit value of cluster bisection" << std::endl
-    << "    -m, --method method         clustering method(rb, kmeans), default:rb" << std::endl
-    << "    -p, --point                 output similarity point" << std::endl
-    << "    -c, --cluster-vector file   save vectors of cluster centroids" << std::endl
-    << "    -i, --idf                   apply idf to input vectors" << std::endl
-    << "    -s, --seed seed             set seed for random number generator" << std::endl
-    << "    -v, --version               show the version and exit" << std::endl;
+    << " " << progname << " -n num [options] file" << std::endl
+    << " " << progname << " -l limit [options] file" << std::endl
+    << "    -n, --number=num        number of clusters" << std::endl
+    << "    -l, --limit=lim         limit value of cluster bisection" << std::endl
+    << "    -p, --point             output similarity point" << std::endl
+    << "    --method=method         clustering method(rb, kmeans), default:rb" << std::endl
+    << "    --classify=file         classify" << std::endl
+    << "    --cluster-vector=file   save vectors of cluster centroids" << std::endl
+    << "    --seed=seed             set seed for random number generator" << std::endl
+    << "    --idf                   apply idf to input vectors" << std::endl
+    << "    -v, --version           show the version and exit" << std::endl;
 }
 
 /* parse command line options */
@@ -176,7 +179,7 @@ static int parse_options(int argc, char **argv, Option &option) {
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt_long(argc, argv, "n:l:m:pc:is:hv", longopts, NULL))
+  while ((opt = getopt_long(argc, argv, "n:l:m:pc:C:is:hv", longopts, NULL))
          != -1) {
     switch (opt) {
     case OPT_NUMBER:
@@ -190,6 +193,9 @@ static int parse_options(int argc, char **argv, Option &option) {
       break;
     case OPT_POINT:
       option[OPT_POINT] = DUMMY_OPTARG;
+      break;
+    case OPT_CLASSIFY:
+      option[OPT_CLASSIFY] = optarg;
       break;
     case OPT_CLVECTOR:
       option[OPT_CLVECTOR] = optarg;
@@ -325,15 +331,15 @@ static void save_cluster_vector(std::ofstream &ofs,
   size_t cluster_count = 1;
   for (size_t i = 0; i < clusters.size(); i++) {
     if (clusters[i]->size() > 0) {
-      bayon::Vector *vec = clusters[i]->centroid_vector();
+      std::vector<bayon::VecItem> items;
+      clusters[i]->centroid_vector()->sorted_items_abs(items);
       ofs << cluster_count++;
-      for (bayon::VecHashMap::const_iterator it = vec->hash_map()->begin();
-           it != vec->hash_map()->end(); ++it) {
+      for (size_t i = 0; i < items.size() && i < MAX_VECTOR_ITEM; i++) {
         ofs << bayon::DELIMITER;
-        VecKeyMap::const_iterator itv = veckeymap.find(it->first);
+        VecKeyMap::const_iterator itv = veckeymap.find(items[i].first);
         if (itv != veckeymap.end()) ofs << itv->second;
-        else                        ofs << it->first;
-        ofs << bayon::DELIMITER << it->second;
+        else                        ofs << items[i].first;
+        ofs << bayon::DELIMITER << items[i].second;
       }
       ofs << std::endl;
     }

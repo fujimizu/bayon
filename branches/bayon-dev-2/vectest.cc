@@ -30,8 +30,8 @@ static void init_vector(bayon::Vector &vec, const TestData &m);
 static void set_input_values();
 
 /* global variables */
-TestData input1, input2, input3, normalized1, normalized2;
-std::vector<bayon::VecKey> sorted_keys;
+TestData input1, input2, input3, input4, normalized1, normalized2;
+std::vector<bayon::VecKey> sorted_keys, sorted_keys_abs;
 
 /* initialize vector */
 static void init_vector(bayon::Vector &vec, const TestData &m) {
@@ -62,6 +62,14 @@ static void set_input_values() {
   input3[1] = 3.0;
   input3[2] = 2.0;
   input3[3] = 1.0;
+
+  input4[1] = 1.0;
+  input4[2] = -2.0;
+  input4[3] = 3.0;
+
+  sorted_keys_abs.push_back(3);
+  sorted_keys_abs.push_back(2);
+  sorted_keys_abs.push_back(1);
 }
 
 } // namespace
@@ -135,6 +143,18 @@ TEST(VectorTest, SortedItemsTest) {
   EXPECT_EQ(items.size(), sorted_keys.size());
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_EQ(items[i].first, sorted_keys[i]);
+  }
+}
+
+/* sorted_items_abs */
+TEST(VectorTest, SortedItemsAbsTest) {
+  bayon::Vector vec;
+  init_vector(vec, input4);
+  std::vector<bayon::VecItem> items;
+  vec.sorted_items_abs(items);
+  EXPECT_EQ(items.size(), sorted_keys_abs.size());
+  for (size_t i = 0; i < items.size(); i++) {
+    EXPECT_EQ(items[i].first, sorted_keys_abs[i]);
   }
 }
 

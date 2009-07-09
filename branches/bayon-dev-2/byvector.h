@@ -182,6 +182,14 @@ class Vector {
   void sorted_items(std::vector<VecItem> &items) const;
 
   /**
+   * Get items sorted by absolute value (desc order)
+   *
+   * @param items sorted keys
+   * @return void
+   */
+  void sorted_items_abs(std::vector<VecItem> &items) const;
+
+  /**
    * Normalize the vector
    *
    * @return void

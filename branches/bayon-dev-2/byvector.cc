@@ -32,6 +32,17 @@ void Vector::sorted_items(std::vector<VecItem> &items) const {
   std::sort(items.begin(), items.end(), greater_pair<VecKey, VecValue>);
 }
 
+/* Get items sorted by absolute value */
+void Vector::sorted_items_abs(std::vector<VecItem> &items) const {
+  for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
+    VecItem item;
+    item.first = it->first;
+    item.second = it->second;
+    items.push_back(item);
+  }
+  std::sort(items.begin(), items.end(), greater_pair_abs<VecKey, VecValue>);
+}
+
 /* Normalize the vector */
 void Vector::normalize() {
   double nrm = norm();
@@ -45,7 +56,7 @@ void Vector::normalize() {
 void Vector::resize(size_t size) {
   if (vec_.size() <= size) return;
   std::vector<VecItem> items;
-  sorted_items(items);
+  sorted_items_abs(items);
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP
   vec_.set_deleted_key(VECTOR_DELETED_KEY);
 #endif
