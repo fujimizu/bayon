@@ -26,29 +26,28 @@ namespace {
 
 const size_t NUM_VECTOR_ITEM = 5;
 
+void add_random_vectors(size_t max_vec, size_t max_key,
+                        bayon::Classifier &classifier) {
+  for (size_t i = 0; i < max_vec; i++) {
+    bayon::Vector vec;
+    for (size_t j = 0; j < max_key; j++) {
+      vec.set(j, j);
+    }
+    classifier.add_vector(i, max_key, vec);
+  }
+}
+
 TEST(ClassifierTest, AddVectorTest) {
   bayon::Classifier classifier;
   size_t max = 10;
-  for (size_t i = 0; i < max; i++) {
-    bayon::Vector vec;
-    for (size_t j = 0; j < NUM_VECTOR_ITEM; j++) {
-      vec.set(j, j);
-    }
-    classifier.add_vector(i, vec);
-  }
+  add_random_vectors(max, NUM_VECTOR_ITEM, classifier);
   EXPECT_EQ(classifier.count_vectors(), max);
 }
 
 TEST(ClassifierTest, SimilarVectorsTest) {
   bayon::Classifier classifier;
   size_t max = 10;
-  for (size_t i = 0; i < max; i++) {
-    bayon::Vector vec;
-    for (size_t j = 0; j < NUM_VECTOR_ITEM; j++) {
-      vec.set(j, rand() % 10 + 1);
-    }
-    classifier.add_vector(i, vec);
-  }
+  add_random_vectors(max, NUM_VECTOR_ITEM, classifier);
 
   std::vector<std::pair<bayon::VectorId, double> > items;
   bayon::Vector vec;
@@ -56,7 +55,7 @@ TEST(ClassifierTest, SimilarVectorsTest) {
     vec.set(i, rand() % 10 + 1);
   }
   vec.normalize();
-  classifier.similar_vectors(vec, items);
+  classifier.similar_vectors(NUM_VECTOR_ITEM, vec, items);
 
   EXPECT_TRUE(0 < items.size() && items.size() <= max);
   std::map<bayon::VectorId, bool> check;

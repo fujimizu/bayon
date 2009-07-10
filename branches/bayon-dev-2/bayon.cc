@@ -32,11 +32,14 @@ typedef enum {
   OPT_NUMBER   = 'n',
   OPT_LIMIT    = 'l',
   OPT_POINT    = 'p',
-  OPT_METHOD   = 'm',
-  OPT_CLASSIFY = 'C',
   OPT_CLVECTOR = 'c',
   OPT_IDF      = 'i',
+  OPT_METHOD   = 'm',
   OPT_SEED     = 's',
+  OPT_CLASSIFY = 'C',
+  OPT_INV_KEYS,
+  OPT_INV_SIZE,
+  OPT_OUTPUT_SIZE,
   OPT_HELP     = 'h',
   OPT_VERSION  = 'v',
 } bayon_options;
@@ -51,25 +54,30 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG  = "dummy";
-const size_t MAX_VECTOR_ITEM    = 50;
-const size_t MAX_CLASSIFICATION = 20;
+const std::string DUMMY_OPTARG      = "dummy";
+const size_t MAX_VECTOR_ITEM        = 50;
+const size_t DEFAULT_MAX_CLASSIFIED = 20;
+const size_t DEFAULT_INDEX_KEY_SIZE = 20;
+const size_t DEFAULT_INDEX_SIZE     = 100;
 
 
 /********************************************************************
  * global variables
  *******************************************************************/
 struct option longopts[] = {
-  {"number",   required_argument, NULL, OPT_NUMBER  },
-  {"limit",    required_argument, NULL, OPT_LIMIT   },
-  {"point",    no_argument,       NULL, OPT_POINT   },
-  {"clvector", required_argument, NULL, OPT_CLVECTOR},
-  {"idf",      no_argument,       NULL, OPT_IDF     },
-  {"method",   required_argument, NULL, OPT_METHOD  },
-  {"seed",     required_argument, NULL, OPT_SEED    },
-  {"classify", required_argument, NULL, OPT_CLASSIFY},
-  {"help",     no_argument,       NULL, OPT_HELP    },
-  {"version",  no_argument,       NULL, OPT_VERSION },
+  {"number",      required_argument, NULL, OPT_NUMBER     },
+  {"limit",       required_argument, NULL, OPT_LIMIT      },
+  {"point",       no_argument,       NULL, OPT_POINT      },
+  {"clvector",    required_argument, NULL, OPT_CLVECTOR   },
+  {"idf",         no_argument,       NULL, OPT_IDF        },
+  {"method",      required_argument, NULL, OPT_METHOD     },
+  {"seed",        required_argument, NULL, OPT_SEED       },
+  {"classify",    required_argument, NULL, OPT_CLASSIFY   },
+  {"inv-keys",    required_argument, NULL, OPT_INV_KEYS   },
+  {"inv-size",    required_argument, NULL, OPT_INV_SIZE   },
+  {"output-size", required_argument, NULL, OPT_OUTPUT_SIZE},
+  {"help",        no_argument,       NULL, OPT_HELP       },
+  {"version",     no_argument,       NULL, OPT_VERSION    },
   {0, 0, 0, 0}
 };
 
@@ -84,7 +92,8 @@ static size_t parse_tsv(std::string &tsv, Feature &feature);
 static size_t read_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                              bayon::VecKey &veckey, DocId2Str &docid2str,
                              VecKey2Str &veckey2str, Str2VecKey &str2veckey);
-static size_t read_classifier_vectors(std::ifstream &ifs,
+static size_t read_classifier_vectors(size_t max_index,
+                                      std::ifstream &ifs,
                                       bayon::Classifier &classifier,
                                       bayon::VecKey &veckey,
                                       DocId2Str &claid2str,
@@ -92,10 +101,11 @@ static size_t read_classifier_vectors(std::ifstream &ifs,
                                       Str2VecKey &str2veckey);
 static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
                           DocId2Str &docid2str, bool show_point);
-static void show_classification(const bayon::Classifier &classifer,
-                                const std::vector<bayon::Document *> &documents,
-                                const DocId2Str &docid2str,
-                                const DocId2Str &claid2str, size_t max);
+static void show_classified(size_t max_keys, size_t max_output,
+                            const bayon::Classifier &classifer,
+                            const std::vector<bayon::Document *> &documents,
+                            const DocId2Str &docid2str,
+                            const DocId2Str &claid2str);
 static void save_cluster_vector(std::ofstream &ofs,
                                 const std::vector<bayon::Cluster *> &clusters,
                                 const VecKey2Str &veckey2str);
@@ -114,18 +124,18 @@ int main(int argc, char **argv) {
   argc -= optind;
   argv += optind;
   if (argc != 1 || (option.find(OPT_NUMBER) == option.end()
-                    && option.find(OPT_LIMIT) == option.end())) {
+                    && option.find(OPT_LIMIT) == option.end()
+                    && option.find(OPT_CLASSIFY) == option.end())) {
     usage(progname);
     return 1;
   }
-
-  bayon::Analyzer analyzer;
 
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
     return 1;
   }
+
   DocId2Str docid2str;
   bayon::init_hash_map(bayon::DOC_EMPTY_KEY, docid2str);
   VecKey2Str veckey2str;
@@ -133,6 +143,8 @@ int main(int argc, char **argv) {
   Str2VecKey str2veckey;
   bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = 0;
+
+  bayon::Analyzer analyzer;
   read_documents(ifs_doc, analyzer, veckey,
                  docid2str, veckey2str, str2veckey);
 
@@ -143,19 +155,27 @@ int main(int argc, char **argv) {
     bayon::Classifier classifier;
     std::ifstream ifs_cla(option[OPT_CLASSIFY].c_str());
     if (!ifs_cla) {
-      std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
+      std::cerr << "[ERROR]File not found: " << option[OPT_CLASSIFY] << std::endl;
       return 1;
     }
+    size_t max_keys = option.find(OPT_INV_KEYS) != option.end() ?
+      atoi(option[OPT_INV_KEYS].c_str()) : DEFAULT_INDEX_KEY_SIZE;
+    size_t max_index = option.find(OPT_INV_SIZE) != option.end() ?
+      atoi(option[OPT_INV_SIZE].c_str()) : DEFAULT_INDEX_SIZE;
+    size_t max_output = option.find(OPT_OUTPUT_SIZE) != option.end() ?
+      atoi(option[OPT_OUTPUT_SIZE].c_str()) : DEFAULT_MAX_CLASSIFIED;
+
     DocId2Str claid2str;
     bayon::init_hash_map(bayon::DOC_EMPTY_KEY, claid2str);
-    read_classifier_vectors(ifs_cla, classifier, veckey,
+    read_classifier_vectors(max_index, ifs_cla, classifier, veckey,
                             claid2str, veckey2str, str2veckey);
-    show_classification(classifier, analyzer.documents(),
-                        docid2str, claid2str, MAX_CLASSIFICATION);
+    show_classified(20, max_output, classifier,
+                    analyzer.documents(), docid2str, claid2str);
 
   } else { /* do clustering */
     if (option.find(OPT_SEED) != option.end()) {
-      unsigned int seed = static_cast<unsigned int>(atoi(option[OPT_SEED].c_str()));
+      unsigned int seed = static_cast<unsigned int>(
+                            atoi(option[OPT_SEED].c_str()));
       analyzer.set_seed(seed);
     }
 
@@ -169,16 +189,18 @@ int main(int argc, char **argv) {
     analyzer.do_clustering(method);
     std::vector<bayon::Cluster *> clusters = analyzer.clusters();
 
+    bool flag_point = (option.find(OPT_POINT) != option.end()) ? true : false;
+    show_clusters(clusters, docid2str, flag_point);
+
     if (option.find(OPT_CLVECTOR) != option.end()) {
       std::ofstream ofs(option[OPT_CLVECTOR].c_str());
       if (!ofs) {
-        std::cerr << "[ERROR]Cannot open file: " << option[OPT_CLVECTOR] << std::endl;
+        std::cerr << "[ERROR]Cannot open file: "
+                  << option[OPT_CLVECTOR] << std::endl;
         return 1;
       }
       save_cluster_vector(ofs, clusters, veckey2str);
     }
-    bool flag_point = (option.find(OPT_POINT) != option.end()) ? true : false;
-    show_clusters(clusters, docid2str, flag_point);
   }
   return 0;
 }
@@ -188,6 +210,7 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": simple and fast clustering tool" << std::endl << std::endl
     << "Usage:" << std::endl
+    << "1) Do clustering input data" << std::endl
     << " " << progname << " -n num [options] file" << std::endl
     << " " << progname << " -l limit [options] file" << std::endl
     << "    -n, --number=num      number of clusters" << std::endl
@@ -197,8 +220,17 @@ static void usage(std::string progname) {
     << "    -i, --idf             apply idf to input vectors" << std::endl
     << "    -m, --method=method   clustering method(rb, kmeans), default:rb" << std::endl
     << "    -s, --seed=seed       set seed for random number generator" << std::endl
-    << "    -C, --classify=file   classify" << std::endl
-    << "    -v, --version         show the version and exit" << std::endl;
+    << "    -v, --version         show the version and exit" << std::endl << std::endl
+    << "2) Classify input data" << std::endl
+    << " " << progname << " -C file [options] file" << std::endl
+    << "    -C, --classify=file   target vectors" << std::endl
+    << "    --inv-keys=num        max size of keys to be looked up" << std::endl
+    << "                          inverted index(default: "
+    << DEFAULT_INDEX_KEY_SIZE << ")" << std::endl
+    << "    --inv-size=num        max size of inverted index(default: "
+    << DEFAULT_INDEX_SIZE << ")" << std::endl
+    << "    --ouput-size=num      max size of output similar vectors(default: "
+    << DEFAULT_MAX_CLASSIFIED << ")" << std::endl;
 }
 
 /* parse command line options */
@@ -206,7 +238,7 @@ static int parse_options(int argc, char **argv, Option &option) {
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt_long(argc, argv, "n:l:m:pc:im:s:C:hv", longopts, NULL))
+  while ((opt = getopt_long(argc, argv, "n:l:pm:c:im:s:C:hv", longopts, NULL))
          != -1) {
     switch (opt) {
     case OPT_NUMBER:
@@ -215,23 +247,32 @@ static int parse_options(int argc, char **argv, Option &option) {
     case OPT_LIMIT:
       option[OPT_LIMIT] = optarg;
       break;
-    case OPT_METHOD:
-      option[OPT_METHOD] = optarg;
-      break;
     case OPT_POINT:
       option[OPT_POINT] = DUMMY_OPTARG;
-      break;
-    case OPT_CLASSIFY:
-      option[OPT_CLASSIFY] = optarg;
       break;
     case OPT_CLVECTOR:
       option[OPT_CLVECTOR] = optarg;
       break;
     case OPT_IDF:
-      option[OPT_POINT] = DUMMY_OPTARG;
+      option[OPT_IDF] = DUMMY_OPTARG;
+      break;
+    case OPT_METHOD:
+      option[OPT_METHOD] = optarg;
       break;
     case OPT_SEED:
       option[OPT_SEED] = optarg;
+      break;
+    case OPT_CLASSIFY:
+      option[OPT_CLASSIFY] = optarg;
+      break;
+    case OPT_INV_KEYS:
+      option[OPT_INV_KEYS] = optarg;
+      break;
+    case OPT_INV_SIZE:
+      option[OPT_INV_SIZE] = optarg;
+      break;
+    case OPT_OUTPUT_SIZE:
+      option[OPT_OUTPUT_SIZE] = optarg;
       break;
     case OPT_HELP:
       option[OPT_HELP] = DUMMY_OPTARG;
@@ -307,7 +348,8 @@ static size_t read_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
 }
 
 /* read input file and add vectors to classifier */
-static size_t read_classifier_vectors(std::ifstream &ifs,
+static size_t read_classifier_vectors(size_t max_index,
+                                      std::ifstream &ifs,
                                       bayon::Classifier &classifier,
                                       bayon::VecKey &veckey,
                                       DocId2Str &claid2str,
@@ -322,7 +364,6 @@ static size_t read_classifier_vectors(std::ifstream &ifs,
       line = line.substr(p + bayon::DELIMITER.size());
 
       claid2str[claid] = name;
-      claid++;
       Feature feature;
       bayon::init_hash_map("", feature);
       parse_tsv(line, feature);
@@ -337,8 +378,10 @@ static size_t read_classifier_vectors(std::ifstream &ifs,
         vec.set(str2veckey[it->first], it->second);
       }
       classifier.add_vector(claid, vec);
+      claid++;
     }
   }
+  classifier.resize_inverted_index(max_index);
   return 0;
 }
 
@@ -362,21 +405,22 @@ static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
   }
 }
 
-/* show classification result */
-static void show_classification(const bayon::Classifier &classifier,
-                                const std::vector<bayon::Document *> &documents,
-                                const DocId2Str &docid2str, 
-                                const DocId2Str &claid2str, size_t max) {
+/* show classified result */
+static void show_classified(size_t max_keys, size_t max_output,
+                            const bayon::Classifier &classifier,
+                            const std::vector<bayon::Document *> &documents,
+                            const DocId2Str &docid2str, 
+                            const DocId2Str &claid2str) {
   DocId2Str::const_iterator it;
   for (size_t i = 0; i < documents.size(); i++) {
     std::vector<std::pair<bayon::VectorId, double> > pairs;
     documents[i]->feature()->normalize();
-    classifier.similar_vectors(*documents[i]->feature(), pairs);
+    classifier.similar_vectors(max_keys, *documents[i]->feature(), pairs);
 
     it = docid2str.find(documents[i]->id());
     if (it != docid2str.end()) std::cout << it->second;
     else                       std::cout << documents[i]->id();
-    for (size_t j = 0; j < pairs.size() && j < max; j++) {
+    for (size_t j = 0; j < pairs.size() && j < max_output; j++) {
       DocId2Str::const_iterator it = claid2str.find(pairs[j].first);
       std::cout << bayon::DELIMITER;
       if (it != claid2str.end()) std::cout << it->second;

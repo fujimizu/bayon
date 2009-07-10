@@ -47,17 +47,16 @@ const VectorId VECID_EMPTY_KEY = -1;
  */
 class Classifier {
  public:
-   typedef HashMap<VecKey, std::vector<VectorId> *>::type InvertedIndex;
+  typedef std::pair<VectorId, double> IndexItem;
+  typedef std::vector<IndexItem> InvertedIndexValue;
+  typedef HashMap<VecKey, InvertedIndexValue *>::type InvertedIndex;
 
  private:
-  /* max number of key of vector added to inverted index */
-  static const size_t MAX_VECTOR_KEY = 100;
-
   /* input vectors */
   HashMap<VectorId, Vector>::type vectors_;
 
   /* inverted index */
-   InvertedIndex inverted_index_;
+  InvertedIndex inverted_index_;
 
   /**
    * Add vector keys to inverted index
@@ -71,11 +70,12 @@ class Classifier {
   /**
    * Look up inverted index
    *
+   * @param max max number of vector keys looked up inverted index
    * @param vec input vectors
    * @param ids list of VectorId
    * @return size_t the number of output VectorId
    */
-  size_t lookup_inverted_index(const Vector &vec,
+  size_t lookup_inverted_index(size_t max, const Vector &vec,
                                std::vector<VectorId> &ids) const;
 
  public:
@@ -102,7 +102,6 @@ class Classifier {
    *
    * @param id vector id
    * @param vec Vector object
-   * @return void
    */
   void add_vector(VectorId id, const Vector &vec) {
     vectors_[id] = vec;
@@ -120,17 +119,22 @@ class Classifier {
   }
 
   /**
+   * Resize inverted index
+   *
+   * @param siz size of resized index
+   */
+  void resize_inverted_index(size_t siz);
+
+  /**
    * Get list of id and points of similar vectors
    *
+   * @param max max number of vector keys looked up inverted index
    * @param vec Vector object (must be normalized)
    * @param items pairs of id and similarity point
-   * @param use_inverted_index if true, use inverted index
-   * @return void
    */
   void similar_vectors(
-    const Vector &vec,
-    std::vector<std::pair<VectorId, double> > &items,
-    bool use_inverted_index = true) const;
+    size_t max, const Vector &vec,
+    std::vector<std::pair<VectorId, double> > &items) const;
 };
 
 } /* namespace bayon */
