@@ -32,6 +32,17 @@ void Vector::sorted_items(std::vector<VecItem> &items) const {
   std::sort(items.begin(), items.end(), greater_pair<VecKey, VecValue>);
 }
 
+/* Get items sorted by absolute value */
+void Vector::sorted_items_abs(std::vector<VecItem> &items) const {
+  for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
+    VecItem item;
+    item.first = it->first;
+    item.second = it->second;
+    items.push_back(item);
+  }
+  std::sort(items.begin(), items.end(), greater_pair_abs<VecKey, VecValue>);
+}
+
 /* Normalize the vector */
 void Vector::normalize() {
   double nrm = norm();
@@ -43,9 +54,12 @@ void Vector::normalize() {
 
 /* Resize the vector */
 void Vector::resize(size_t size) {
-  if (vec_.size() < size) return;
+  if (vec_.size() <= size) return;
   std::vector<VecItem> items;
-  sorted_items(items);
+  sorted_items_abs(items);
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  vec_.set_deleted_key(VECTOR_DELETED_KEY);
+#endif
   for (size_t i = size; i < items.size(); i++) {
     vec_.erase(items[i].first);
   }
@@ -96,27 +110,20 @@ void Vector::delete_vector(const Vector &vec) {
 /* Calculate squared euclid distance between vectors */
 double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   HashMap<VecKey, bool>::type done;
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-  done.set_empty_key(VECTOR_EMPTY_KEY);
-#endif
+  init_hash_map(VECTOR_EMPTY_KEY, done);
   VecHashMap::const_iterator it1, it2;
   double dist = 0;
 
-  it1 = vec1.hash_map()->begin();
-  while (it1 != vec1.hash_map()->end()) {
-    if ((it2 = vec2.hash_map()->find(it1->first)) != vec2.hash_map()->end()) {
-      dist += (it1->second - it2->second) * (it1->second - it2->second);
-      done[it1->first] = true;
-    }
-    ++it1;
+  for (it1 = vec1.hash_map()->begin(); it1 != vec1.hash_map()->end(); ++it1) {
+    double val = vec2.get(it1->first);
+    dist += (it1->second - val) * (it1->second - val);
+    done[it1->first] = true;
   }
-  it2 = vec2.hash_map()->begin();
-  while (it2 != vec2.hash_map()->end()) {
-    if (!done[it2->first] &&
-        (it1 = vec1.hash_map()->find(it2->first)) != vec1.hash_map()->end()) {
-      dist += (it1->second - it2->second) * (it1->second - it2->second);
+  for (it2 = vec2.hash_map()->begin(); it2 != vec2.hash_map()->end(); ++it2) {
+    if (done.find(it2->first) == done.end()) {
+      double val = vec1.get(it2->first);
+      dist += (it2->second - val) * (it2->second - val);
     }
-    ++it2;
   }
   return dist;
 }

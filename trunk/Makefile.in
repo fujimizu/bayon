@@ -41,6 +41,9 @@ LIBS = @LIBS@
 LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
 RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
 
+# tmp file
+tmpfile = tmp_cluster_vector.tsv
+
 
 #================================================================
 # Suffix rules
@@ -65,22 +68,32 @@ test : $(TESTCOMMANDFILES)
 check : $(TESTCOMMANDFILES)
 	$(RUNENV) $(RUNCMD) ./vectest
 	$(RUNENV) $(RUNCMD) ./clutest
+	$(RUNENV) $(RUNCMD) ./clatest
 	@printf '\n'
 	@printf '#================================================================\n'
 	@printf '# Checking completed.\n'
 	@printf '#================================================================\n'
 
-clean :
-	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
-	  *.o *~ a.out gmon.out leak.log
-
 check-valgrind : $(COMMANDFILES)
 	make RUNCMD="valgrind --tool=memcheck --log-fd=1" check > leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -l 1.0 data/test1.tsv >> leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -m kmeans data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -p data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --method kmeans data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --idf data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --seed 1234 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) --clvector-size 4 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --inv-keys 10 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --inv-size 10 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --classify-size 10 data/test1.tsv >> leak.log
+	rm $(tmpfile)
 	grep ERROR leak.log
 	grep 'at exit' leak.log
+
+clean :
+	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
+	  *.o *~ a.out gmon.out leak.log
 
 untabify :
 	ls *.cc *.h | while read name ; \
@@ -104,6 +117,7 @@ uninstall :
 
 dist :
 	make distclean
+	rm -rf .svn; rm -rf data/.svn
 	cd .. && tar cvf - $(PACKAGEDIR) | gzip -c > $(PACKAGETGZ)
 	sync ; sync
 
@@ -154,18 +168,26 @@ bayon : bayon.o $(LIBRARYFILES)
 vectest : vectest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
+clatest : clatest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
 clutest : clutest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
-bayon.o : byvector.h cluster.h config.h util.h
+bayon.o : byvector.h classifier.h cluster.h config.h util.h
 
 byvector.o : byvector.h config.h util.h
 
 vectest.o : byvector.h config.h util.h
 
+classifier.o : byvector.h classifier.h util.h
+
+clatest.o : byvector.h classifier.h util.h
+
 cluster.o : cluster.h config.h util.h
 
-clutest.o : byvector.h cluster.h
+clutest.o : byvector.h cluster.h util.h
 
+util.o : config.h util.h
 
 # END OF FILE

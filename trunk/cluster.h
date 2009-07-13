@@ -31,29 +31,53 @@
 
 namespace bayon {
 
-/* typedef */
-typedef int32_t DocumentId;  // Document ID
-//typedef int64_t DocumentId;  // Document ID
+/********************************************************************
+ * Typedef
+ *******************************************************************/
+/* Document ID */
+typedef long DocumentId;
 
-/* constants */
-const DocumentId DOCUMENT_ID_EMPTY = -1;
+
+/********************************************************************
+ * Typedef
+ *******************************************************************/
+const DocumentId DOC_EMPTY_KEY   = -1;
 
 
 /*********************************************************************
- * Document class
+ * Classes
  ********************************************************************/
+/**
+ * Document class
+ */
 class Document {
  private:
   DocumentId id_;
   Vector *feature_;
 
  public:
+  /**
+   * Constructor
+   *
+   * @param id document id
+   */
   Document(DocumentId id) : id_(id) {
     feature_ = new Vector;
   }
 
+  /**
+   * Constructor
+   *
+   * @param id document id
+   * @param feature features of document
+   */
   Document(DocumentId id, Vector *feature) : id_(id), feature_(feature) { }
 
+  /**
+   * Destructor
+   *
+   * if feature_ is null, delete it
+   */
   ~Document() {
     if (feature_) delete feature_;
   }
@@ -97,12 +121,12 @@ class Document {
   }
 
   /**
-   * Set feature
+   * Set features
    *
    * @param feature Vector object
    * @return void
    */
-  void set_feature(Vector *feature) {
+  void set_features(Vector *feature) {
     feature_ = feature;
   }
 
@@ -118,9 +142,9 @@ class Document {
 };
 
 
-/*********************************************************************
+/**
  * Cluster class
- ********************************************************************/
+ */
 class Cluster {
  private:
   /**
@@ -144,7 +168,7 @@ class Cluster {
   HashMap<DocumentId, bool>::type removed_;
 
   /**
-   * Sectioned clusters
+   * sectioned clusters
    */
   std::vector<Cluster *> sectioned_clusters_;
 
@@ -153,17 +177,18 @@ class Cluster {
    */
   double sectioned_gain_;
 
+  /**
+   * seed for random number generator
+   */
+  unsigned int seed_;
+
  public:
-  Cluster() : sectioned_gain_(0) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-    removed_.set_empty_key(DOCUMENT_ID_EMPTY);
-#endif
+  Cluster() : sectioned_gain_(0), seed_(DEFAULT_SEED) {
+    init_hash_map(DOC_EMPTY_KEY, removed_);
   }
 
-  Cluster(size_t n) : sectioned_gain_(0) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-    removed_.set_empty_key(DOCUMENT_ID_EMPTY);
-#endif
+  Cluster(size_t n) : sectioned_gain_(0), seed_(DEFAULT_SEED) {
+    init_hash_map(DOC_EMPTY_KEY, removed_);
     composite_.set_bucket_count(n);
 //    centroid_.set_bucket_count(n);
 //    removed_.resize(n);
@@ -183,6 +208,16 @@ class Cluster {
     removed_.clear();
     sectioned_clusters_.clear();
     sectioned_gain_ = 0.0;
+  }
+
+  /**
+   * Set seed for random number generator
+   *
+   * @param seed seed
+   * @return void
+   */
+  void set_seed(unsigned int seed) {
+    seed_ = seed;
   }
 
   /**
@@ -212,12 +247,18 @@ class Cluster {
 
   /**
    * Get composite Vector of the cluster
+   *
    * @return Vector * composite vector
    */
   Vector *composite_vector() {
     return &composite_;
   }
 
+  /**
+   * Get composite Vector of the cluster
+   *
+   * @return const Vector * composite vector
+   */
   const Vector *composite_vector() const {
     return &composite_;
   }
@@ -225,7 +266,7 @@ class Cluster {
   /**
    * Get documents
    *
-   * @return std::vector<Document *> &  list of documents in the cluster
+   * @return const std::vector<Document *> &  list of documents in the cluster
    */
   const std::vector<Document *> &documents() const  {
     return documents_;
@@ -247,6 +288,7 @@ class Cluster {
    * Remove a document
    *
    * @param index  index of vector container of documents
+   * @return void
    */
   void remove_document(size_t index) {
     composite_.delete_vector(*documents_[index]->feature());
@@ -316,7 +358,7 @@ class Cluster {
    * @param docs documents
    * @return void
    */
-  void choose_randomly(size_t ndocs, std::vector<Document *> &docs) const;
+  void choose_randomly(size_t ndocs, std::vector<Document *> &docs);
 
   /**
    * Choose documents smartly
@@ -325,7 +367,7 @@ class Cluster {
    * @param docs documents
    * @return void
    */
-  void choose_smartly(size_t ndocs, std::vector<Document *> &docs) const;
+  void choose_smartly(size_t ndocs, std::vector<Document *> &docs);
 
   /**
    * Section the cluster
@@ -339,9 +381,9 @@ class Cluster {
   /**
    * output stream
    */
-  friend std::ostream & operator <<(std::ostream &os, Cluster &cluster) {
+  friend std::ostream & operator <<(std::ostream &os, const Cluster &cluster) {
     for (size_t i = 0; i < cluster.documents_.size(); i++) {
-      if (i > 0) os << "\t";
+      if (i > 0) os << DELIMITER;
       os << cluster.documents_[i]->id();
     }
     return os;
@@ -349,9 +391,9 @@ class Cluster {
 };
 
 
-/*********************************************************************
+/**
  * Analyzer class
- ********************************************************************/
+ */
 class Analyzer {
  private:
   /**
@@ -385,6 +427,11 @@ class Analyzer {
   double limit_eval_;
 
   /**
+   * seed for random number generator
+   */
+  unsigned int seed_;
+
+  /**
    * Do repeated bisection clustering
    *
    * @return size_t number of clusters
@@ -410,9 +457,32 @@ class Analyzer {
   inline double refined_vector_value(const Vector &composite,
                                      const Vector &vec, int sign);
 
- public:
-  Analyzer() : cluster_index_(0), limit_nclusters_(0), limit_eval_(-1.0) { }
+  /**
+   * Count document frequency(DF) of vector keys
+   *
+   * @param df document frequency
+   * @return void
+   */
+  void count_df(HashMap<VecKey, size_t>::type &df) const;
 
+ public:
+  /**
+   * Constructor
+   */
+  Analyzer() : cluster_index_(0), limit_nclusters_(0), limit_eval_(-1.0),
+               seed_(DEFAULT_SEED) { }
+
+ /**
+  * Constructor
+  *
+  * @param seed seed for random number generator
+  */
+  Analyzer(unsigned int seed) : cluster_index_(0), limit_nclusters_(0),
+                                limit_eval_(-1.0), seed_(seed) { }
+
+ /**
+  * Destructor
+  */
   ~Analyzer() {
     for (size_t i = 0; i < documents_.size(); i++) {
       delete documents_[i];
@@ -426,6 +496,16 @@ class Analyzer {
   }
 
   /**
+   * Set seed for random number generator
+   *
+   * @param seed seed
+   * @return void
+   */
+  void set_seed(unsigned int seed) {
+    seed_ = seed;
+  }
+
+  /**
    * Add a document
    *
    * @param doc document object
@@ -433,9 +513,47 @@ class Analyzer {
    */
   void add_document(Document &doc) {
     Document *ptr = new Document(doc.id(), doc.feature());
-    doc.set_feature(NULL);
+    doc.set_features(NULL);
     documents_.push_back(ptr);
   }
+
+  /**
+   * Get documents
+   *
+   * @return std::vector<Document *> & documents
+   */
+  std::vector<Document *> &documents() {
+    return documents_;
+  }
+
+  /**
+   * Resize size of feature vectors of documents
+   *
+   * @param siz size of feature vectors
+   * @return void
+   */
+  void resize_document_features(size_t siz) {
+    for (size_t i = 0; i < documents_.size(); i++) {
+      documents_[i]->feature()->resize(siz);
+    }
+  }
+
+  /**
+   * Get clusters
+   *
+   * @return std::vector<Cluster *> & clusters
+   */
+  std::vector<Cluster *> &clusters() {
+    return clusters_;
+  }
+
+  /**
+   * Calculate inverse document frequency(IDF)
+   * and apply it to document vectors
+   *
+   * @return void
+   */
+  void idf();
 
   /**
    * Do clustering
@@ -484,6 +602,9 @@ class Analyzer {
 };
 
 
+/********************************************************************
+ * Functions
+ *******************************************************************/
 /**
  * Compare clusters by size of cluster
  *

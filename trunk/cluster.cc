@@ -34,16 +34,14 @@ void Cluster::sorted_documents(
 }
 
 /* choose documents randomly */
-void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const {
+void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) {
   HashMap<size_t, bool>::type choosed(ndocs);
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-  choosed.set_empty_key(documents_.size());
-#endif
   size_t siz = size();
+  init_hash_map(siz, choosed);
   if (siz < ndocs) ndocs = siz;
   size_t count = 0;
   while (count < ndocs) {
-    size_t index = rand() % siz;
+    size_t index = myrand(&seed_) % siz;
     if (choosed.find(index) == choosed.end()) {
       choosed.insert(std::pair<size_t, bool>(index, true));
       docs.push_back(documents_[index]);
@@ -53,16 +51,14 @@ void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) const
 }
 
 /* choose documents smartly */
-void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) const {
+void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) {
   HashMap<size_t, double>::type closest(docs.size());
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP 
-  closest.set_empty_key(documents_.size());
-#endif
   size_t siz = size();
+  init_hash_map(siz, closest);
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;
   
-  index = rand() % siz; // initial center
+  index = myrand(&seed_) % siz; // initial center
   docs.push_back(documents_[index]);
   ++count;
   double potential = 0.0;
@@ -75,7 +71,7 @@ void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) const 
 
   // choose each center
   while (count < ndocs) {
-    double randval = (double)rand() / RAND_MAX * potential;
+    double randval = (double)myrand(&seed_) / RAND_MAX * potential;
     for (index = 0; index < documents_.size(); index++) {
       double dist = closest[index];
       if (randval <= dist) break;
@@ -121,6 +117,7 @@ void Cluster::section(size_t nclusters) {
   choose_smartly(nclusters, centroids);
   for (size_t i = 0; i < centroids.size(); i++) {
     Cluster *cluster = new Cluster();
+    cluster->set_seed(seed_);
     sectioned_clusters_.push_back(cluster);
   }
 
@@ -142,6 +139,7 @@ void Cluster::section(size_t nclusters) {
 /* Do repeated bisection clustering */
 size_t Analyzer::repeated_bisection() {
   Cluster *cluster = new Cluster();
+    cluster->set_seed(seed_);
   for (size_t i = 0; i < documents_.size(); i++) {
     cluster->add_document(documents_[i]);
   }
@@ -198,6 +196,7 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
     norms[i] = clusters[i]->composite_vector()->norm();
   }
 
+  Random r(seed_);
   double eval_cluster = 0.0;
   unsigned int loop_count = 0;
   while (loop_count++ < NUM_REFINE_LOOP) {
@@ -207,7 +206,7 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
         items.push_back(std::pair<size_t, size_t>(i, j));
       }
     }
-    random_shuffle(items.begin(), items.end());
+    random_shuffle(items.begin(), items.end(), r);
 
     bool changed = false;
     for (size_t i = 0; i < items.size(); i++) {
@@ -263,9 +262,36 @@ double Analyzer::refined_vector_value(const Vector &composite,
   return sum;
 }
 
+/* Count document frequency of vector keys */
+void Analyzer::count_df(HashMap<VecKey, size_t>::type &df) const {
+  for (size_t i = 0; i < documents_.size(); i++) {
+    VecHashMap *hmap = documents_[i]->feature()->hash_map();
+    for (VecHashMap::iterator it = hmap->begin();
+         it != hmap->end(); ++it) {
+      if (df.find(it->first) == df.end()) df[it->first] = 1;
+      else                                df[it->first]++;
+    }
+  }
+}
+
+/* Calc inverse document frequency(IDF) and apply it */
+void  Analyzer::idf() {
+  HashMap<VecKey, size_t>::type df;
+  init_hash_map(VECTOR_EMPTY_KEY, df);
+  count_df(df);
+  size_t ndocs = documents_.size();
+  for (size_t i = 0; i < documents_.size(); i++) {
+    VecHashMap *hmap = documents_[i]->feature()->hash_map();
+    for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
+      (*hmap)[it->first] = it->second * log((double)ndocs / (df[it->first] + 1));
+    }
+  }
+}
+
 /* Do k-means clustering */
 size_t Analyzer::kmeans() {
   Cluster *cluster = new Cluster;
+  cluster->set_seed(seed_);
   for (size_t i = 0; i < documents_.size(); i++) {
     cluster->add_document(documents_[i]);
   }
