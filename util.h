@@ -20,10 +20,11 @@
 #ifndef BAYON_UTIL_H
 #define BAYON_UTIL_H
 
+#include <cstdlib>
 #include <iostream>
 #include "config.h"
 
-// include hash_map header
+/* include hash_map header */
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP
 #include <google/dense_hash_map>
 #elif HAVE_EXT_HASH_MAP
@@ -32,8 +33,26 @@
 #include <map>
 #endif
 
+/* Print debug messages */
+#ifdef DEBUG
+#define show_log(msg) \
+  do { std::cerr << "[log] " << msg << std::endl; } while (false);
+#else
+#define show_log(msg) \
+  do { } while (false);
+#endif
+
+/* isnan for win32 */
+#ifdef _WIN32
+#include <cfloat>
+#define isnan(x) _isnan(x)
+#endif
+
 namespace bayon {
 
+/********************************************************************
+ * Typedef
+ *******************************************************************/
 /**
  * typedef HashMap
  *
@@ -50,18 +69,34 @@ struct HashMap {
 #endif
 };
 
+
+/********************************************************************
+ * Constatns
+ *******************************************************************/
+/* default seed value for random number generator */
+const unsigned int DEFAULT_SEED = 12345;
+
+/* delimiter string */
+const std::string DELIMITER("\t");
+
+
+/********************************************************************
+ * Functions
+ *******************************************************************/
 /**
- * Print debug messages
+ * Initialize hash_map object (for google::dense_hash_map)
  *
- * @param msg debug message
+ * @param empty_key key of empty entry
+ * @param deleted_key key of deleted entry
+ * @return void
  */
-#ifdef DEBUG
-#define show_log(msg) \
-  do { std::cerr << "[log] " << msg << std::endl; } while (false);
-#else
-#define show_log(msg) \
-  do { } while (false);
+template<typename KeyType, typename HashType>
+void init_hash_map(const KeyType &empty_key, HashType &hmap) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.max_load_factor(0.9);
+  hmap.set_empty_key(empty_key);
 #endif
+}
 
 /**
  * Compare pair items
@@ -75,6 +110,58 @@ bool greater_pair(const std::pair<KeyType, ValueType> &left,
                   const std::pair<KeyType, ValueType> &right) {
   return left.second > right.second;
 }
+
+/**
+ * Compare pair items by absolute value
+ *
+ * @param left  item
+ * @param right item
+ * @return bool return true if abs(left_value) > abs(right_value)
+ */
+template<typename KeyType, typename ValueType>
+bool greater_pair_abs(const std::pair<KeyType, ValueType> &left,
+                      const std::pair<KeyType, ValueType> &right) {
+  return std::abs(left.second) > std::abs(right.second);
+}
+/**
+ * Set seed for random number generator
+ *
+ * @param seed seed
+ * @return void
+ */
+void mysrand(unsigned int seed);
+
+/**
+ * Get random number
+ *
+ * @param seed pointer of seed
+ * @return int random number
+ */
+int myrand(unsigned int *seed);
+
+
+/********************************************************************
+ * Classes
+ *******************************************************************/
+/**
+ * Random number generator class
+ */
+class Random {
+ private:
+  unsigned int seed_;
+
+ public:
+  Random() : seed_(DEFAULT_SEED) { }
+  Random(unsigned int seed) : seed_(seed) { }
+  ~Random() { }
+
+  void set_seed(unsigned int seed) { seed_ = seed; }
+  unsigned int operator()(unsigned int max) {
+    double ratio =  static_cast<double>(myrand(&seed_))
+                    / static_cast<double>(RAND_MAX);
+    return static_cast<unsigned int>(ratio * max);
+  }
+};
 
 } /* namespace bayon */
 

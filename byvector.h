@@ -30,54 +30,63 @@
 
 namespace bayon {
 
-/* typedef */
-typedef int32_t                         VecKey;   // key of vector
-//typedef int64_t                         VecKey;   // key of vector
+/********************************************************************
+ * Typedef
+ *******************************************************************/
+typedef long                            VecKey;   // key of vector
 typedef double                          VecValue; // value of vector
 typedef std::pair<VecKey, VecValue>     VecItem;  // key-value pair
 typedef HashMap<VecKey, VecValue>::type VecHashMap;
 
-/* Constants */
+
+/********************************************************************
+ * Constants
+ *******************************************************************/
 const VecKey   VECTOR_EMPTY_KEY   = -1;
 const VecKey   VECTOR_DELETED_KEY = -2;
 const VecValue VECTOR_NULL_VALUE  = 0.0;
 
 
-/*********************************************************************
+/********************************************************************
+ * Classes
+ *******************************************************************/
+/**
  * Vector class
- ********************************************************************/
+ *
+ * This is utility class for vector operations.
+ */
 class Vector {
  private:
+  /**
+   * internal hash_map object
+   */
   VecHashMap vec_;
 
  public:
+  /**
+   * Constructor
+   */
   Vector() {
-    init_hash_map();
+    init_hash_map(VECTOR_EMPTY_KEY, vec_);
   }
 
+  /**
+   * Constructor
+   *
+   * @param vec Vector object
+   */
   Vector(const Vector &vec) {
-    init_hash_map();
+    init_hash_map(VECTOR_EMPTY_KEY, vec_);
     for (VecHashMap::const_iterator it = vec.hash_map()->begin();
          it != vec.hash_map()->end(); ++it) {
       vec_[it->first] = it->second;
     }
   }
 
-  ~Vector() { }
-
   /**
-   * initialize internal hash_map object
-   * for google::dense_hash_map
-   *
-   * @return void
+   * Destructor
    */
-  void init_hash_map() {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-    vec_.max_load_factor(0.9);
-    vec_.set_empty_key(VECTOR_EMPTY_KEY);
-    vec_.set_deleted_key(VECTOR_DELETED_KEY);
-#endif
-  }
+  ~Vector() { }
 
   /**
    * Set bucket count of internal hash_map object
@@ -86,9 +95,7 @@ class Vector {
    * @return void
    */
   void set_bucket_count(size_t n) {
-#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
-    vec_.resize(n);
-#elif HAVE_EXT_HASH_MAP
+#if defined(HAVE_GOOGLE_DENSE_HASH_MAP) || defined(HAVE_EXT_HASH_MAP)
     vec_.resize(n);
 #endif
   }
@@ -151,9 +158,18 @@ class Vector {
   /**
    * Get pointer of internal hash_map object
    *
-   * @return VecHashMap* pointer of hash_map object
+   * @return const VecHashMap* pointer of hash_map object
    */
   const VecHashMap *hash_map() const {
+    return &vec_;
+  }
+
+  /**
+   * Get pointer of internal hash_map object
+   *
+   * @return VecHashMap* pointer of hash_map object
+   */
+  VecHashMap *hash_map() {
     return &vec_;
   }
 
@@ -164,6 +180,14 @@ class Vector {
    * @return void
    */
   void sorted_items(std::vector<VecItem> &items) const;
+
+  /**
+   * Get items sorted by absolute value (desc order)
+   *
+   * @param items sorted keys
+   * @return void
+   */
+  void sorted_items_abs(std::vector<VecItem> &items) const;
 
   /**
    * Normalize the vector
@@ -266,12 +290,12 @@ class Vector {
   /**
    * Output stream
    */
-  friend std::ostream &operator <<(std::ostream &os, Vector &vec) {
+  friend std::ostream &operator <<(std::ostream &os, const Vector &vec) {
     os.precision(4);
     for (VecHashMap::const_iterator it = vec.vec_.begin();
          it != vec.vec_.end(); ++it) {
-      if (it != vec.vec_.begin()) os << " ";
-      os << it->first << ":" << it->second;
+      if (it != vec.vec_.begin()) os << DELIMITER;
+      os << it->first << DELIMITER << it->second;
     }
     return os;
   }

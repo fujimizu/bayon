@@ -5,40 +5,114 @@
 ================================================================
 
 Overview:
-  Bayon is simple and fast hard-clustering tool.
+  Bayon is a simple and fast hard-clustering tool.
   Bayon supports repeated-bisection clustering and kmeans clustering.
 
 Install:
   % ./configure
   % make
-  $ make install
+  % sudo make install
 
 Usage:
-  % bayon -n num [-m method] file
-  % bayon -l limit [-m method] file
-       -n, --number num    ... number of clusters
-       -l, --limit lim     ... limit value of cluster bisection
-       -m, --method method ... clustering method(rb, kmeans), default:rb
+  * Do clustering input data
+    % bayon -n num [options] file
+    % bayon -l limit [options] file
+       -n, --number=num      number of clusters
+       -l, --limit=lim       limit value of cluster bisection
+       -p, --point           output similarity point
+       -c, --clvector=file   save vectors of cluster centroids
+       --clvector-size=num   max size of output vectors of
+                             cluster centroids (default: 50)
+       --method=method       clustering method(rb, kmeans), default:rb
+       --seed=seed           set seed for random number generator
+
+  * Classify input data into target groups
+    % bayon -C file [options] file
+       -C, --classify=file   target vectors
+       --inv-keys=num        max size of keys of each vector to be
+                             looked up in inverted index (default: 20)
+       --inv-size=num        max size of inverted index of each key
+                             (default: 100)
+       --classify-size=num   max size of output similar groups
+                             (default: 20)
+
+  * Common options
+       --idf                 apply idf to input vectors
+       -h, --help            show this message
+       -v, --version         show the version and exit
   
-  Example: (number_of_output_clusters = 100)
-  % bayon -n 100 input.tsv > result.tsv
+Example:
+  * clustering (number_of_output_clusters = 100)
+    % bayon -n 100 input.tsv > cluster.tsv
+
+  * clustering (save vectors of cluster centroids)
+    % bayon -n 100 -c centroid.tsv input.tsv > cluster.tsv
+
+  * classification (get similar clusters using centroid vectors)
+    % bayon -C centroid.tsv input.tsv > classify.tsv
 
 Format of Input Data:
-  document_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
-  document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
-  ...
+  * list of vectors of input documents for clustering and classification
 
-  * document_id : string
-  * key         : string
-  * value       : double
+    document_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+    document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+    ...
+
+    * document_id : string
+    * key         : string
+    * value       : double
+
+  * list of vectors of target groups for classification
+
+    group_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+    group_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+    ...
+
+    * group_id : string
+    * key      : string
+    * value    : double
 
 Format of Output Data:
-  cluster_id1 \t document_id1 \t document_id2 \t document_id3 \t ...\n
-  cluster_id2 \t document_id4 \t document_id5 \t document_id6 \t ...\n
-  ...
+  * list of clusters (output of clustering)
 
-  * cluster_id  : integer (>= 1)
-  * document_id : string
+    cluster_id1 \t document_id1 \t document_id2 \t document_id3 \t ...\n
+    cluster_id2 \t document_id4 \t document_id5 \t document_id6 \t ...\n
+    ...
+
+    * cluster_id  : integer (>= 1)
+    * document_id : string
+
+  * list of clusters with similarity points between documents and clusters
+    (if did clustering with [-p] option)
+
+    cluster_id1 \t document_id1 \t point1 \t document_id2 \t point2 \t ...\n
+    cluster_id2 \t document_id3 \t point3 \t document_id4 \t point4 \t ...\n
+    ...
+
+    * cluster_id  : integer (>= 1)
+    * document_id : string
+    * point       : double
+
+  * list of vectors of cluster centroids
+    (if did clustering with [-c file] option)
+
+    cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+    cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+    ...
+
+    * cluster_id  : integer (>= 1)
+    * key        : string
+    * value      : double
+
+  * list of similar groups for each input documents (output of classification)
+
+    document_id1 \t group_id1 \t point1 \t group_id2 \t point2 \t ...\n
+    document_id2 \t group_id3 \t point3 \t group_id4 \t point4 \t ...\n
+    ...
+
+    * document_id : string
+    * group_id    : string
+    * point       : double
 
 Requirement:
   * C++ compiler with STL (Standard Template Library)
