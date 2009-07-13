@@ -70,7 +70,8 @@ class Classifier {
   /**
    * Look up inverted index
    *
-   * @param max max number of vector keys looked up inverted index
+   * @param max max size of keys of each vector to be
+   *            looked up in inverted index
    * @param vec input vectors
    * @param ids list of VectorId
    * @return size_t the number of output VectorId
@@ -128,7 +129,8 @@ class Classifier {
   /**
    * Get list of id and points of similar vectors
    *
-   * @param max max number of vector keys looked up inverted index
+   * @param max max size of keys of each vector to be
+   *            looked up in inverted index
    * @param vec Vector object (must be normalized)
    * @param items pairs of id and similarity point
    */
