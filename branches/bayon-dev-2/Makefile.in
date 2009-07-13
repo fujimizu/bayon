@@ -78,12 +78,15 @@ check-valgrind : $(COMMANDFILES)
 	make RUNCMD="valgrind --tool=memcheck --log-fd=1" check > leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -l 1.0 data/test1.tsv >> leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -m kmeans data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -p data/test1.tsv >> leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -i data/test1.tsv >> leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -s 1234 data/test1.tsv >> leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) data/test1.tsv >> leak.log
-	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -C $(tmpfile) data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --method kmeans data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --idf data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --seed 1234 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) --clvector-size 4 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --inv-keys 10 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --inv-size 10 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --classify-size 10 data/test1.tsv >> leak.log
 	rm $(tmpfile)
 	grep ERROR leak.log
 	grep 'at exit' leak.log

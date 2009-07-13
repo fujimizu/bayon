@@ -33,7 +33,7 @@ void add_random_vectors(size_t max_vec, size_t max_key,
     for (size_t j = 0; j < max_key; j++) {
       vec.set(j, j);
     }
-    classifier.add_vector(i, max_key, vec);
+    classifier.add_vector(i, vec);
   }
 }
 

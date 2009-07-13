@@ -33,13 +33,14 @@ typedef enum {
   OPT_LIMIT    = 'l',
   OPT_POINT    = 'p',
   OPT_CLVECTOR = 'c',
-  OPT_IDF      = 'i',
-  OPT_METHOD   = 'm',
-  OPT_SEED     = 's',
+  OPT_CLVECTOR_SIZE,
+  OPT_METHOD,
+  OPT_SEED,
   OPT_CLASSIFY = 'C',
   OPT_INV_KEYS,
   OPT_INV_SIZE,
-  OPT_OUTPUT_SIZE,
+  OPT_CLASSIFY_SIZE,
+  OPT_IDF,
   OPT_HELP     = 'h',
   OPT_VERSION  = 'v',
 } bayon_options;
@@ -54,30 +55,32 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG      = "dummy";
-const size_t MAX_VECTOR_ITEM        = 50;
-const size_t DEFAULT_MAX_CLASSIFIED = 20;
-const size_t DEFAULT_INDEX_KEY_SIZE = 20;
-const size_t DEFAULT_INDEX_SIZE     = 100;
+const std::string DUMMY_OPTARG     = "dummy";
+const size_t MAX_VECTOR_ITEM       = 50;
+const size_t DEFAULT_MAX_CLVECTOR  = 50;
+const size_t DEFAULT_MAX_CLASSIFY  = 20;
+const size_t DEFAULT_MAX_INDEX_KEY = 20;
+const size_t DEFAULT_MAX_INDEX     = 100;
 
 
 /********************************************************************
  * global variables
  *******************************************************************/
 struct option longopts[] = {
-  {"number",      required_argument, NULL, OPT_NUMBER     },
-  {"limit",       required_argument, NULL, OPT_LIMIT      },
-  {"point",       no_argument,       NULL, OPT_POINT      },
-  {"clvector",    required_argument, NULL, OPT_CLVECTOR   },
-  {"idf",         no_argument,       NULL, OPT_IDF        },
-  {"method",      required_argument, NULL, OPT_METHOD     },
-  {"seed",        required_argument, NULL, OPT_SEED       },
-  {"classify",    required_argument, NULL, OPT_CLASSIFY   },
-  {"inv-keys",    required_argument, NULL, OPT_INV_KEYS   },
-  {"inv-size",    required_argument, NULL, OPT_INV_SIZE   },
-  {"output-size", required_argument, NULL, OPT_OUTPUT_SIZE},
-  {"help",        no_argument,       NULL, OPT_HELP       },
-  {"version",     no_argument,       NULL, OPT_VERSION    },
+  {"number",        required_argument, NULL, OPT_NUMBER       },
+  {"limit",         required_argument, NULL, OPT_LIMIT        },
+  {"point",         no_argument,       NULL, OPT_POINT        },
+  {"clvector",      required_argument, NULL, OPT_CLVECTOR     },
+  {"clvector-size", required_argument, NULL, OPT_CLVECTOR_SIZE},
+  {"idf",           no_argument,       NULL, OPT_IDF          },
+  {"method",        required_argument, NULL, OPT_METHOD       },
+  {"seed",          required_argument, NULL, OPT_SEED         },
+  {"classify",      required_argument, NULL, OPT_CLASSIFY     },
+  {"inv-keys",      required_argument, NULL, OPT_INV_KEYS     },
+  {"inv-size",      required_argument, NULL, OPT_INV_SIZE     },
+  {"classify-size", required_argument, NULL, OPT_CLASSIFY_SIZE},
+  {"help",          no_argument,       NULL, OPT_HELP         },
+  {"version",       no_argument,       NULL, OPT_VERSION      },
   {0, 0, 0, 0}
 };
 
@@ -106,7 +109,7 @@ static void show_classified(size_t max_keys, size_t max_output,
                             const std::vector<bayon::Document *> &documents,
                             const DocId2Str &docid2str,
                             const DocId2Str &claid2str);
-static void save_cluster_vector(std::ofstream &ofs,
+static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
                                 const std::vector<bayon::Cluster *> &clusters,
                                 const VecKey2Str &veckey2str);
 static void version();
@@ -159,17 +162,17 @@ int main(int argc, char **argv) {
       return 1;
     }
     size_t max_keys = option.find(OPT_INV_KEYS) != option.end() ?
-      atoi(option[OPT_INV_KEYS].c_str()) : DEFAULT_INDEX_KEY_SIZE;
+      atoi(option[OPT_INV_KEYS].c_str()) : DEFAULT_MAX_INDEX_KEY;
     size_t max_index = option.find(OPT_INV_SIZE) != option.end() ?
-      atoi(option[OPT_INV_SIZE].c_str()) : DEFAULT_INDEX_SIZE;
-    size_t max_output = option.find(OPT_OUTPUT_SIZE) != option.end() ?
-      atoi(option[OPT_OUTPUT_SIZE].c_str()) : DEFAULT_MAX_CLASSIFIED;
+      atoi(option[OPT_INV_SIZE].c_str()) : DEFAULT_MAX_INDEX;
+    size_t max_output = option.find(OPT_CLASSIFY_SIZE) != option.end() ?
+      atoi(option[OPT_CLASSIFY_SIZE].c_str()) : DEFAULT_MAX_CLASSIFY;
 
     DocId2Str claid2str;
     bayon::init_hash_map(bayon::DOC_EMPTY_KEY, claid2str);
     read_classifier_vectors(max_index, ifs_cla, classifier, veckey,
                             claid2str, veckey2str, str2veckey);
-    show_classified(20, max_output, classifier,
+    show_classified(max_keys, max_output, classifier,
                     analyzer.documents(), docid2str, claid2str);
 
   } else { /* do clustering */
@@ -199,7 +202,9 @@ int main(int argc, char **argv) {
                   << option[OPT_CLVECTOR] << std::endl;
         return 1;
       }
-      save_cluster_vector(ofs, clusters, veckey2str);
+      size_t max_vec = (option.find(OPT_CLVECTOR_SIZE) != option.end()) ?
+        atoi(option[OPT_CLVECTOR_SIZE].c_str()) : DEFAULT_MAX_CLVECTOR;
+      save_cluster_vector(max_vec, ofs, clusters, veckey2str);
     }
   }
   return 0;
@@ -210,27 +215,34 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": simple and fast clustering tool" << std::endl << std::endl
     << "Usage:" << std::endl
-    << "1) Do clustering input data" << std::endl
-    << " " << progname << " -n num [options] file" << std::endl
-    << " " << progname << " -l limit [options] file" << std::endl
+    << "* Do clustering input data" << std::endl
+    << " % " << progname << " -n num [options] file" << std::endl
+    << " % " << progname << " -l limit [options] file" << std::endl
     << "    -n, --number=num      number of clusters" << std::endl
     << "    -l, --limit=lim       limit value of cluster bisection" << std::endl
     << "    -p, --point           output similarity point" << std::endl
-    << "    -c, --clvector=file   save vectors of cluster centroids into file" << std::endl
-    << "    -i, --idf             apply idf to input vectors" << std::endl
-    << "    -m, --method=method   clustering method(rb, kmeans), default:rb" << std::endl
-    << "    -s, --seed=seed       set seed for random number generator" << std::endl
-    << "    -v, --version         show the version and exit" << std::endl << std::endl
-    << "2) Classify input data" << std::endl
-    << " " << progname << " -C file [options] file" << std::endl
+    << "    -c, --clvector=file   save vectors of cluster centroids" << std::endl
+    << "    --clvector-size=num   max size of output vectors of" << std::endl
+    << "                          cluster centroids (default: "
+    << DEFAULT_MAX_CLVECTOR << ")" << std::endl
+    << "    --method=method       clustering method(rb, kmeans), default:rb" << std::endl
+    << "    --seed=seed           set seed for random number generator" << std::endl << std::endl
+    << "* Classify input data into target groups" << std::endl
+    << " % " << progname << " -C file [options] file" << std::endl
     << "    -C, --classify=file   target vectors" << std::endl
-    << "    --inv-keys=num        max size of keys to be looked up" << std::endl
-    << "                          inverted index(default: "
-    << DEFAULT_INDEX_KEY_SIZE << ")" << std::endl
-    << "    --inv-size=num        max size of inverted index(default: "
-    << DEFAULT_INDEX_SIZE << ")" << std::endl
-    << "    --ouput-size=num      max size of output similar vectors(default: "
-    << DEFAULT_MAX_CLASSIFIED << ")" << std::endl;
+    << "    --inv-keys=num        max size of keys of each vector to be" << std::endl
+    << "                          looked up in inverted index (default: "
+    << DEFAULT_MAX_INDEX_KEY << ")" << std::endl
+    << "    --inv-size=num        max size of inverted index of each key" << std::endl
+    << "                          (default: "
+    << DEFAULT_MAX_INDEX << ")" << std::endl
+    << "    --classify-size=num   max size of output similar groups" << std::endl
+    << "                          (default: "
+    << DEFAULT_MAX_CLASSIFY << ")" << std::endl << std::endl
+    << "* Common options" << std::endl
+    << "    --idf                 apply idf to input vectors" << std::endl
+    << "    -h, --help            show this message" << std::endl
+    << "    -v, --version         show the version and exit" << std::endl;
 }
 
 /* parse command line options */
@@ -238,7 +250,7 @@ static int parse_options(int argc, char **argv, Option &option) {
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt_long(argc, argv, "n:l:pm:c:im:s:C:hv", longopts, NULL))
+  while ((opt = getopt_long(argc, argv, "n:l:pc:C:hv", longopts, NULL))
          != -1) {
     switch (opt) {
     case OPT_NUMBER:
@@ -252,6 +264,9 @@ static int parse_options(int argc, char **argv, Option &option) {
       break;
     case OPT_CLVECTOR:
       option[OPT_CLVECTOR] = optarg;
+      break;
+    case OPT_CLVECTOR_SIZE:
+      option[OPT_CLVECTOR_SIZE] = optarg;
       break;
     case OPT_IDF:
       option[OPT_IDF] = DUMMY_OPTARG;
@@ -271,8 +286,8 @@ static int parse_options(int argc, char **argv, Option &option) {
     case OPT_INV_SIZE:
       option[OPT_INV_SIZE] = optarg;
       break;
-    case OPT_OUTPUT_SIZE:
-      option[OPT_OUTPUT_SIZE] = optarg;
+    case OPT_CLASSIFY_SIZE:
+      option[OPT_CLASSIFY_SIZE] = optarg;
       break;
     case OPT_HELP:
       option[OPT_HELP] = DUMMY_OPTARG;
@@ -432,7 +447,7 @@ static void show_classified(size_t max_keys, size_t max_output,
 }
 
 /* save vectors of cluster centroids */
-static void save_cluster_vector(std::ofstream &ofs,
+static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
                                 const std::vector<bayon::Cluster *> &clusters,
                                 const VecKey2Str &veckey2str) {
   size_t cluster_count = 1;
@@ -441,7 +456,7 @@ static void save_cluster_vector(std::ofstream &ofs,
       std::vector<bayon::VecItem> items;
       clusters[i]->centroid_vector()->sorted_items_abs(items);
       ofs << cluster_count++;
-      for (size_t i = 0; i < items.size() && i < MAX_VECTOR_ITEM; i++) {
+      for (size_t i = 0; i < items.size() && i < max_vec; i++) {
         ofs << bayon::DELIMITER;
         VecKey2Str::const_iterator itv = veckey2str.find(items[i].first);
         if (itv != veckey2str.end()) ofs << itv->second;
