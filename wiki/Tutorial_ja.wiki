@@ -1,7 +1,5 @@
 _Tutorial for bayon in Japanese_
 
-*ver.0.0.5用にドキュメントを修正中です*
-
 <wiki:toc />
 
 = はじめに =
