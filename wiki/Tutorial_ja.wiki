@@ -103,7 +103,7 @@ bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 % bayon -n 100 -c centroid.tsv --clvector-size 20 input.tsv > output.tsv
 }}}
 
-また、*-C, --classify* オプションを使って、ドキュメントと各クラスタの類似度を求める場合は、この *-c, --clvector* オプションでクラスタの中心ベクトルを保存しておく必要があります。
+*-C, --classify* オプションを使用して、ドキュメントと各クラスタの類似度を求める場合は、この *-c, --clvector* オプションでクラスタの中心ベクトルを保存しておく必要があります。
 
 === クラスタリング手法を変更する場合 ===
 
