@@ -40,6 +40,7 @@ CMDLDFLAGS = @MYCMDLDFLAGS@
 LIBS = @LIBS@
 LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
 RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
+DEFS = @DEFS@
 
 # tmp file
 tmpfile = tmp_cluster_vector.tsv
@@ -53,7 +54,7 @@ tmpfile = tmp_cluster_vector.tsv
 .SUFFIXES : .cc .o
 
 .cc.o :
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) $(CFLAGS) $<
 
 
 #================================================================

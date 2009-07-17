@@ -20,7 +20,10 @@
 #ifndef BAYON_BAYON_H
 #define BAYON_BAYON_H
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
 #include "byvector.h"
 #include "classifier.h"
 #include "cluster.h"
