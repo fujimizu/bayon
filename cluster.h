@@ -20,12 +20,15 @@
 #ifndef BAYON_CLUSTER_H
 #define BAYON_CLUSTER_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <algorithm>
 #include <iostream>
 #include <queue>
 #include <sstream>
 #include <vector>
-#include "config.h"
 #include "byvector.h"
 #include "util.h"
 

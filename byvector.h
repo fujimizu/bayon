@@ -20,12 +20,15 @@
 #ifndef BAYON_BYVECTOR_H
 #define BAYON_BYVECTOR_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <cmath>
 #include <algorithm>
 #include <iostream>
 #include <utility>
 #include <vector>
-#include "config.h"
 #include "util.h"
 
 namespace bayon {

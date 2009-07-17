@@ -20,9 +20,12 @@
 #ifndef BAYON_UTIL_H
 #define BAYON_UTIL_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <cstdlib>
 #include <iostream>
-#include "config.h"
 
 /* include hash_map header */
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP
