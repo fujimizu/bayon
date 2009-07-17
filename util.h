@@ -48,6 +48,17 @@
 #define isnan(x) _isnan(x)
 #endif
 
+
+/* hash function of string key for __gnu_cxx::hash_map */
+namespace __gnu_cxx {
+    template<> struct hash<std::string> {
+        size_t operator() (const std::string &x) const {
+            return hash<const char *>()(x.c_str());
+        }   
+    };
+}
+
+
 namespace bayon {
 
 /********************************************************************
