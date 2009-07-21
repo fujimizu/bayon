@@ -115,7 +115,7 @@ class Classifier {
    *
    * @return size_t number of vectors
    */
-  size_t count_vectors() {
+  size_t count_vectors() const {
     return vectors_.size();
   }
 
