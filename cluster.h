@@ -553,10 +553,14 @@ class Analyzer {
   /**
    * Calculate inverse document frequency(IDF)
    * and apply it to document vectors
-   *
-   * @return void
    */
   void idf();
+
+  /**
+   * Calculate standard socre
+   * and apply it to document vectors
+   */
+  void standard_score();
 
   /**
    * Do clustering
