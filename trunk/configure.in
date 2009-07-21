@@ -64,7 +64,7 @@ AC_LANG(C++)
 # Checks for header files.
 AC_CHECK_HEADERS([google/dense_hash_map])
 AC_CHECK_HEADERS([ext/hash_map])
-AC_CHECK_HEADERS([gtest/gtest.h])
+AC_CHECK_HEADERS([gtest/gtest.h],, [AC_MSG_WARN([The test tools of bayon require gtest. If you use test tools, you must install it.])])
  
 if uname | grep Darwin >/dev/null
 then

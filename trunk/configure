@@ -4125,6 +4125,9 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
 #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
 
+else
+  { echo "$as_me:$LINENO: WARNING: The test tools of bayon requires gtest. If you use test tools, you must install it." >&5
+echo "$as_me: WARNING: The test tools of bayon requires gtest. If you use test tools, you must install it." >&2;}
 fi
 
 done
