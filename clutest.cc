@@ -108,7 +108,7 @@ TEST(DocumentTest, ClearTest) {
 
   EXPECT_TRUE(doc.feature()->size() != 0);
   doc.clear();
-  EXPECT_EQ(doc.feature()->size(), 0);
+  EXPECT_EQ(doc.feature()->size(), static_cast<size_t>(0));
 }
 
 /* Cluster::size */
@@ -120,7 +120,7 @@ TEST(ClusterTest, SizeTest) {
   cluster.add_document(&d1);
   cluster.add_document(&d2);
   cluster.add_document(&d3);
-  EXPECT_EQ(cluster.size(), 3);
+  EXPECT_EQ(cluster.size(), static_cast<size_t>(3));
   delete_documents(documents);
 }
 
