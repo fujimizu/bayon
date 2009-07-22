@@ -166,14 +166,14 @@ libbayon.dylib : libbayon.$(LIBVER).$(LIBREV).0.dylib
 bayon : bayon.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
 
-vectest : vectest.o $(LIBRARYFILES)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+vectest : vectest.o $(LIBRARYFILES) gtest-all.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ gtest-all.o $< $(LDFLAGS) -lbayon $(LIBS)
 
-clatest : clatest.o $(LIBRARYFILES)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+clatest : clatest.o $(LIBRARYFILES) gtest-all.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ gtest-all.o $< $(LDFLAGS) -lbayon $(LIBS)
 
-clutest : clutest.o $(LIBRARYFILES)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+clutest : clutest.o $(LIBRARYFILES) gtest-all.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ gtest-all.o $< $(LDFLAGS) -lbayon $(LIBS)
 
 bayon.o : byvector.h classifier.h cluster.h config.h util.h
 
@@ -190,5 +190,8 @@ cluster.o : cluster.h config.h util.h
 clutest.o : byvector.h cluster.h util.h
 
 util.o : config.h util.h
+
+gtest-all.o : gtest/gtest.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) $(CFLAGS) gtest/gtest-all.cc
 
 # END OF FILE

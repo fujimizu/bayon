@@ -110,7 +110,7 @@ TEST(VectorTest, ClearTest) {
   bayon::Vector vec;
   init_vector(vec, input1);
   vec.clear();
-  EXPECT_EQ(vec.size(), 0);
+  EXPECT_EQ(vec.size(), static_cast<size_t>(0));
 }
 
 /* hash_map */
