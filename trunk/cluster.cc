@@ -291,23 +291,19 @@ void  Analyzer::idf() {
 /* Calc standard score and apply it */
 void Analyzer::standard_score() {
   double sum = 0.0;
+  double sum_squared = 0.0;
   size_t siz = 0;
   for (size_t i = 0; i < documents_.size(); i++) {
     VecHashMap *hmap = documents_[i]->feature()->hash_map();
     for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
       sum += it->second;
+      sum_squared += it->second * it->second;
     }
     siz += hmap->size();
   }
-  double ave = sum / siz; // average
-  double sum_squared = 0.0;
-  for (size_t i = 0; i < documents_.size(); i++) {
-    VecHashMap *hmap = documents_[i]->feature()->hash_map();
-    for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-      sum_squared += (it->second - ave) * (it->second - ave);
-    }
-  }
-  double sdev = std::sqrt(sum_squared / siz); // standard deviation
+  double ave = sum / siz;
+  double variance = sum_squared / siz - ave * ave;
+  double sdev = std::sqrt(variance);
   for (size_t i = 0; i < documents_.size(); i++) {
     VecHashMap *hmap = documents_[i]->feature()->hash_map();
     for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
