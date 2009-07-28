@@ -6,7 +6,7 @@ _Tutorial for bayon in English_
 
 Bayon is a simple and fast [http://en.wikipedia.org/wiki/Cluster_analysis clustering] tool for large-scale data. If you want to survey large-scale data, bayon is useful to divide the data into some groups and look over.
 
-Bayon supports two clustering method, repeated bisection and [http://en.wikipedia.org/wiki/K-means_clustering K-means]. In output of these methods, 
+Bayon supports two hard-clustering methods, repeated bisection clustering and [http://en.wikipedia.org/wiki/K-means_clustering K-means clustering]. In output of these methods, the input document is assigned to only one cluster. But you can get the 
 
 = News =
 
