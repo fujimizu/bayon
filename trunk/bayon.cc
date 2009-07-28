@@ -18,6 +18,7 @@
 //
 
 #include <getopt.h>
+#include <cstdlib>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -122,11 +123,11 @@ int main(int argc, char **argv) {
   int optind = parse_options(argc, argv, option);
   if (option.find(OPT_VERSION) != option.end()) {
     version();
-    return 0;
+    return EXIT_SUCCESS;
   }
   if (option.find(OPT_HELP) != option.end()) {
     usage(progname);
-    return 0;
+    return EXIT_SUCCESS;
   }
   argc -= optind;
   argv += optind;
@@ -134,13 +135,13 @@ int main(int argc, char **argv) {
                     && option.find(OPT_LIMIT) == option.end()
                     && option.find(OPT_CLASSIFY) == option.end())) {
     usage(progname);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   DocId2Str docid2str;
@@ -163,7 +164,7 @@ int main(int argc, char **argv) {
     std::ifstream ifs_cla(option[OPT_CLASSIFY].c_str());
     if (!ifs_cla) {
       std::cerr << "[ERROR]File not found: " << option[OPT_CLASSIFY] << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
     size_t max_keys = option.find(OPT_INV_KEYS) != option.end() ?
       atoi(option[OPT_INV_KEYS].c_str()) : DEFAULT_MAX_INDEX_KEY;
@@ -204,14 +205,14 @@ int main(int argc, char **argv) {
       if (!ofs) {
         std::cerr << "[ERROR]Cannot open file: "
                   << option[OPT_CLVECTOR] << std::endl;
-        return 1;
+        return EXIT_FAILURE;
       }
       size_t max_vec = (option.find(OPT_CLVECTOR_SIZE) != option.end()) ?
         atoi(option[OPT_CLVECTOR_SIZE].c_str()) : DEFAULT_MAX_CLVECTOR;
       save_cluster_vector(max_vec, ofs, clusters, veckey2str);
     }
   }
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 /* show usage */

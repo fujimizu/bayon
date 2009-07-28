@@ -139,6 +139,7 @@ bool greater_pair_abs(const std::pair<KeyType, ValueType> &left,
                       const std::pair<KeyType, ValueType> &right) {
   return std::abs(left.second) > std::abs(right.second);
 }
+
 /**
  * Set seed for random number generator
  *
