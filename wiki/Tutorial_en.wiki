@@ -3,3 +3,34 @@ _Tutorial for bayon in English_
 <wiki:toc />
 
 = Introduction =
+
+Bayon is a simple and fast [http://en.wikipedia.org/wiki/Cluster_analysis clustering] tool for large-scale data. If you want to survey large-scale data, bayon is useful to divide the data into some groups and look over.
+
+Bayon supports two clustering method, repeated bisection and [http://en.wikipedia.org/wiki/K-means_clustering K-means]. In output of these methods, 
+
+= News =
+
+ * 2009/07/17: 0.0.6 Release
+
+= Download =
+
+Please download [http://code.google.com/p/bayon/downloads/list the latest version].
+
+= Installation =
+
+Dowload the latest source package, please install it as follows. And I recommend that you pre-install [http://code.google.com/p/google-sparsehash/ google-sparsehash] to run bayon faster.
+
+{{{
+% tar xvzf bayon-*.tar.gz
+% cd bayon-*
+% ./configure
+% make
+% make check
+% sudo make install
+}}}
+
+= Usage =
+
+== Do clustering input data ==
+
+== Specify the similar clusters for each input document ==
