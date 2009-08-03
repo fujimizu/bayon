@@ -28,7 +28,7 @@ LD_LIBRARY_PATH="$HOME/lib:/usr/local/lib:$LD_LIBRARY_PATH"
 export PATH CPATH LIBRARY_PATH LD_LIBRARY_PATH
 
 # Building flags
-MYCFLAGS="-Wall -fPIC -O3"
+MYCFLAGS="-Wall -fPIC -O2"
 MYCPPFLAGS="-I. -I\$(INCLUDEDIR) -I$HOME/include -I/usr/local/include"
 MYCPPFLAGS="$MYCPPFLAGS -D_GNU_SOURCE=1"
 MYLDFLAGS="-L. -L\$(LIBDIR) -L$HOME/lib -L/usr/local/lib"
@@ -46,7 +46,7 @@ AC_ARG_ENABLE(debug,
   AC_HELP_STRING([--enable-debug], [build for debugging]))
 if test "$enable_debug" = "yes"
 then
-  MYCFLAGS="-Wall -fPIC -O3 -g"
+  MYCFLAGS="-Wall -fPIC -O2 -g"
   MYCPPFLAGS="$MYCPPFLAGS -DDEBUG"
 fi
 
