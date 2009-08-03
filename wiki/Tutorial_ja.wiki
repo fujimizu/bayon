@@ -335,3 +335,8 @@ bayonでは、Repeated Bisectionと呼ばれるクラスタリング手法を採
 == K-means ==
 
 K-meansについては、Wikipediaの[http://ja.wikipedia.org/wiki/K-means%E6%B3%95 K-means法のページ]など、説明をしているwebページがたくさんあるのでそちらをご参照下さい。
+
+= 関連ページ =
+
+ * [http://alpha.mixi.co.jp/blog/?p=1049 mixi Engineer's Blog - 軽量データクラスタリングツールbayon]
+ * [http://alpha.mixi.co.jp/blog/?p=1245 mixi Engineer's Blog - bayonでソフトクラスタリング]
