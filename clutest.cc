@@ -28,7 +28,6 @@
 
 namespace {
 
-
 const size_t NUM_DOCUMENT   = 10;
 const size_t NUM_FEATURE    = 5;
 const size_t MAX_FEATURE_ID = 10;
