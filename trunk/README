@@ -11,6 +11,7 @@ Overview:
 Install:
   % ./configure
   % make
+  % make check
   % sudo make install
 
 Usage:

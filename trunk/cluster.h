@@ -221,6 +221,7 @@ class Cluster {
    */
   void set_seed(unsigned int seed) {
     seed_ = seed;
+    mysrand(seed_);
   }
 
   /**
