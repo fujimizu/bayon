@@ -101,7 +101,7 @@ Format of Output Data:
     cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
     ...
 
-    * cluster_id  : integer (>= 1)
+    * cluster_id : integer (>= 1)
     * key        : string
     * value      : double
 
