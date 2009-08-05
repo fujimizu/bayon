@@ -35,7 +35,7 @@ I recommend that you pre-install [http://code.google.com/p/google-sparsehash/ go
 
 = Usage =
 
-== Do clustering input data ==
+== Partition input data into some clusters ==
 
 When you want to do clustering the input data, perform the command-line tool with the following options. The output of clustering will be printed to stdout.
 
@@ -60,7 +60,6 @@ To specify the number of output clusters, perform clustering with *-n, --number*
 
 {{{
 (Partition input data into one hundred clusters)
-
 % bayon -n 100 input.tsv > output.tsv
 
 (Partition input data into one hundred clusters with similarity values)
@@ -69,12 +68,24 @@ To specify the number of output clusters, perform clustering with *-n, --number*
 
 === Specify the limit value of cluster partitions ===
 
-=== Save the vector of cluster centroids to a file === 
+=== Save the vectors of cluster centroids into a file === 
+
+To save the vectors of cluster centroids, perform clustering with *-c, --clvector* option. The vectors will be saved into the specified file in text format.
+
+Using *--clvector-size* option, you can specify the max number of the pairs of keys and points of centroid vectors which will be saved into a file. By default fifty pairs are saved.
+
+{{{
+(save the vectors of cluster centroids into 'centroid.tsv')
+% bayon -n 100 -c centroid.tsv input.tsv > output.tsv
+
+(max number of the pairs of each vector is 20)
+% bayon -n 100 -c centroid.tsv --clvector-size 20 input.tsv > output.tsv
+}}}
+
+If you want to get the similar clusters for each input document by using *-C, --classify* option, you need to save the vectors of cluster centroids.
 
 === Change the clutering methods ===
 
 === Change the seed value for random number generator ===
 
 == Specify the similar clusters for each input document ==
-
-
