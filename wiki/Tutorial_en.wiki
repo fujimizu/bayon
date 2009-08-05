@@ -56,7 +56,25 @@ The documents in each cluster are arranged in descending order of the similarity
 
 === Specify the number of output clusters  ===
 
+To specify the number of output clusters, perform clustering with *-n, --number* option.
 
+{{{
+(Partition input data into one hundred clusters)
+
+% bayon -n 100 input.tsv > output.tsv
+
+(Partition input data into one hundred clusters with similarity values)
+% bayon -n 100 -p input.tsv > output.tsv
+}}}
+
+=== Specify the limit value of cluster partitions ===
+
+=== Save the vector of cluster centroids to a file === 
+
+=== Change the clutering methods ===
+
+=== Change the seed value for random number generator ===
 
 == Specify the similar clusters for each input document ==
+
 
