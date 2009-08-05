@@ -112,3 +112,25 @@ Bayon selects documents randomly while clustering, so you can get the different 
 }}}
 
 == Specify the similar clusters for each input document ==
+
+=== Specify options for inverted index ===
+
+== Common options ==
+
+= Format of input data =
+
+== List of input documents ==
+
+=== idf option ===
+
+== List of the vectors of cluster centroids ==
+
+== Examples of input data ==
+
+= Format of output data =
+
+== List of clusters ==
+
+== List of clusters with similarity values ==
+
+== Examples of output data ==
