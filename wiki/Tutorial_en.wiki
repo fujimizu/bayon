@@ -37,4 +37,26 @@ I recommend that you pre-install [http://code.google.com/p/google-sparsehash/ go
 
 == Do clustering input data ==
 
+When you want to do clustering the input data, perform the command-line tool with the following options. The output of clustering will be printed to stdout.
+
+The documents in each cluster are arranged in descending order of the similarity values which is the cosine similarity between the documents vector and the cluster centroid vector. with *-p, --point* option the similarity values are printed in the result of clustering, by default not printed. 
+
+{{{
+% bayon -n num [options] file
+% bayon -l limit [options] file
+   -n, --number=num      number of clusters
+   -l, --limit=lim       limit value of cluster bisection
+   -p, --point           output similarity point
+   -c, --clvector=file   save vectors of cluster centroids
+   --clvector-size=num   max size of output vectors of
+                         cluster centroids (default: 50)
+   --method=method       clustering method(rb, kmeans), default:rb
+   --seed=seed           set seed for random number generator
+}}}
+
+=== Specify the number of output clusters  ===
+
+
+
 == Specify the similar clusters for each input document ==
+
