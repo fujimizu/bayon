@@ -72,7 +72,7 @@ To specify the number of output clusters, perform clustering with *-n, --number*
 
 To save the vectors of cluster centroids, perform clustering with *-c, --clvector* option. The vectors will be saved into the specified file in text format.
 
-Using *--clvector-size* option, you can specify the max number of the pairs of keys and points of centroid vectors which will be saved into a file. By default fifty pairs are saved.
+Using *--clvector-size* option, you can specify the max number of the pairs of keys and points in centroid vectors. By default fifty pairs are saved.
 
 {{{
 (save the vectors of cluster centroids into 'centroid.tsv')
@@ -86,6 +86,17 @@ If you want to get the similar clusters for each input document by using *-C, --
 
 === Change the clutering methods ===
 
+By default bayon uses 'Repeated Bisection Clustering' method. If you want to use 'K-means Clustering' method, perform clustering with *--method* option.
+
+{{{
+(Partition input data into a hundred clusters using K-means clustering method)
+% bayon -n 100 --method kmeans input.tsv > output.tsv
+}}}
+
+Repeated bisection clustering is faster and more accurate than K-means clustering, so you had better use Repeated Bisection clustering.
+
 === Change the seed value for random number generator ===
 
 == Specify the similar clusters for each input document ==
+
+
