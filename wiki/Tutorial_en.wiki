@@ -117,6 +117,16 @@ Bayon selects documents randomly while clustering, so you can get the different 
 
 == Common options ==
 
+The following options can be used when you do clustering and specify the similar clusters for each input document.
+
+{{{
+   --idf                 apply idf to input vectors
+   -h, --help            show help message
+   -v, --version         show the version and exit
+}}}
+
+See next section for details about *--idf* option.
+
 = Format of input data =
 
 == List of input documents ==
