@@ -113,6 +113,30 @@ Bayon selects documents randomly during clustering, so you can get the different
 
 == Specify the similar clusters for each input document ==
 
+Performing the command-line tool with *-C, --classify* option, you can get the list of the similar clusters for each input document like 'Soft Clustering'. The output will be printed to stdout.
+
+{{{
+% bayon -C file [options] file
+   -C, --classify=file   target vectors
+   --inv-keys=num        max size of keys of each vector to be
+                         looked up in inverted index (default: 20)
+   --inv-size=num        max size of inverted index of each key
+                         (default: 100)
+   --classify-size=num   max size of output similar groups
+                         (default: 20)
+}}}
+
+
+{{{
+(At first clustering input data saving the vectors of cluster centroids)
+% bayon -c centroid.tsv -n 100 input.tsv > cluster.tsv
+
+(Compare the vector of each document and the vector of each cluster centroid)
+% bayon -C centroid.tsv input.tsv > classify.tsv
+}}}
+
+
+
 === Specify options for inverted index ===
 
 == Common options ==
