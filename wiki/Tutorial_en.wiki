@@ -204,6 +204,16 @@ cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
 ...
 }}}
 
+== List of the similar clusters for each document ==
+
+The list of similar clusters for each document which specified by using *-C, --classify* option is in a tab-separated text format as below. Each line contains the information of one document, the identifier of the document followed by the pairs of the identifiers of clusters and the similarity values.
+
+{{{
+document_id1 \t cluster_id1 \t point1 \t cluster_id2 \t point2 \t ...\n
+document_id2 \t cluster_id3 \t point3 \t cluster_id4 \t point4 \t ...\n
+...
+}}}
+
 == Examples of output data ==
 
 The result of clustering the above example is the following.
