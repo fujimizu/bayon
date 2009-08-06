@@ -131,6 +131,18 @@ See next section for details about *--idf* option.
 
 == List of input documents ==
 
+The file of the list of input documents needs to be in a tab-separated text format as bellow. Each line must contain the information of only one document, the identifier of the document followed by the pairs of the keys and the values of document features. Blank lines must not be inserted. 
+
+{{{
+document_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+...
+}}}
+
+ * _document_id_: This is the identifier of a document, and must be the unique string which doesn't contains tab characters. 
+ * _key_: This is the key of the feature of a document, and must be the string which doesn't contains tab characters.
+ * _value_*: This is the key of the feature of a document, and must be real number. 
+
 === idf option ===
 
 == List of the vectors of cluster centroids ==
