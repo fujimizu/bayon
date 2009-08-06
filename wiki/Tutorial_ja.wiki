@@ -268,6 +268,16 @@ cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
 ...
 }}}
 
+== 各ドキュメントに類似するクラスタのリスト ==
+
+*-C, --classify* オプションを使用して、各ドキュメントに対し類似しているクラスタを求めたときの結果は以下のタブ区切りのテキストフォーマットになります。1行が1ドキュメントの情報を表し、先頭がドキュメントのID、それ以降は関連するクラスタのIDとその類似度になります。:
+
+{{{
+document_id1 \t cluster_id1 \t point1 \t cluster_id2 \t point2 \t ...\n
+document_id2 \t cluster_id3 \t point3 \t cluster_id4 \t point4 \t ...\n
+...
+}}}
+
 == 出力データの例 ==
 
 上記の音楽のジャンルを使用した例を3つのクラスタに分割したときの出力は、以下になります。
