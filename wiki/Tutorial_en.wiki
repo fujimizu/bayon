@@ -127,6 +127,7 @@ Performing the command-line tool with *-C, --classify* option, you can get the l
 }}}
 
 
+
 {{{
 (At first clustering input data saving the vectors of cluster centroids)
 % bayon -c centroid.tsv -n 100 input.tsv > cluster.tsv
@@ -260,7 +261,7 @@ The vectors of the cluster centroids is the following.
 
 {{{
 1   Jazz    0.750476    Reggae  0.654458    Metal   0.0920378
-2   Pop 0.806401    Rock    0.451887    Hip-hop 0.277129    R&B 0.262137
+2   Pop     0.806401    Rock    0.451887    Hip-hop 0.277129    R&B 0.262137
 3   Classic 0.921175    World   0.383297    Rock    0.0672347
 }}}
 
