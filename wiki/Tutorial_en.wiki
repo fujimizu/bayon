@@ -143,6 +143,8 @@ document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
  * _key_: This is the key of the feature of a document, and must be the string which doesn't contains tab characters.
  * _value_: This is the key of the feature of a document, and must be real number. 
 
+_value_ needs to reflect the degree of the feature appropriately. So, you should 
+
 === idf option ===
 
 == List of the vectors of cluster centroids ==
