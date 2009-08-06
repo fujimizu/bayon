@@ -39,7 +39,7 @@ I recommend that you pre-install [http://code.google.com/p/google-sparsehash/ go
 
 When you want to do clustering the input data, perform the command-line tool with the following options. The output of clustering will be printed to stdout.
 
-The documents in each cluster are arranged in descending order of the similarity values which is the cosine similarity between the documents vector and the cluster centroid vector. with *-p, --point* option the similarity values are printed in the result of clustering, by default not printed. 
+The documents in each cluster are arranged in descending order of the similarity values which is the cosine similarity between the vectors of documents and the vector of the cluster centroid. Clustering with *-p, --point* option, the similarity values are printed in the result of clustering, by default not printed. 
 
 {{{
 % bayon -n num [options] file
@@ -147,16 +147,96 @@ _value_ needs to reflect the degree of the feature appropriately. So, you should
 
 === idf option ===
 
-
-
 == List of the vectors of cluster centroids ==
 
+The file of vectors of cluster centroids needs to be in a tab-separated text format as below. This file is used as input data when you get the similar clsuters for each documents with *-C, --classify* option. Each field (cluster_id, key, value) is same as that of the list of input documents.
+
+{{{
+cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+...
+}}}
+
+The file of vectors of cluster centroids is printed by bayon with *-c, --clvector* option automatically, so you don't usually need to make it.
+
 == Examples of input data ==
+
+{{{
+Alex   Pop      10    R&B      6    Rock     4
+Bob    Jazz      8    Reggae   9
+Dave   Classic   4    World    4
+Ted    Jazz      9    Metal    2    Regga    6
+Fred   Pop       4    Rock     3    Hip-hop  3
+Sam    Classic   8    Rock     1
+}}}
+
+In the above examle, 'Alex', 'Bob', 'Ted' are the identifiers of the documents, and 'Alex' has the features as the genres of music (Pop, R&B, Rock) which he often listens.
 
 = Format of output data =
 
 == List of clusters ==
 
+The file of list of output clusters is in a tab-separated text format as below. Each line contains the information of one cluster, the identifier of the cluster followed by the identifiers of the documents in the cluster. 
+
+{{{
+cluster_id1 \t document_id1 \t document_id2 \t document_id3 \t ...\n
+cluster_id2 \t document_id4 \t document_id5 \t document_id6 \t ...\n
+...
+}}}
+
 == List of clusters with similarity values ==
 
+Clustering with *-p, --point* option, the similarity values are printed in the result of clustering. The similartiy values are calculated by cosine similarity measure between the vectors of the documents and the vectors of the cluster centroids.
+
+{{{
+cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+...
+}}}
+
+== List of the vectors of cluster centroids ==
+
+Clustering with *-c, --clvector* option, the list of the vectors of cluter centroids are saved into the specified file. The format of output file is tab-separated text as below. Each line contains the information of one cluster, the identifier of the cluster followed by the pairs of the keys and the values of cluster centroid vectors.
+
+{{{
+cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+...
+}}}
+
 == Examples of output data ==
+
+The result of clustering the above example is the following.
+
+{{{
+1       Ted     Bob
+2       Alex    Fred
+3       Sam     Dave
+}}}
+
+The result of clustering the above example with *-p, --point* option is the following.
+
+{{{
+1       Ted     0.987737        Bob     0.987737
+2       Alex    0.928262        Fred    0.928262
+3       Sam     0.922401        Dave    0.922401
+}}}
+
+The vectors of the cluster centroids is the following.
+
+{{{
+1   Jazz    0.750476    Reggae  0.654458    Metal   0.0920378
+2   Pop 0.806401    Rock    0.451887    Hip-hop 0.277129    R&B 0.262137
+3   Classic 0.921175    World   0.383297    Rock    0.0672347
+}}}
+
+The result specified the similar clusters for each document is the following.
+
+{{{
+Alex    2       0.928261        3       0.0218138
+Bob     1       0.987737
+Dave    3       0.922401
+Ted     1       0.987737
+Fred    2       0.928262        3       0.034592
+Sam     3       0.922401        2       0.0560497
+}}}
