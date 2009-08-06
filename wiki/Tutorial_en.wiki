@@ -141,7 +141,7 @@ document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
 
  * _document_id_: This is the identifier of a document, and must be the unique string which doesn't contains tab characters. 
  * _key_: This is the key of the feature of a document, and must be the string which doesn't contains tab characters.
- * _value_*: This is the key of the feature of a document, and must be real number. 
+ * _value_: This is the key of the feature of a document, and must be real number. 
 
 === idf option ===
 
