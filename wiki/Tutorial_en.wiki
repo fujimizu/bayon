@@ -20,7 +20,7 @@ Please download [http://code.google.com/p/bayon/downloads/list the latest versio
 
 Dowload the latest source package, and type the followings.
 
-I recommend that you pre-install [http://code.google.com/p/google-sparsehash/ google-sparsehash] to run bayon faster.
+I recommend that you should pre-install [http://code.google.com/p/google-sparsehash/ google-sparsehash] to run bayon faster.
 
 {{{
 % tar xvzf bayon-*.tar.gz
