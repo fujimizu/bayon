@@ -8,7 +8,7 @@ Bayon is a simple and fast [http://en.wikipedia.org/wiki/Cluster_analysis cluste
 
 Bayon supports two hard-clustering methods, repeated bisection clustering and [http://en.wikipedia.org/wiki/K-means_clustering K-means clustering]. In the outputs of these methods, each input document is assigned to only one cluster. But you can get the similar clusters for each input document by using *--classifier* option.
 
-= News =
+= What's new =
 
  * 2009/07/17: 0.0.6 Released
 
