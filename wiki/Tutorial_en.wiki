@@ -150,7 +150,7 @@ The following options can be used when you perform clustering and specify the si
 
 {{{
    --idf                 apply idf to input vectors
-   -h, --help            show help message
+   -h, --help            show help messages
    -v, --version         show the version and exit
 }}}
 
