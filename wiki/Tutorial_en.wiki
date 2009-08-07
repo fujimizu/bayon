@@ -1,7 +1,5 @@
 _Tutorial for bayon in English_
 
-*Now under construction ...*
-
 <wiki:toc />
 
 = Introduction =
