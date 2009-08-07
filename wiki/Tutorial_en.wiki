@@ -139,7 +139,12 @@ You need to perform clustering with *-c, --clvector* option to save the vectors 
 
 === Specify options for inverted index ===
 
-When 
+Specifying the similar clusters for each documents with *-C, --classify* option, bayon makes [http://en.wikipedia.org/wiki/Inverted_index inverted indexes] of the vector of input clusters for speeding up. Bayon may work faster or more accurate by specifying the following options for inverted indexes.
+
+ * *--inv-keys=num* : the max number of vector keys looked up inverted indexes
+ * *--inv-size=num* : the max number of the related clusters for each vector key in inverted indexes
+
+However, you don't need to specify above option usually.
 
 == Common options ==
 
@@ -170,8 +175,6 @@ document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
  * _value_: This is the key of the feature of a document, and must be real number. 
 
 _value_ needs to reflect the degree of the feature appropriately. So, you should apply weighting scheme (e.g. [http://en.wikipedia.org/wiki/TF_IDF tf-idf]) to input data. Specifying *--idf* option, bayon changes the weights of input data automatically.
-
-=== idf option ===
 
 == List of the vectors of cluster centroids ==
 
