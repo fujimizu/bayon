@@ -9,9 +9,6 @@
 /* Define to 1 if you have the <google/dense_hash_map> header file. */
 #undef HAVE_GOOGLE_DENSE_HASH_MAP
 
-/* Define to 1 if you have the <gtest/gtest.h> header file. */
-#undef HAVE_GTEST_GTEST_H
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
