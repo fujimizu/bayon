@@ -15,7 +15,7 @@ Install:
   % sudo make install
 
 Usage:
-  * Do clustering input data
+  * Clustering input data
     % bayon -n num [options] file
     % bayon -l limit [options] file
        -n, --number=num      number of clusters
@@ -27,7 +27,7 @@ Usage:
        --method=method       clustering method(rb, kmeans), default:rb
        --seed=seed           set seed for random number generator
 
-  * Classify input data into target groups
+  * Get the similar clusters for each input documents
     % bayon -C file [options] file
        -C, --classify=file   target vectors
        --inv-keys=num        max size of keys of each vector to be
@@ -39,7 +39,7 @@ Usage:
 
   * Common options
        --idf                 apply idf to input vectors
-       -h, --help            show this message
+       -h, --help            show help message
        -v, --version         show the version and exit
   
 Example:
@@ -53,7 +53,7 @@ Example:
     % bayon -C centroid.tsv input.tsv > classify.tsv
 
 Format of Input Data:
-  * list of vectors of input documents for clustering and classification
+  * list of the vectors of input documents for clustering and classification
 
     document_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
     document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
@@ -63,15 +63,15 @@ Format of Input Data:
     * key         : string
     * value       : double
 
-  * list of vectors of target groups for classification
+  * list of the vectors of cluster centroids
 
-    group_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
-    group_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
+    cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
+    cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
     ...
 
-    * group_id : string
-    * key      : string
-    * value    : double
+    * cluster_id : string
+    * key        : string
+    * value      : double
 
 Format of Output Data:
   * list of clusters (output of clustering)
@@ -83,7 +83,7 @@ Format of Output Data:
     * cluster_id  : integer (>= 1)
     * document_id : string
 
-  * list of clusters with similarity points between documents and clusters
+  * list of clusters with similarity values between documents and clusters
     (if did clustering with [-p] option)
 
     cluster_id1 \t document_id1 \t point1 \t document_id2 \t point2 \t ...\n
@@ -94,7 +94,7 @@ Format of Output Data:
     * document_id : string
     * point       : double
 
-  * list of vectors of cluster centroids
+  * list of the vectors of cluster centroids
     (if did clustering with [-c file] option)
 
     cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
@@ -105,14 +105,14 @@ Format of Output Data:
     * key        : string
     * value      : double
 
-  * list of similar groups for each input documents (output of classification)
+  * list of similar clusters for each input documents
 
-    document_id1 \t group_id1 \t point1 \t group_id2 \t point2 \t ...\n
-    document_id2 \t group_id3 \t point3 \t group_id4 \t point4 \t ...\n
+    document_id1 \t cluster_id1 \t point1 \t cluster_id2 \t point2 \t ...\n
+    document_id2 \t cluster_id3 \t point3 \t cluster_id4 \t point4 \t ...\n
     ...
 
     * document_id : string
-    * group_id    : string
+    * cluster_id  : string
     * point       : double
 
 Requirement:

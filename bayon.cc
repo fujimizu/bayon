@@ -220,7 +220,7 @@ static void usage(std::string progname) {
   std::cerr
     << progname << ": simple and fast clustering tool" << std::endl << std::endl
     << "Usage:" << std::endl
-    << "* Do clustering input data" << std::endl
+    << "* Clustering input data" << std::endl
     << " % " << progname << " -n num [options] file" << std::endl
     << " % " << progname << " -l limit [options] file" << std::endl
     << "    -n, --number=num      number of clusters" << std::endl
@@ -232,7 +232,7 @@ static void usage(std::string progname) {
     << DEFAULT_MAX_CLVECTOR << ")" << std::endl
     << "    --method=method       clustering method(rb, kmeans), default:rb" << std::endl
     << "    --seed=seed           set seed for random number generator" << std::endl << std::endl
-    << "* Classify input data into target groups" << std::endl
+    << "* Get the similar clusters for each input documents" << std::endl
     << " % " << progname << " -C file [options] file" << std::endl
     << "    -C, --classify=file   target vectors" << std::endl
     << "    --inv-keys=num        max size of keys of each vector to be" << std::endl
@@ -246,7 +246,7 @@ static void usage(std::string progname) {
     << DEFAULT_MAX_CLASSIFY << ")" << std::endl << std::endl
     << "* Common options" << std::endl
     << "    --idf                 apply idf to input vectors" << std::endl
-    << "    -h, --help            show this message" << std::endl
+    << "    -h, --help            show help message" << std::endl
     << "    -v, --version         show the version and exit" << std::endl;
 }
 
