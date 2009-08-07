@@ -278,7 +278,7 @@ Sam     3       0.922401        2       0.0560497
 
 The execution times to perform clustering and get the similar clusters (classification) are as bellow. Bayon could perform both clustering and classification fast.
 
-|| *# of data* || *# of cluster* || *clustering(sec)* || *classification(sec)* ||
+|| *# of data* || *# of cluster* || *time of clustering(sec)* || *time of classification(sec)* ||
 || 1000 || 10 || 0.17 || 0.088 ||
 || 50000 || 1000 || 36 || 13.4 ||
 || 500000 || 10000 || 720 || 1385 ||
