@@ -1737,7 +1737,7 @@ LD_LIBRARY_PATH="$HOME/lib:/usr/local/lib:$LD_LIBRARY_PATH"
 export PATH CPATH LIBRARY_PATH LD_LIBRARY_PATH
 
 # Building flags
-MYCFLAGS="-Wall -fPIC -O2"
+MYCFLAGS="-Wall -fPIC -O3"
 MYCPPFLAGS="-I. -I\$(INCLUDEDIR) -I$HOME/include -I/usr/local/include"
 MYCPPFLAGS="$MYCPPFLAGS -D_GNU_SOURCE=1"
 MYLDFLAGS="-L. -L\$(LIBDIR) -L$HOME/lib -L/usr/local/lib"
@@ -1758,7 +1758,7 @@ fi
 
 if test "$enable_debug" = "yes"
 then
-  MYCFLAGS="-Wall -fPIC -O2 -g"
+  MYCFLAGS="-Wall -fPIC -O3 -g"
   MYCPPFLAGS="$MYCPPFLAGS -DDEBUG"
 fi
 
