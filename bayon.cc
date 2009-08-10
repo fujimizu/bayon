@@ -246,7 +246,7 @@ static void usage(std::string progname) {
     << DEFAULT_MAX_CLASSIFY << ")" << std::endl << std::endl
     << "* Common options" << std::endl
     << "    --idf                 apply idf to input vectors" << std::endl
-    << "    -h, --help            show help message" << std::endl
+    << "    -h, --help            show help messages" << std::endl
     << "    -v, --version         show the version and exit" << std::endl;
 }
 
