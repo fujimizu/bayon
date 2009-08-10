@@ -39,7 +39,7 @@ Usage:
 
   * Common options
        --idf                 apply idf to input vectors
-       -h, --help            show help message
+       -h, --help            show help messages
        -v, --version         show the version and exit
   
 Example:
