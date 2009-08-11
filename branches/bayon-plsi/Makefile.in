@@ -1,0 +1,197 @@
+#================================================================
+# Setting Variables
+#================================================================
+
+# Generic settings
+SHELL = @SHELL@
+
+# Package information
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+PACKAGEDIR = $(PACKAGE)-$(VERSION)
+PACKAGETGZ = $(PACKAGE)-$(VERSION).tar.gz
+LIBVER = @MYLIBVER@
+LIBREV = @MYLIBREV@
+FORMATVER = @MYFORMATVER@
+
+# Targets
+HEADERFILES = @MYHEADERFILES@
+LIBRARYFILES = @MYLIBRARYFILES@
+LIBOBJFILES = @MYLIBOBJFILES@
+COMMANDFILES = @MYCOMMANDFILES@
+TESTCOMMANDFILES = @MYTESTCOMMANDFILES@
+DOCUMENTFILES = @MYDOCUMENTFILES@
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+INCLUDEDIR = @includedir@/bayon
+LIBDIR = @libdir@
+BINDIR = @bindir@
+DESTDIR = 
+
+# Building configuration
+CC = @CXX@
+CPPFLAGS = @MYCPPFLAGS@
+CFLAGS = @MYCFLAGS@
+LDFLAGS = @MYLDFLAGS@
+TESTLDFLAGS = @MYTESTLDFLAGS@
+CMDLDFLAGS = @MYCMDLDFLAGS@
+LIBS = @LIBS@
+LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
+RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
+DEFS = @DEFS@
+
+# tmp file
+tmpfile = tmp_cluster_vector.tsv
+
+
+#================================================================
+# Suffix rules
+#================================================================
+
+.SUFFIXES :
+.SUFFIXES : .cc .o
+
+.cc.o :
+	$(CC) -c $(CPPFLAGS) $(DEFS) $(CFLAGS) $<
+
+
+#================================================================
+# Actions
+#================================================================
+
+all : $(LIBRARYFILES) $(COMMANDFILES)
+
+test : $(TESTCOMMANDFILES)
+	make check
+
+check : $(TESTCOMMANDFILES)
+	$(RUNENV) $(RUNCMD) ./vectest
+	$(RUNENV) $(RUNCMD) ./clutest
+	$(RUNENV) $(RUNCMD) ./clatest
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Checking completed.\n'
+	@printf '#================================================================\n'
+
+check-valgrind : $(COMMANDFILES)
+	make RUNCMD="valgrind --tool=memcheck --log-fd=1" check > leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -l 1.0 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -p data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --method kmeans data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --idf data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --seed 1234 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) --clvector-size 4 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --inv-keys 10 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --inv-size 10 data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -C $(tmpfile) --classify-size 10 data/test1.tsv >> leak.log
+	rm $(tmpfile)
+	grep ERROR leak.log
+	grep 'at exit' leak.log
+
+clean :
+	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
+	  *.o *~ a.out gmon.out leak.log
+
+untabify :
+	ls *.cc *.h | while read name ; \
+	  do \
+	    sed -e 's/\t/        /g' -e 's/ *$$//' $$name > $$name~; \
+	    [ -f $$name~ ] && mv -f $$name~ $$name ; \
+	  done
+
+install :
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)
+	cp -Rf $(HEADERFILES) $(DESTDIR)$(INCLUDEDIR)
+	mkdir -p $(DESTDIR)$(LIBDIR)
+	cp -Rf $(LIBRARYFILES) $(DESTDIR)$(LIBDIR)
+	mkdir -p $(DESTDIR)$(BINDIR)
+	cp -Rf $(COMMANDFILES) $(DESTDIR)$(BINDIR)
+
+uninstall :
+	cd $(DESTDIR)$(INCLUDEDIR) && rm -f $(HEADERFILES)
+	cd $(DESTDIR)$(LIBDIR) && rm -f $(LIBRARYFILES)
+	cd $(DESTDIR)$(BINDIR) && rm -f $(COMMANDFILES)
+
+dist :
+	make distclean
+	rm -rf .svn; rm -rf data/.svn
+	cd .. && tar cvf - $(PACKAGEDIR) | gzip -c > $(PACKAGETGZ)
+	sync ; sync
+
+distclean : clean
+	rm -rf Makefile config.cache config.h config.log config.status autom4te.cache
+
+.PHONY : all clean install check
+
+
+#================================================================
+# Building binaries
+#================================================================
+
+libbayon.a : $(LIBOBJFILES)
+	$(AR) $(ARFLAGS) $@ $(LIBOBJFILES)
+
+libbayon.so.$(LIBVER).$(LIBREV).0 : $(LIBOBJFILES)
+	if uname -a | egrep -i 'SunOS' > /dev/null ; \
+	  then \
+	    $(CC) $(CFLAGS) -shared -Wl,-G,-h,libbayon.so.$(LIBVER) -o $@ \
+	      $(LIBOBJFILES) $(LDFLAGS) $(LIBS) ; \
+	  else \
+	    $(CC) $(CFLAGS) -shared -Wl,-soname,libbayon.so.$(LIBVER) -o $@ \
+	      $(LIBOBJFILES) $(LDFLAGS) $(LIBS) ; \
+	  fi
+
+libbayon.so.$(LIBVER) : libbayon.so.$(LIBVER).$(LIBREV).0
+	ln -f -s libbayon.so.$(LIBVER).$(LIBREV).0 $@
+
+libbayon.so : libbayon.so.$(LIBVER).$(LIBREV).0
+	ln -f -s libbayon.so.$(LIBVER).$(LIBREV).0 $@
+
+libbayon.$(LIBVER).$(LIBREV).0.dylib : $(LIBOBJFILES)
+	$(CC) $(CFLAGS) -dynamiclib -o $@ \
+	  -install_name $(LIBDIR)/libbayon.$(LIBVER).dylib \
+	  -current_version $(LIBVER).$(LIBREV).0 -compatibility_version $(LIBVER) \
+	  $(LIBOBJFILES) $(LDFLAGS) $(LIBS)
+
+libbayon.$(LIBVER).dylib : libbayon.$(LIBVER).$(LIBREV).0.dylib
+	ln -f -s libbayon.$(LIBVER).$(LIBREV).0.dylib $@
+
+libbayon.dylib : libbayon.$(LIBVER).$(LIBREV).0.dylib
+	ln -f -s libbayon.$(LIBVER).$(LIBREV).0.dylib $@
+
+bayon : bayon.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
+
+vectest : vectest.o $(LIBRARYFILES) gtest-all.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ gtest-all.o $< $(LDFLAGS) -lbayon $(LIBS)
+
+clatest : clatest.o $(LIBRARYFILES) gtest-all.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ gtest-all.o $< $(LDFLAGS) -lbayon $(LIBS)
+
+clutest : clutest.o $(LIBRARYFILES) gtest-all.o
+	$(LDENV) $(CC) $(CFLAGS) -o $@ gtest-all.o $< $(LDFLAGS) -lbayon $(LIBS)
+
+bayon.o : byvector.h classifier.h cluster.h config.h util.h
+
+byvector.o : byvector.h config.h util.h
+
+vectest.o : byvector.h config.h util.h
+
+classifier.o : byvector.h classifier.h util.h
+
+clatest.o : byvector.h classifier.h util.h
+
+cluster.o : cluster.h config.h util.h
+
+clutest.o : byvector.h cluster.h util.h
+
+util.o : config.h util.h
+
+gtest-all.o : gtest/gtest.h
+	$(CC) -c $(CPPFLAGS) $(DEFS) $(CFLAGS) gtest/gtest-all.cc
+
+# END OF FILE
