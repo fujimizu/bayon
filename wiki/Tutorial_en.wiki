@@ -168,9 +168,9 @@ document_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
 ...
 }}}
 
- * _document_id_: This is the identifier of a document, and must be the unique string which contain no tab characters. 
- * _key_: This is the key of the feature of a document, and must be the string which contain no tab characters.
- * _value_: This is the key of the feature of a document, and must be real number. 
+ * _document_id_: This is the identifier of a document, and must be the unique string which contains no tab characters. 
+ * _key_: This is the key of the feature of a document, and must be the string which contains no tab characters.
+ * _value_: This is the value of the feature of a document, and must be real number. 
 
 _value_ needs to reflect the degree of the feature appropriately. So, you should apply weighting scheme (e.g. [http://en.wikipedia.org/wiki/TF_IDF tf-idf]) to input data. Specifying *--idf* option, bayon changes the weights of input data automatically.
 
