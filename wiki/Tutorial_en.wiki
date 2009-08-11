@@ -103,7 +103,7 @@ Repeated bisection clustering is faster and more accurate than K-means clusterin
 
 === Change the seed value for random number generator ===
 
-Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying the other seed value of random number generator. By default you get the same results of clustering everytime because the seed value is fixed.
+Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying the other seed value of random number generator. By default the same results of clustering are printed everytime because the seed value is fixed.
 
 {{{
 (set seed value to 123456)
