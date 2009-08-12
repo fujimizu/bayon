@@ -170,10 +170,10 @@ bayon : bayon.o $(LIBRARYFILES)
 vectest : vectest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
-clatest : clatest.o $(LIBRARYFILES) gtest-all.o
+clatest : clatest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
-clutest : clutest.o $(LIBRARYFILES) gtest-all.o
+clutest : clutest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
 bayon.o : byvector.h classifier.h cluster.h config.h util.h
