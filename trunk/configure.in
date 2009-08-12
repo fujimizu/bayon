@@ -3,7 +3,7 @@
 #================================================================
 
 # Package name
-AC_INIT(bayon, 0.0.6, mfujisa@gmail.com)
+AC_INIT(bayon, 0.0.7, mfujisa@gmail.com)
 AC_CONFIG_HEADER([config.h])
 AC_DEFINE([AUTHOR], ["Mizuki Fujisawa"], [author name])
 

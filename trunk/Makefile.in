@@ -81,6 +81,7 @@ check-valgrind : $(COMMANDFILES)
 	valgrind --tool=memcheck --log-fd=1 ./bayon -l 1.0 data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -p data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --method kmeans data/test1.tsv >> leak.log
+	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --vector-size 3 data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --idf data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 --seed 1234 data/test1.tsv >> leak.log
 	valgrind --tool=memcheck --log-fd=1 ./bayon -n 2 -c $(tmpfile) --clvector-size 4 data/test1.tsv >> leak.log
