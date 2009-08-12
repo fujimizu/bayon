@@ -52,7 +52,7 @@ bayonは汎用的に利用できる[http://ja.wikipedia.org/wiki/データ・ク
 % cd bayon-*
 % ./configure
 % make
-% make check
+% make check  (googletest をインストールしておく必要があります)
 % sudo make install
 }}}
 
