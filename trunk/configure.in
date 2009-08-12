@@ -32,6 +32,7 @@ MYCFLAGS="-Wall -fPIC -O3"
 MYCPPFLAGS="-I. -I\$(INCLUDEDIR) -I$HOME/include -I/usr/local/include"
 MYCPPFLAGS="$MYCPPFLAGS -D_GNU_SOURCE=1"
 MYLDFLAGS="-L. -L\$(LIBDIR) -L$HOME/lib -L/usr/local/lib"
+MYTESTLDFLAGS="-lgtest"
 MYCMDLDFLAGS=""
 MYRUNPATH="\$(LIBDIR)"
 MYLDLIBPATHENV="LD_LIBRARY_PATH"
@@ -63,7 +64,8 @@ AC_LANG(C++)
 # Checks for header files.
 AC_CHECK_HEADERS([google/dense_hash_map])
 AC_CHECK_HEADERS([ext/hash_map])
- 
+AC_CHECK_HEADERS([gtest/gtest.h],, [AC_MSG_WARN([The test tools of bayon require gtest. If you use test tools, you must install it.])])
+
 if uname | grep Darwin >/dev/null
 then
   MYLIBRARYFILES="$MYLIBRARYFILES libbayon.$MYLIBVER.$MYLIBREV.0.dylib"
@@ -93,6 +95,7 @@ AC_SUBST(MYDOCUMENTFILES)
 AC_SUBST(MYCFLAGS)
 AC_SUBST(MYCPPFLAGS)
 AC_SUBST(MYLDFLAGS)
+AC_SUBST(MYTESTLDFLAGS)
 AC_SUBST(MYCMDLDFLAGS)
 AC_SUBST(MYRUNPATH)
 AC_SUBST(MYLDLIBPATHENV)
