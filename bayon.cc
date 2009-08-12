@@ -41,6 +41,7 @@ typedef enum {
   OPT_INV_KEYS,
   OPT_INV_SIZE,
   OPT_CLASSIFY_SIZE,
+  OPT_VECTOR_SIZE,
   OPT_IDF,
   OPT_HELP     = 'h',
   OPT_VERSION  = 'v',
@@ -57,7 +58,6 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
  * constants
  *******************************************************************/
 const std::string DUMMY_OPTARG     = "dummy";
-const size_t MAX_VECTOR_ITEM       = 50;
 const size_t DEFAULT_MAX_CLVECTOR  = 50;
 const size_t DEFAULT_MAX_CLASSIFY  = 20;
 const size_t DEFAULT_MAX_INDEX_KEY = 20;
@@ -73,13 +73,14 @@ struct option longopts[] = {
   {"point",         no_argument,       NULL, OPT_POINT        },
   {"clvector",      required_argument, NULL, OPT_CLVECTOR     },
   {"clvector-size", required_argument, NULL, OPT_CLVECTOR_SIZE},
-  {"idf",           no_argument,       NULL, OPT_IDF          },
   {"method",        required_argument, NULL, OPT_METHOD       },
   {"seed",          required_argument, NULL, OPT_SEED         },
   {"classify",      required_argument, NULL, OPT_CLASSIFY     },
   {"inv-keys",      required_argument, NULL, OPT_INV_KEYS     },
   {"inv-size",      required_argument, NULL, OPT_INV_SIZE     },
   {"classify-size", required_argument, NULL, OPT_CLASSIFY_SIZE},
+  {"vector-size",   required_argument, NULL, OPT_VECTOR_SIZE  },
+  {"idf",           no_argument,       NULL, OPT_IDF          },
   {"help",          no_argument,       NULL, OPT_HELP         },
   {"version",       no_argument,       NULL, OPT_VERSION      },
   {0, 0, 0, 0}
@@ -157,7 +158,8 @@ int main(int argc, char **argv) {
                  docid2str, veckey2str, str2veckey);
 
   if (option.find(OPT_IDF) != option.end()) analyzer.idf();
-  analyzer.resize_document_features(MAX_VECTOR_ITEM);
+  if (option.find(OPT_VECTOR_SIZE) != option.end()) 
+    analyzer.resize_document_features(atoi(option[OPT_VECTOR_SIZE].c_str()));
 
   if (option.find(OPT_CLASSIFY) != option.end()) { /* do classifying */
     bayon::Classifier classifier;
@@ -245,6 +247,7 @@ static void usage(std::string progname) {
     << "                          (default: "
     << DEFAULT_MAX_CLASSIFY << ")" << std::endl << std::endl
     << "* Common options" << std::endl
+    << "    --vector-size=num     max size of each input vector" << std::endl
     << "    --idf                 apply idf to input vectors" << std::endl
     << "    -h, --help            show help messages" << std::endl
     << "    -v, --version         show the version and exit" << std::endl;
@@ -273,9 +276,6 @@ static int parse_options(int argc, char **argv, Option &option) {
     case OPT_CLVECTOR_SIZE:
       option[OPT_CLVECTOR_SIZE] = optarg;
       break;
-    case OPT_IDF:
-      option[OPT_IDF] = DUMMY_OPTARG;
-      break;
     case OPT_METHOD:
       option[OPT_METHOD] = optarg;
       break;
@@ -293,6 +293,12 @@ static int parse_options(int argc, char **argv, Option &option) {
       break;
     case OPT_CLASSIFY_SIZE:
       option[OPT_CLASSIFY_SIZE] = optarg;
+      break;
+    case OPT_VECTOR_SIZE:
+      option[OPT_VECTOR_SIZE] = optarg;
+      break;
+    case OPT_IDF:
+      option[OPT_IDF] = DUMMY_OPTARG;
       break;
     case OPT_HELP:
       option[OPT_HELP] = DUMMY_OPTARG;
