@@ -119,7 +119,7 @@ uninstall :
 
 dist :
 	make distclean
-	rm -rf .svn; rm -rf data/.svn gtest/.svn
+	rm -rf .svn; rm -rf data/.svn
 	cd .. && tar cvf - $(PACKAGEDIR) | gzip -c > $(PACKAGETGZ)
 	sync ; sync
 
