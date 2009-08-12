@@ -10,6 +10,10 @@ Bayon supports two hard-clustering methods, repeated bisection clustering and [h
 
 = What's new =
 
+ * 2009/08/12: 0.0.7 Released
+  * *--vector-size* option which is used to specify the max size of each input vector is added.
+  * bug fix
+
  * 2009/07/17: 0.0.6 Released
 
 = Download =
@@ -149,10 +153,13 @@ However, you don't need to specify above option usually.
 The following options can be used when you perform clustering and specify the similar clusters for each input document.
 
 {{{
+   --vector-size         max size of each input vector
    --idf                 apply idf to input vectors
    -h, --help            show help messages
    -v, --version         show the version and exit
 }}}
+
+Specifying *--vector-size* option when you perform clustering or specify similar clusters, you can specify the max number of the items in each input vector. 
 
 See next section for details about *--idf* option.
 
