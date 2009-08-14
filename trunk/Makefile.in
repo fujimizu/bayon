@@ -167,6 +167,9 @@ libbayon.dylib : libbayon.$(LIBVER).$(LIBREV).0.dylib
 bayon : bayon.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
 
+plsi : plsi.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
+
 vectest : vectest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
@@ -177,6 +180,8 @@ clutest : clutest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
 bayon.o : byvector.h classifier.h cluster.h config.h util.h
+
+plsi.o : byvector.h cluster.h config.h util.h
 
 byvector.o : byvector.h config.h util.h
 
