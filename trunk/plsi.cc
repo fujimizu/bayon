@@ -72,19 +72,21 @@ class PLSI {
   size_t num_doc_;
   size_t num_word_;
   double beta_;
+  double sum_weight_;
   unsigned int seed_;
   std::vector<Document *> documents_;
   double **pdz_, **pdz_new_;
   double **pwz_, **pwz_new_;
   double *pz_,   *pz_new_;
-  double ***scores_;
 
-  void set_random_probabilities(size_t row, size_t col, double **array) {
+  void set_random_prob(size_t row, size_t col, double **array, double **array2) {
     for (size_t i = 0; i < row; i++) {
       array[i] = new double[col];
+      array2[i] = new double[col];
       double sum = 0.0;
       for (size_t j = 0; j < col; j++) {
         array[i][j] = myrand(&seed_);
+        array2[i][j] = 0.0;
         sum += array[i][j];
       }
       for (size_t j = 0; j < col; j++) {
@@ -93,53 +95,39 @@ class PLSI {
     }
   }
 
-  void expect() {
+  void em_loop() {
     for (size_t id = 0; id < num_doc_; id++) {
       VecHashMap *hmap = documents_[id]->feature()->hash_map();
       for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-        double denominator = 0.0;
+        double denom = 0.0;
         for (size_t iz = 0; iz < num_cluster_; iz++) {
-          denominator += pz_[iz]
-                         * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
+          denom += pz_[iz] * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
         }
+        if (!denom) continue;
         for (size_t iz = 0; iz < num_cluster_; iz++) {
-          double numerator = pz_[iz]
-                             * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
-          scores_[id][it->first][iz] = denominator ?
-            numerator / denominator : 0.0;
+          double numer = pz_[iz] * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
+          double score = it->second * numer / denom;
+          pdz_new_[id][iz]        += score;
+          pwz_new_[it->first][iz] += score;
+          pz_new_[iz]             += score;
         }
       }
     }
-  }
-
-  void maximize() {
-    double denominators[num_cluster_];
-    double denom_sum = 0.0;
 
     for (size_t iz = 0; iz < num_cluster_; iz++) {
-      denominators[iz] = 0.0;
       for (size_t id = 0; id < num_doc_; id++) {
-        VecHashMap *hmap = documents_[id]->feature()->hash_map();
-        for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-          double val = it->second * scores_[id][it->first][iz];
-          denominators[iz] += val;
-          pdz_new_[id][iz] += val;
-          pwz_new_[it->first][iz] += val;
-        }
-      }
-      denom_sum += denominators[iz];
-
-      for (size_t id = 0; id < num_doc_; id++) {
-        pdz_[id][iz] = pdz_new_[id][iz] / denominators[iz];
+        pdz_[id][iz] = pdz_new_[id][iz] / pz_new_[iz];
         pdz_new_[id][iz] = 0.0;
       }
       for (size_t iw = 0; iw < num_word_; iw++) {
-        pwz_[iw][iz] = pwz_new_[iw][iz] / denominators[iz];
+        pwz_[iw][iz] = pwz_new_[iw][iz] / pz_new_[iz];
         pwz_new_[iw][iz] = 0.0;
       }
     }
-    for (size_t iz = 0; iz < num_cluster_; iz++)
-      pz_[iz] = denominators[iz] / denom_sum;
+    for (size_t iz = 0; iz < num_cluster_; iz++) {
+      pz_[iz] = pz_new_[iz] / sum_weight_;
+      pz_new_[iz] = 0.0;
+    }
   }
 
  public:
@@ -166,31 +154,18 @@ class PLSI {
 
   void init_probabilities() {
     pdz_ = new double*[num_doc_];
-    set_random_probabilities(num_doc_, num_cluster_, pdz_);
-    pwz_ = new double*[num_word_];
-    set_random_probabilities(num_word_, num_cluster_, pwz_);
-    pz_ = new double[num_cluster_];
-    for (size_t i = 0; i < num_cluster_; i++) pz_[i] = 1.0 / num_cluster_;
-
     pdz_new_ = new double*[num_doc_];
-    for (size_t id = 0; id < num_doc_; id++) {
-      pdz_new_[id] = new double[num_cluster_];
-      for (size_t iz = 0; iz < num_cluster_; iz++) pdz_new_[id][iz] = 0.0;
-    }
-    pwz_new_ = new double*[num_word_];
-    for (size_t iw = 0; iw < num_word_; iw++) {
-      pwz_new_[iw] = new double[num_cluster_];
-      for (size_t iz = 0; iz < num_cluster_; iz++) pwz_new_[iw][iz] = 0.0;
-    }
-    pz_new_ = new double[num_cluster_];
-    for (size_t iz = 0; iz < num_cluster_; iz++) pz_new_[iz] = 0.0;
+    set_random_prob(num_doc_, num_cluster_, pdz_, pdz_new_);
 
-    scores_ = new double**[num_doc_];
-    for (size_t i = 0; i < num_doc_; i++) {
-      scores_[i] = new double*[num_word_];
-      for (size_t j = 0; j < num_word_; j++) {
-        scores_[i][j] = new double[num_cluster_];
-      }
+    pwz_ = new double*[num_word_];
+    pwz_new_ = new double*[num_word_];
+    set_random_prob(num_word_, num_cluster_, pwz_, pwz_new_);
+
+    pz_ = new double[num_cluster_];
+    pz_new_ = new double[num_cluster_];
+    for (size_t iz = 0; iz < num_cluster_; iz++) {
+      pz_[iz] = 1.0 / num_cluster_;
+      pz_new_[iz] = 0.0;
     }
   }
 
@@ -203,14 +178,12 @@ class PLSI {
     for (VecHashMap::iterator it = hmap->begin();
          it != hmap->end(); ++it) {
       if ((it->first+1) > static_cast<int>(num_word_)) num_word_ = it->first+1;
+      sum_weight_ += it->second;
     }
   }
 
   void em(size_t num_iter) {
-    for (size_t i = 0; i < num_iter; i++) {
-      expect();
-      maximize();
-    }
+    for (size_t i = 0; i < num_iter; i++) em_loop();
   }
 
   void show_pdz() {
@@ -290,7 +263,7 @@ int main(int argc, char **argv) {
   size_t num_cluster = static_cast<size_t>(atoi(option[OPT_NUMBER].c_str()));
   size_t num_iter = option.find(OPT_ITER) != option.end() ?
     static_cast<size_t>(atoi(option[OPT_ITER].c_str())) : DEFAULT_NUM_ITER;
-  double beta = option.find(OPT_ITER) != option.end() ?
+  double beta = option.find(OPT_BETA) != option.end() ?
     atof(option[OPT_BETA].c_str()) : DEFAULT_BETA;
   bayon::PLSI plsi(num_cluster, beta, DEFAULT_SEED);;
   size_t num_doc = read_documents(ifs_doc, plsi, veckey,
