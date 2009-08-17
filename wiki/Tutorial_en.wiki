@@ -22,7 +22,7 @@ Please download [http://code.google.com/p/bayon/downloads/list the latest versio
 
 = Installation =
 
-Dowload the latest source package, and type the followings.
+Download the latest source package, and type the followings.
 
 I recommend that you should pre-install [http://code.google.com/p/google-sparsehash/ google-sparsehash] to run bayon faster.
 
@@ -94,7 +94,7 @@ Additionally, using *--clvector-size* option, you can specify the max number of 
 
 If you want to get the similar clusters for each input document by using *-C, --classify* option, you need to save the vectors of cluster centroids.
 
-=== Change clutering methods ===
+=== Change clustering methods ===
 
 By default bayon uses 'Repeated Bisection Clustering' method. If you want to use 'K-means Clustering' method, perform clustering with *--method* option.
 
@@ -107,7 +107,7 @@ Repeated bisection clustering is faster and more accurate than K-means clusterin
 
 === Change the seed value for random number generator ===
 
-Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying the other seed value of random number generator. By default the same results of clustering are printed everytime because the seed value is fixed.
+Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying the other seed value of random number generator. By default the same results of clustering are printed every time because the seed value is fixed.
 
 {{{
 (set seed value to 123456)
@@ -199,12 +199,12 @@ The file of the vectors of cluster centroids is printed by bayon with *-c, --clv
 Alex   Pop      10    R&B      6    Rock     4
 Bob    Jazz      8    Reggae   9
 Dave   Classic   4    World    4
-Ted    Jazz      9    Metal    2    Regga    6
+Ted    Jazz      9    Metal    2    Reggae   6
 Fred   Pop       4    Rock     3    Hip-hop  3
 Sam    Classic   8    Rock     1
 }}}
 
-In the above examle, 'Alex', 'Bob', 'Ted' are the identifiers of the documents, and 'Alex' has the features as the genres of music (Pop, R&B, Rock) which he often listens.
+In the above example, 'Alex', 'Bob', 'Ted' are the identifiers of the documents, and 'Alex' has the features as the genres of music (Pop, R&B, Rock) which he often listens.
 
 = Format of output data =
 
@@ -220,7 +220,7 @@ cluster_id2 \t document_id4 \t document_id5 \t document_id6 \t ...\n
 
 == List of clusters with similarity values ==
 
-Clustering with *-p, --point* option, the similarity values are printed in the result of clustering. The similartiy values are calculated by cosine similarity measure between the vectors of the documents and the vectors of the cluster centroids.
+Clustering with *-p, --point* option, the similarity values are printed in the result of clustering. The similarity values are calculated by cosine similarity measure between the vectors of the documents and the vectors of the cluster centroids.
 
 {{{
 cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
@@ -230,7 +230,7 @@ cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
 
 == List of the vectors of cluster centroids ==
 
-Clustering with *-c, --clvector* option, the list of the vectors of cluter centroids are saved into the specified file. The format of output file is tab-separated text as below. Each line contains the information about one cluster, the identifier of a cluster followed by the pairs of the keys and the values of cluster centroid vectors.
+Clustering with *-c, --clvector* option, the list of the vectors of cluster centroids are saved into the specified file. The format of output file is tab-separated text as below. Each line contains the information about one cluster, the identifier of a cluster followed by the pairs of the keys and the values of cluster centroid vectors.
 
 {{{
 cluster_id1 \t key1-1 \t value1-1 \t key1-2 \t value1-2 \t ...\n
