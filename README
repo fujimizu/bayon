@@ -121,5 +121,5 @@ Requirement:
     (If google-sparsehash not installed,
      the clustering tool uses __gnu_cxx::hash_map or std::map)
 
-Licence:
+License:
   GPL2 (Gnu General Public License Version 2)
