@@ -208,7 +208,6 @@ class PLSI {
 
   void em(size_t num_iter) {
     for (size_t i = 0; i < num_iter; i++) {
-      std::cerr << i << std::endl;
       expect();
       maximize();
     }
