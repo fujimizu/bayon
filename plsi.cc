@@ -68,18 +68,19 @@ namespace bayon {
 
 class PLSI {
  private:
+  std::vector<Document *> documents_;
   size_t num_cluster_;
   size_t num_doc_;
   size_t num_word_;
   double beta_;
   double sum_weight_;
   unsigned int seed_;
-  std::vector<Document *> documents_;
   double **pdz_, **pdz_new_;
   double **pwz_, **pwz_new_;
   double *pz_,   *pz_new_;
 
-  void set_random_prob(size_t row, size_t col, double **array, double **array2) {
+  void set_random_prob(size_t row, size_t col,
+                       double **array, double **array2) {
     for (size_t i = 0; i < row; i++) {
       array[i] = new double[col];
       array2[i] = new double[col];
@@ -100,13 +101,14 @@ class PLSI {
       VecHashMap *hmap = documents_[id]->feature()->hash_map();
       for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
         double denom = 0.0;
+        double numers[num_cluster_];
         for (size_t iz = 0; iz < num_cluster_; iz++) {
-          denom += pz_[iz] * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
+          numers[iz] = pz_[iz] * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
+          denom += numers[iz];
         }
-        if (!denom) continue;
+        if (denom == 0.0) continue;
         for (size_t iz = 0; iz < num_cluster_; iz++) {
-          double numer = pz_[iz] * pow(pwz_[it->first][iz] * pdz_[id][iz], beta_);
-          double score = it->second * numer / denom;
+          double score = it->second * numers[iz] / denom;
           pdz_new_[id][iz]        += score;
           pwz_new_[it->first][iz] += score;
           pz_new_[iz]             += score;
@@ -133,39 +135,46 @@ class PLSI {
  public:
   PLSI(size_t num_cluster, double beta, unsigned int seed)
     : num_cluster_(num_cluster), num_doc_(0), num_word_(0),
-      beta_(beta), seed_(seed) { }
+      beta_(beta), sum_weight_(0.0), seed_(seed),
+      pdz_(NULL), pdz_new_(NULL), pwz_(NULL), pwz_new_(NULL),
+      pz_(NULL), pz_new_(NULL) { }
 
   ~PLSI() {
+    for (size_t i = 0; i < documents_.size(); i++) delete documents_[i];
+
     for (size_t i = 0; i < num_doc_; i ++) {
-      delete pdz_[i];
-      delete pdz_new_[i];
+      if (pdz_ && pdz_[i])         delete [] pdz_[i];
+      if (pdz_new_ && pdz_new_[i]) delete [] pdz_new_[i];
     }
     for (size_t i = 0; i < num_word_; i ++) {
-      delete pwz_[i];
-      delete pwz_new_[i];
+      if (pwz_ && pwz_[i])         delete [] pwz_[i];
+      if (pwz_new_ && pwz_new_[i]) delete [] pwz_new_[i];
     }
-    delete [] pdz_;
-    delete [] pwz_;
-    delete [] pz_;
-    delete [] pdz_new_;
-    delete [] pwz_new_;
-    delete [] pz_new_;
+    if (pdz_)     delete [] pdz_;
+    if (pdz_new_) delete [] pdz_new_;
+    if (pwz_)     delete [] pwz_;
+    if (pwz_new_) delete [] pwz_new_;
+    if (pz_)      delete [] pz_;
+    if (pz_new_)  delete [] pz_new_;
   }
 
-  void init_probabilities() {
-    pdz_ = new double*[num_doc_];
+  void init_prob() {
+    pdz_     = new double*[num_doc_];
     pdz_new_ = new double*[num_doc_];
     set_random_prob(num_doc_, num_cluster_, pdz_, pdz_new_);
+    for (size_t i = 0; i < num_doc_; i++)
+      for (size_t j = 0; j < num_cluster_; j++)
+        pdz_new_[i][j] = 0.0;
 
-    pwz_ = new double*[num_word_];
+    pwz_     = new double*[num_word_];
     pwz_new_ = new double*[num_word_];
     set_random_prob(num_word_, num_cluster_, pwz_, pwz_new_);
 
-    pz_ = new double[num_cluster_];
+    pz_     = new double[num_cluster_];
     pz_new_ = new double[num_cluster_];
     for (size_t iz = 0; iz < num_cluster_; iz++) {
       pz_[iz] = 1.0 / num_cluster_;
-      pz_new_[iz] = 0.0;
+      pz_new_[iz] = 0;
     }
   }
 
@@ -246,6 +255,27 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
+  size_t num_cluster = static_cast<size_t>(atoi(option[OPT_NUMBER].c_str()));
+  if (num_cluster <= 0) {
+    std::cerr << "[ERROR] The number of output cluster must be greater than zero."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  size_t num_iter = option.find(OPT_ITER) != option.end() ?
+    static_cast<size_t>(atoi(option[OPT_ITER].c_str())) : DEFAULT_NUM_ITER;
+  if (num_cluster <= 0) {
+    std::cerr << "[ERROR] The number of iteration must be greater than zero."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+  double beta = option.find(OPT_BETA) != option.end() ?
+    atof(option[OPT_BETA].c_str()) : DEFAULT_BETA;
+  if (num_cluster <= 0) {
+    std::cerr << "[ERROR] Beta value must be greater than zero."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
@@ -260,15 +290,10 @@ int main(int argc, char **argv) {
   bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = 0;
 
-  size_t num_cluster = static_cast<size_t>(atoi(option[OPT_NUMBER].c_str()));
-  size_t num_iter = option.find(OPT_ITER) != option.end() ?
-    static_cast<size_t>(atoi(option[OPT_ITER].c_str())) : DEFAULT_NUM_ITER;
-  double beta = option.find(OPT_BETA) != option.end() ?
-    atof(option[OPT_BETA].c_str()) : DEFAULT_BETA;
   bayon::PLSI plsi(num_cluster, beta, DEFAULT_SEED);;
   size_t num_doc = read_documents(ifs_doc, plsi, veckey,
                                   docid2str, veckey2str, str2veckey);
-  plsi.init_probabilities();
+  plsi.init_prob();
   plsi.em(num_iter);
 
   double **pdz = plsi.pdz();
