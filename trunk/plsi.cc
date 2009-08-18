@@ -97,9 +97,6 @@ class PLSI {
   }
 
   void em_loop() {
-//#pragma omp parallel
-//    {
-//#pragma omp for
     for (size_t id = 0; id < num_doc_; id++) {
       VecHashMap *hmap = documents_[id]->feature()->hash_map();
       for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
@@ -118,11 +115,7 @@ class PLSI {
         }
       }
     }
-//  }
 
-//#pragma omp parallel
-//  {
-//#pragma omp for
     for (size_t iz = 0; iz < num_cluster_; iz++) {
       for (size_t id = 0; id < num_doc_; id++) {
         pdz_[id][iz] = pdz_new_[id][iz] / pz_new_[iz];
@@ -133,7 +126,6 @@ class PLSI {
         pwz_new_[iw][iz] = 0.0;
       }
     }
-//  }
     for (size_t iz = 0; iz < num_cluster_; iz++) {
       pz_[iz] = pz_new_[iz] / sum_weight_;
       pz_new_[iz] = 0.0;
