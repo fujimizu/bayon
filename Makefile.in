@@ -95,7 +95,7 @@ check-valgrind : $(COMMANDFILES)
 
 clean :
 	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
-	  *.o *~ a.out gmon.out leak.log
+	  *.o *~ a.out gmon.out leak.log plsi
 
 untabify :
 	ls *.cc *.h | while read name ; \

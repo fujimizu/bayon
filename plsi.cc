@@ -195,7 +195,7 @@ class PLSI {
     for (size_t i = 0; i < num_iter; i++) em_loop();
   }
 
-  void show_pdz() {
+  void show_pdz() const {
     for (size_t i = 0; i < num_doc_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
         if (j != 0) std::cout << "\t";
@@ -205,7 +205,7 @@ class PLSI {
     }
   }
 
-  void show_pwz() {
+  void show_pwz() const {
     for (size_t i = 0; i < num_word_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
         if (j != 0) std::cout << "\t";
@@ -215,7 +215,7 @@ class PLSI {
     }
   }
 
-  void show_pz() {
+  void show_pz() const {
     for (size_t i = 0; i < num_cluster_; i++) {
       if (i != 0) std::cout << "\t";
       std::cout << pz_[i];
@@ -223,9 +223,24 @@ class PLSI {
     std::cout << std::endl;
   }
 
-  double **pdz() { return pdz_; }
-  double **pwz() { return pwz_; }
-  double *pz()   { return pz_; }
+  void show_membership(const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
+    HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
+    for (size_t id = 0; id < num_doc_; id++) {
+      it = docid2str.find(documents_[id]->id());
+      if (it != docid2str.end()) std::cout << it->second;
+      else                       std::cout << documents_[id]->id();
+      double sum = 0.0;
+      for (size_t iz = 0; iz < num_cluster_; iz++) {
+        sum += pdz_[id][iz] * pz_[iz];
+      }
+      for (size_t iz = 0; iz < num_cluster_; iz++) {
+        double val = sum == 0.0 ? 0 : pdz_[id][iz] * pz_[iz] / sum;
+        std::cout << "\t" << val;
+      }
+      std::cout << std::endl;
+    }
+  }
+
   const std::vector<Document *> &documents() { return documents_; }
 };
 
@@ -291,19 +306,10 @@ int main(int argc, char **argv) {
   bayon::VecKey veckey = 0;
 
   bayon::PLSI plsi(num_cluster, beta, DEFAULT_SEED);;
-  size_t num_doc = read_documents(ifs_doc, plsi, veckey,
-                                  docid2str, veckey2str, str2veckey);
+  read_documents(ifs_doc, plsi, veckey, docid2str, veckey2str, str2veckey);
   plsi.init_prob();
   plsi.em(num_iter);
-
-  double **pdz = plsi.pdz();
-  for (size_t i = 0; i < num_doc; i++) {
-    std::cout << docid2str[plsi.documents()[i]->id()];
-    for (size_t j = 0; j < num_cluster; j++) {
-      std::cout << "\t" << pdz[i][j];
-    }
-    std::cout << std::endl;
-  }
+  plsi.show_membership(docid2str);
 
   return EXIT_SUCCESS;
 }
