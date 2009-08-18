@@ -15,7 +15,7 @@ MYLIBREV=1
 MYHEADERFILES="bayon.h byvector.h classifier.h cluster.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
 MYLIBOBJFILES="byvector.o classifier.o cluster.o util.o"
-MYCOMMANDFILES="bayon"
+MYCOMMANDFILES="bayon plsi"
 MYTESTCOMMANDFILES="vectest clatest clutest"
 MYDOCUMENTFILES="COPYING README TODO"
 
