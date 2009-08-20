@@ -141,7 +141,7 @@ You need to perform clustering with *-c, --clvector* option to save the vectors 
 
 === Specify options for inverted index ===
 
-Specifying the similar clusters for each documents with *-C, --classify* option, bayon makes [http://en.wikipedia.org/wiki/Inverted_index inverted indexes] of the vectors of input clusters for speeding up. Bayon may work faster or more accurate by specifying the following options for inverted indexes.
+Specifying the similar clusters for each documents with *-C, --classify* option, bayon makes the [http://en.wikipedia.org/wiki/Inverted_index inverted indexes] of the vectors of input clusters for speeding up. Bayon may work faster or more accurate by specifying the following options for inverted indexes.
 
  * *--inv-keys=num* : the max number of vector keys looked up inverted indexes
  * *--inv-size=num* : the max number of the related clusters for each vector key in inverted indexes
