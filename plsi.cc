@@ -33,6 +33,7 @@ typedef enum {
   OPT_NUMBER = 'n',
   OPT_ITER   = 'i',
   OPT_BETA   = 'b',
+  OPT_NORMALIZE,
 } plsi_options;
 
 typedef std::map<plsi_options, std::string> Option;
@@ -45,6 +46,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
+const std::string DUMMY_OPTARG  = "dummy";
 const size_t DEFAULT_NUM_ITER   = 50;
 const double DEFAULT_BETA       = 0.75;
 const unsigned int DEFAULT_SEED = 12345;
@@ -54,9 +56,10 @@ const unsigned int DEFAULT_SEED = 12345;
  * global variables
  *******************************************************************/
 struct option longopts[] = {
-  {"number", required_argument, NULL, OPT_NUMBER},
-  {"iter",   required_argument, NULL, OPT_ITER  },
-  {"beta",   required_argument, NULL, OPT_BETA  },
+  {"number",    required_argument, NULL, OPT_NUMBER   },
+  {"iter",      required_argument, NULL, OPT_ITER     },
+  {"beta",      required_argument, NULL, OPT_BETA     },
+  {"normalize", no_argument,       NULL, OPT_NORMALIZE},
   {0, 0, 0, 0}
 };
 
@@ -196,7 +199,7 @@ class PLSI {
   }
 
   void show_pdz() const {
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_doc_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
         if (j != 0) std::cout << "\t";
@@ -207,7 +210,7 @@ class PLSI {
   }
 
   void show_pwz() const {
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_word_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
         if (j != 0) std::cout << "\t";
@@ -218,7 +221,7 @@ class PLSI {
   }
 
   void show_pz() const {
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_cluster_; i++) {
       if (i != 0) std::cout << "\t";
       std::cout << pz_[i];
@@ -227,6 +230,21 @@ class PLSI {
   }
 
   void show_membership(
+    const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
+    HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
+    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    for (size_t id = 0; id < num_doc_; id++) {
+      it = docid2str.find(documents_[id]->id());
+      if (it != docid2str.end()) std::cout << it->second;
+      else                       std::cout << documents_[id]->id();
+      for (size_t iz = 0; iz < num_cluster_; iz++) {
+        std::cout << "\t" << pdz_[id][iz] * pz_[iz];
+      }
+      std::cout << std::endl;
+    }
+  }
+
+  void show_membership_normalized(
     const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
     HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
     std::cout.setf(std::ios::fixed, std::ios::floatfield);
@@ -312,7 +330,11 @@ int main(int argc, char **argv) {
   read_documents(ifs_doc, plsi, veckey, docid2str, veckey2str, str2veckey);
   plsi.init_prob();
   plsi.em(num_iter);
-  plsi.show_membership(docid2str);
+  if (option.find(OPT_NORMALIZE) != option.end()) {
+    plsi.show_membership_normalized(docid2str);
+  } else {
+    plsi.show_membership(docid2str);
+  }
 
   return EXIT_SUCCESS;
 }
@@ -323,10 +345,11 @@ static void usage(std::string progname) {
     << progname << ": Clustering tool by probabilistic latent semantic indexing"
     << std::endl
     << "Usage:" << std::endl
-    << " % " << progname << " -n num [-b beta | -i niter] file" << std::endl
+    << " % " << progname << " -n num [options] file" << std::endl
     << "    -n, --number=num      the number of clusters" << std::endl
     << "    -i, --iter=num        the number of iteration" << std::endl
-    << "    -b, --beta=double     the parameter of tempered EM" << std::endl;
+    << "    -b, --beta=double     the parameter of tempered EM" << std::endl
+    << "    --normalize           normalize output probabilities" << std::endl;
 }
 
 /* parse command line options */
@@ -345,6 +368,9 @@ static int parse_options(int argc, char **argv, Option &option) {
       break;
     case OPT_BETA:
       option[OPT_BETA] = optarg;
+      break;
+    case OPT_NORMALIZE:
+      option[OPT_NORMALIZE] = DUMMY_OPTARG;
       break;
     default:
       break;
