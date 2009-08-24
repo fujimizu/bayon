@@ -347,8 +347,10 @@ static void usage(std::string progname) {
     << "Usage:" << std::endl
     << " % " << progname << " -n num [options] file" << std::endl
     << "    -n, --number=num      the number of clusters" << std::endl
-    << "    -i, --iter=num        the number of iteration" << std::endl
-    << "    -b, --beta=double     the parameter of tempered EM" << std::endl
+    << "    -i, --iter=num        the number of iteration (default:"
+    << DEFAULT_NUM_ITER << ")" << std::endl
+    << "    -b, --beta=double     the parameter of tempered EM (default:"
+    << DEFAULT_BETA << ")" << std::endl
     << "    --normalize           normalize output probabilities" << std::endl;
 }
 
