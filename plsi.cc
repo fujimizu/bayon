@@ -196,6 +196,7 @@ class PLSI {
   }
 
   void show_pdz() const {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_doc_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
         if (j != 0) std::cout << "\t";
@@ -206,6 +207,7 @@ class PLSI {
   }
 
   void show_pwz() const {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_word_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
         if (j != 0) std::cout << "\t";
@@ -216,6 +218,7 @@ class PLSI {
   }
 
   void show_pz() const {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_cluster_; i++) {
       if (i != 0) std::cout << "\t";
       std::cout << pz_[i];
@@ -223,8 +226,10 @@ class PLSI {
     std::cout << std::endl;
   }
 
-  void show_membership(const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
+  void show_membership(
+    const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
     HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t id = 0; id < num_doc_; id++) {
       it = docid2str.find(documents_[id]->id());
       if (it != docid2str.end()) std::cout << it->second;
@@ -240,8 +245,6 @@ class PLSI {
       std::cout << std::endl;
     }
   }
-
-  const std::vector<Document *> &documents() { return documents_; }
 };
 
 } // namespace bayon
@@ -321,9 +324,9 @@ static void usage(std::string progname) {
     << std::endl
     << "Usage:" << std::endl
     << " % " << progname << " -n num [-b beta | -i niter] file" << std::endl
-    << "    -n, --number=num      number of clusters" << std::endl
-    << "    -i, --iter=num        number of iteration" << std::endl
-    << "    -b, --beta=double     parameter of tempered EM" << std::endl;
+    << "    -n, --number=num      the number of clusters" << std::endl
+    << "    -i, --iter=num        the number of iteration" << std::endl
+    << "    -b, --beta=double     the parameter of tempered EM" << std::endl;
 }
 
 /* parse command line options */
