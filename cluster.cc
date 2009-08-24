@@ -1,7 +1,7 @@
 //
 // Clustering API
 //
-// Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
+// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -174,7 +174,9 @@ size_t Analyzer::repeated_bisection() {
       refine_clusters(sectioned[i]->sectioned_clusters());
       sectioned[i]->set_sectioned_gain();
       if (sectioned[i]->sectioned_gain() < limit_eval_) {
-        sectioned[i]->composite_vector()->clear();
+        for (size_t j = 0; j < sectioned[i]->sectioned_clusters().size(); j++) {
+          sectioned[i]->sectioned_clusters()[j]->clear();
+        }
       }
       sectioned[i]->composite_vector()->clear();
       que.push(sectioned[i]);

@@ -1,7 +1,7 @@
 //
 // Tests for vector operation
 //
-// Copyright(C) 2009  Mizuki Fujisawa <mfujisa@gmail.com>
+// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -263,7 +263,7 @@ TEST(VectorTest, JaccardTest) {
   double prod = bayon::Vector::inner_product(vec1, vec2);
   double norm1 = vec1.norm();
   double norm2 = vec2.norm();
-  double denom = norm1 * norm2 - prod;
+  double denom = norm1 + norm2 - prod;
   if (!denom) {
     EXPECT_EQ(jaccard, 0);
   } else {
