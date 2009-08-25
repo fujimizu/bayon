@@ -41,7 +41,7 @@ Usage:
        --idf                 apply idf to input vectors
        -h, --help            show help messages
        -v, --version         show the version and exit
-  
+
 Example:
   * clustering (number_of_output_clusters = 100)
     % bayon -n 100 input.tsv > cluster.tsv

@@ -28,7 +28,7 @@ exec_prefix = @exec_prefix@
 INCLUDEDIR = @includedir@/bayon
 LIBDIR = @libdir@
 BINDIR = @bindir@
-DESTDIR = 
+DESTDIR =
 
 # Building configuration
 CC = @CXX@

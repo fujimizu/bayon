@@ -231,7 +231,7 @@ class Vector {
 
   /**
    * Add other vector
-   * 
+   *
    * @param vec input vector
    * @return void
    */
@@ -239,7 +239,7 @@ class Vector {
 
   /**
    * Delete other vector
-   * 
+   *
    * @param vec input vector
    * @return void
    */

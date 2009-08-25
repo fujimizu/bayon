@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-// 
+//
 
 #ifndef BAYON_UTIL_H
 #define BAYON_UTIL_H
@@ -58,7 +58,7 @@ namespace __gnu_cxx {
   template<> struct hash<std::string> {
     size_t operator() (const std::string &x) const {
       return hash<const char *>()(x.c_str());
-    }   
+    }
   };
 }
 #endif

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-// 
+//
 
 #include "classifier.h"
 
@@ -80,7 +80,7 @@ size_t Classifier::lookup_inverted_index(size_t max, const Vector &vec,
 
 /* Get list of id and points of similar vectors */
 void Classifier::similar_vectors(
-  size_t max, const Vector &vec, 
+  size_t max, const Vector &vec,
   std::vector<std::pair<VectorId, double> > &items) const {
 
   if (max > 0) { // inverted index

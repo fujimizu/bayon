@@ -1,4 +1,4 @@
-// 
+//
 // Utilities for vector operation
 //
 // Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
@@ -146,7 +146,7 @@ double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
     end = vec2.hash_map()->end();
     other = &vec1;
   }
-  
+
   double prod = 0;
   while (it != end) {
     itother = other->hash_map()->find(it->first);

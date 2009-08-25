@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-// 
+//
 
 
 #include <ctime>
@@ -260,7 +260,7 @@ TEST(AnalyzerTest, IdfTest) {
     vectors_org.push_back(vec);
     analyzer.add_document(*documents[i]);
   }
-  
+
   analyzer.idf();
 
   std::vector<bayon::Document *> documents_idf = analyzer.documents();
@@ -268,7 +268,7 @@ TEST(AnalyzerTest, IdfTest) {
     bayon::VecHashMap *hmap = documents_idf[i]->feature()->hash_map();
     for (bayon::VecHashMap::iterator it = hmap->begin();
          it != hmap->end(); ++it) {
-      double val = vectors_org[i].get(it->first) * 
+      double val = vectors_org[i].get(it->first) *
                    log((double)vectors_org.size() / (df[it->first] + 1));
       EXPECT_EQ(it->second, val);
     }
