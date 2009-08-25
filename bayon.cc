@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
                  docid2str, veckey2str, str2veckey);
 
   if (option.find(OPT_IDF) != option.end()) analyzer.idf();
-  if (option.find(OPT_VECTOR_SIZE) != option.end()) 
+  if (option.find(OPT_VECTOR_SIZE) != option.end())
     analyzer.resize_document_features(atoi(option[OPT_VECTOR_SIZE].c_str()));
 
   if (option.find(OPT_CLASSIFY) != option.end()) { /* do classifying */
@@ -435,7 +435,7 @@ static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
 static void show_classified(size_t max_keys, size_t max_output,
                             const bayon::Classifier &classifier,
                             const std::vector<bayon::Document *> &documents,
-                            const DocId2Str &docid2str, 
+                            const DocId2Str &docid2str,
                             const DocId2Str &claid2str) {
   DocId2Str::const_iterator it;
   for (size_t i = 0; i < documents.size(); i++) {

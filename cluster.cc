@@ -20,7 +20,7 @@
 #include "cluster.h"
 
 namespace bayon {
-  
+
 /* Get sorted documents in clusters */
 void Cluster::sorted_documents(
   std::vector<std::pair<Document *, double> > &pairs) {
@@ -57,7 +57,7 @@ void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) {
   init_hash_map(siz, closest);
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;
-  
+
   index = myrand(&seed_) % siz; // initial center
   docs.push_back(documents_[index]);
   ++count;

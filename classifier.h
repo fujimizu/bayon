@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-// 
+//
 
 #ifndef BAYON_CLASSIFIER_H
 #define BAYON_CLASSIFIER_H
@@ -84,8 +84,8 @@ class Classifier {
    * Constructor
    */
   Classifier() {
-    init_hash_map(VECID_EMPTY_KEY, vectors_);  
-    init_hash_map(VECID_EMPTY_KEY, inverted_index_);  
+    init_hash_map(VECID_EMPTY_KEY, vectors_);
+    init_hash_map(VECID_EMPTY_KEY, inverted_index_);
   }
 
   /**
@@ -94,7 +94,7 @@ class Classifier {
   ~Classifier() {
     for (InvertedIndex::iterator it = inverted_index_.begin();
          it != inverted_index_.end(); ++it) {
-      if (it->second) delete it->second;    
+      if (it->second) delete it->second;
     }
   }
 
