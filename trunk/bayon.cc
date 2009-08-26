@@ -481,14 +481,17 @@ static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
 
 /* show version */
 static void version() {
-#ifdef PACKAGE_STRING
-  std::cout << PACKAGE_STRING << std::endl;
+#ifdef PACKAGE_NAME
+  std::cout << PACKAGE_NAME;
 #else
-  std::cout << "bayon" << std::endl;
+  std::cout << "bayon";
 #endif
-std::cout << "Copyright(C) 2009 ";
+#ifdef PACKAGE_VERSION
+  std::cout << " version " << PACKAGE_VERSION;
+#endif
+  std::cout << std::endl << "Copyright(C) 2009";
 #ifdef AUTHOR
-  std::cout << AUTHOR;
+  std::cout << "  " << AUTHOR;
 #endif
 std::cout << std::endl;
 }
