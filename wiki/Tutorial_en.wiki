@@ -85,7 +85,7 @@ To save the vectors of cluster centroids, perform clustering with *-c, --clvecto
 Additionally, using *--clvector-size* option, you can specify the max number of the pairs of keys and points of centroid vectors. By default up to fifty pairs are saved.
 
 {{{
-(save the vectors of cluster centroids into 'centroid.tsv')
+(Save the vectors of cluster centroids into 'centroid.tsv')
 % bayon -n 100 -c centroid.tsv input.tsv > output.tsv
 
 (Up to twenty pairs are saved)
