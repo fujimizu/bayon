@@ -159,7 +159,7 @@ The following options can be used both clustering input data and specifying the 
    -v, --version         show the version and exit
 }}}
 
-Specifying *--vector-size* option when you perform clustering or specify similar clusters, you can set the max number of the items in each input vector which may lead to run bayon faster and more accurate.
+Specifying *--vector-size* option, you can set the max number of the items in each input vector which may lead to run bayon faster and more accurate.
 
 See next section for details about *--idf* option.
 
