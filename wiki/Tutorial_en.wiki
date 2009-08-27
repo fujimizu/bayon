@@ -74,7 +74,7 @@ To specify the number of output clusters, perform clustering with *-n, --number*
 When it is difficult to specify the number of output clusters preliminarily, perform clustering with *-l, --limit* option which specifies the limit value of cluster partition. You had better set the limit value to 1.0-2.0 to get the appropriate results of clustering.
 
 {{{
-(set the limit value of cluster partition to 1.0)
+(Set the limit value of cluster partition to 1.0)
 % bayon -l 1.0 input.tsv > output.tsv
 }}}
 
@@ -88,7 +88,7 @@ Additionally, using *--clvector-size* option, you can specify the max number of 
 (save the vectors of cluster centroids into 'centroid.tsv')
 % bayon -n 100 -c centroid.tsv input.tsv > output.tsv
 
-(up to twenty pairs are saved)
+(Up to twenty pairs are saved)
 % bayon -n 100 -c centroid.tsv --clvector-size 20 input.tsv > output.tsv
 }}}
 
@@ -110,7 +110,7 @@ Repeated bisection clustering is faster and more accurate than K-means clusterin
 Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying the other seed value of random number generator. By default the same results of clustering are printed every time because the seed value is fixed.
 
 {{{
-(set seed value to 123456)
+(Set seed value to 123456)
 % bayon -n 100 --seed 123456 input.tsv > output.tsv
 }}}
 
