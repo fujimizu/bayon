@@ -129,7 +129,7 @@ Performing the command-line tool with *-C, --classify* option, you can get the l
                          (default: 20)
 }}}
 
-You need to perform clustering with *-c, --clvector* option to save the vectors of cluster centroids when you use this option.
+When you use *-C, --classify* option, you need to perform clustering with *-c, --clvector* option preliminarily to save the vectors of cluster centroids 
 
 {{{
 (At first, perform clustering input data saving the vectors of cluster centroids)
