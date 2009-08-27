@@ -71,7 +71,7 @@ To specify the number of output clusters, perform clustering with *-n, --number*
 
 === Specify the limit value of cluster partitions ===
 
-When it is difficult to specify the number of output clusters beforehand, perform clustering with *-l, --limit* option which specifies the limit value of cluster partition. You had better set the limit value to 1.0-2.0 to get the appropriate results of clustering.
+When it is difficult to specify the number of output clusters preliminarily, perform clustering with *-l, --limit* option which specifies the limit value of cluster partition. You had better set the limit value to 1.0-2.0 to get the appropriate results of clustering.
 
 {{{
 (set the limit value of cluster partition to 1.0)
