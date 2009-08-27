@@ -150,7 +150,7 @@ However, you don't need to specify above option usually.
 
 == Common options ==
 
-The following options can be used when you perform clustering and specify the similar clusters for each input document.
+The following options can be used both clustering input data and specifying the similar clusters for each input document.
 
 {{{
    --vector-size         max size of each input vector
