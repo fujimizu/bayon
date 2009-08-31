@@ -269,7 +269,7 @@ TEST(AnalyzerTest, IdfTest) {
     for (bayon::VecHashMap::iterator it = hmap->begin();
          it != hmap->end(); ++it) {
       double val = vectors_org[i].get(it->first) *
-                   log((double)vectors_org.size() / (df[it->first] + 1));
+                   log((double)vectors_org.size() / df[it->first]);
       EXPECT_EQ(it->second, val);
     }
   }
