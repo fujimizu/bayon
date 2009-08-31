@@ -220,7 +220,7 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
         *clusters[cluster_id]->composite_vector(), *doc->feature(), -1);
       
       double norm_base_moved = pow(norms[cluster_id], 2) + value_base;
-      norm_base_moved = norm_base_moved > 0 ?  sqrt(norm_base_moved) : 0.0;
+      norm_base_moved = norm_base_moved > 0 ? sqrt(norm_base_moved) : 0.0;
 
       double eval_max = -1.0;
       double norm_max = 0.0;
@@ -232,7 +232,6 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
         double norm_target_moved = pow(norms[j], 2) + value_target;
         norm_target_moved = norm_target_moved > 0 ?
           sqrt(norm_target_moved) : 0.0;
-        if (isnan(norm_target_moved)) norm_target_moved = 0.0;
         double eval_moved = norm_base_moved + norm_target_moved
                             - norms[cluster_id] - norms[j];
         if (eval_max < eval_moved) {
