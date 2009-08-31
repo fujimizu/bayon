@@ -300,6 +300,21 @@ class Cluster {
   }
 
   /**
+   * Remove a document
+   *
+   * @param doc  pointer of document object
+   * @return void
+   */
+  void remove_document(const Document *doc) {
+    for (size_t i = 0; i < documents_.size(); i++) {
+      if (documents_[i]->id() == doc->id()) {
+        remove_document(i);
+        return;
+      }
+    }
+  }
+
+  /**
    * Get sorted documents in clusters by similarity
    * between documents and center (desc order)
    *
@@ -317,7 +332,7 @@ class Cluster {
     if (removed_.size() > 0) {
       std::vector<Document *> docs;
       for (size_t i = 0; i < documents_.size(); i++) {
-        if (!removed_[documents_[i]->id()]) {
+        if (removed_.find(documents_[i]->id()) == removed_.end()) {
           docs.push_back(documents_[i]);
         }
       }

@@ -174,8 +174,8 @@ class Random {
 
   void set_seed(unsigned int seed) { seed_ = seed; }
   unsigned int operator()(unsigned int max) {
-    double ratio =  static_cast<double>(myrand(&seed_))
-                    / static_cast<double>(RAND_MAX);
+    double ratio = static_cast<double>(myrand(&seed_))
+                   / static_cast<double>(RAND_MAX);
     return static_cast<unsigned int>(ratio * max);
   }
 };
