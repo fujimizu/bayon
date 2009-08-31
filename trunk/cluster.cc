@@ -289,7 +289,7 @@ void  Analyzer::idf() {
   for (size_t i = 0; i < documents_.size(); i++) {
     VecHashMap *hmap = documents_[i]->feature()->hash_map();
     for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-      (*hmap)[it->first] = it->second * log((double)ndocs / (df[it->first] + 1));
+      (*hmap)[it->first] = it->second * log((double)ndocs / df[it->first]);
     }
   }
 }
