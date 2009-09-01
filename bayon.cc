@@ -471,7 +471,7 @@ static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
         ofs << bayon::DELIMITER;
         VecKey2Str::const_iterator itv = veckey2str.find(items[i].first);
         if (itv != veckey2str.end()) ofs << itv->second;
-        else                        ofs << items[i].first;
+        else                         ofs << items[i].first;
         ofs << bayon::DELIMITER << items[i].second;
       }
       ofs << std::endl;
