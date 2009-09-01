@@ -185,6 +185,16 @@ class Cluster {
    */
   unsigned int seed_;
 
+  /**
+   * add the vectors of all documents to composite vector
+   */
+  void set_composite_vector() {
+    composite_.clear();
+    for (size_t i = 0; i < documents_.size(); i++) {
+      composite_.add_vector(*documents_[i]->feature());
+    }
+  }
+
  public:
   Cluster() : sectioned_gain_(0), seed_(DEFAULT_SEED) {
     init_hash_map(DOC_EMPTY_KEY, removed_);
@@ -240,11 +250,9 @@ class Cluster {
    */
   Vector *centroid_vector() {
     if (documents_.size() > 0 && composite_.size() == 0) {
-      for (size_t i = 0; i < documents_.size(); i++) {
-        composite_.add_vector(*documents_[i]->feature());
-      }
+      set_composite_vector();
     }
-    composite_.copy(centroid_);
+    composite_vector()->copy(centroid_);
     centroid_.normalize();
     return &centroid_;
   }
@@ -255,15 +263,9 @@ class Cluster {
    * @return Vector * composite vector
    */
   Vector *composite_vector() {
-    return &composite_;
-  }
-
-  /**
-   * Get composite Vector of the cluster
-   *
-   * @return const Vector * composite vector
-   */
-  const Vector *composite_vector() const {
+    if (documents_.size() > 0 && composite_.size() == 0) {
+      set_composite_vector();
+    }
     return &composite_;
   }
 

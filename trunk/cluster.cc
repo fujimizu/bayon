@@ -218,7 +218,6 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
 
       double value_base = refined_vector_value(
         *clusters[cluster_id]->composite_vector(), *doc->feature(), -1);
-      
       double norm_base_moved = pow(norms[cluster_id], 2) + value_base;
       norm_base_moved = norm_base_moved > 0 ? sqrt(norm_base_moved) : 0.0;
 
