@@ -263,9 +263,6 @@ class Cluster {
    * @return Vector * composite vector
    */
   Vector *composite_vector() {
-    if (documents_.size() > 0 && composite_.size() == 0) {
-      set_composite_vector();
-    }
     return &composite_;
   }
 
