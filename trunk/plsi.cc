@@ -230,35 +230,28 @@ class PLSI {
   }
 
   void show_membership(
-    const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
+    const HashMap<bayon::DocumentId, std::string>::type &docid2str,
+    bool normalize = false) const {
     HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
     //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t id = 0; id < num_doc_; id++) {
       it = docid2str.find(documents_[id]->id());
       if (it != docid2str.end()) std::cout << it->second;
       else                       std::cout << documents_[id]->id();
-      for (size_t iz = 0; iz < num_cluster_; iz++) {
-        std::cout << "\t" << pdz_[id][iz] * pz_[iz];
-      }
-      std::cout << std::endl;
-    }
-  }
 
-  void show_membership_normalized(
-    const HashMap<bayon::DocumentId, std::string>::type &docid2str) const {
-    HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
-    for (size_t id = 0; id < num_doc_; id++) {
-      it = docid2str.find(documents_[id]->id());
-      if (it != docid2str.end()) std::cout << it->second;
-      else                       std::cout << documents_[id]->id();
-      double sum = 0.0;
-      for (size_t iz = 0; iz < num_cluster_; iz++) {
-        sum += pdz_[id][iz] * pz_[iz];
-      }
-      for (size_t iz = 0; iz < num_cluster_; iz++) {
-        double val = sum == 0.0 ? 0 : pdz_[id][iz] * pz_[iz] / sum;
-        std::cout << "\t" << val;
+      if (normalize) {
+        double sum = 0.0;
+        for (size_t iz = 0; iz < num_cluster_; iz++) {
+          sum += pdz_[id][iz] * pz_[iz];
+        }
+        for (size_t iz = 0; iz < num_cluster_; iz++) {
+          double val = sum == 0.0 ? 0 : pdz_[id][iz] * pz_[iz] / sum;
+          std::cout << "\t" << val;
+        }
+      } else {
+        for (size_t iz = 0; iz < num_cluster_; iz++) {
+          std::cout << "\t" << pdz_[id][iz] * pz_[iz];
+        }
       }
       std::cout << std::endl;
     }
@@ -330,11 +323,8 @@ int main(int argc, char **argv) {
   read_documents(ifs_doc, plsi, veckey, docid2str, veckey2str, str2veckey);
   plsi.init_prob();
   plsi.em(num_iter);
-  if (option.find(OPT_NORMALIZE) != option.end()) {
-    plsi.show_membership_normalized(docid2str);
-  } else {
-    plsi.show_membership(docid2str);
-  }
+  bool normalize = (option.find(OPT_NORMALIZE) != option.end()) ? true : false;
+  plsi.show_membership(docid2str, normalize);
 
   return EXIT_SUCCESS;
 }
