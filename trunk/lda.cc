@@ -34,7 +34,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
  * constants
  *******************************************************************/
 const std::string DUMMY_OPTARG       = "dummy";
-const size_t DEFAULT_ITERATIONS      = 1000;
+const size_t DEFAULT_ITERATIONS      = 100;
 const double DEFAULT_ALPHA_NUMERATOR = 50;
 const double DEFAULT_BETA            = 0.1;
 const unsigned int DEFAULT_SEED      = 12345;
@@ -126,9 +126,7 @@ class LDA {
     for (size_t it = 0; it < num_topic_; it++) {
       p[it] = (nw_[word][it] + beta_) / (nwsum_[it] + num_word_ * beta_)
               * (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
-    }
-    for (size_t it = 1; it < num_topic_; it++) {
-      p[it] += p[it-1];
+      if (it > 0) p[it] += p[it-1];
     }
     //double u = static_cast<double>(myrand(&seed_)) / RAND_MAX
     double u = static_cast<double>(rand()) / RAND_MAX
