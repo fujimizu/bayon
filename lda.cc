@@ -16,8 +16,11 @@
  * Typedef
  *******************************************************************/
 typedef enum {
-  OPT_NUMBER = 'n',
-  OPT_ITER   = 'i',
+  OPT_NUMBER  = 'n',
+  OPT_ITER    = 'i',
+  OPT_ALPHA   = 'a',
+  OPT_BETA    = 'b',
+  OPT_VERBOSE = 'v'
 } lda_options;
 
 typedef std::map<lda_options, std::string> Option;
@@ -30,20 +33,25 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG  = "dummy";
-const size_t DEFAULT_THIN_INTERVAL = 100;
-const size_t DEFAULT_BURN_IN       = 2000;
-const size_t DEFAULT_ITERATIONS    = 10000;
-const size_t DEFAULT_SAMPLE_LAG    = 10;
-const unsigned int DEFAULT_SEED    = 12345;
+const std::string DUMMY_OPTARG       = "dummy";
+const size_t DEFAULT_THIN_INTERVAL   = 100;
+const size_t DEFAULT_BURN_IN         = 2000;
+const size_t DEFAULT_ITERATIONS      = 10000;
+const size_t DEFAULT_SAMPLE_LAG      = 10;
+const double DEFAULT_ALPHA_NUMERATOR = 50;
+const double DEFAULT_BETA            = 0.1;
+const unsigned int DEFAULT_SEED      = 12345;
 
 
 /********************************************************************
  * global variables
  *******************************************************************/
 struct option longopts[] = {
-  {"number",    required_argument, NULL, OPT_NUMBER   },
-  {"iter",      required_argument, NULL, OPT_ITER     },
+  {"number",    required_argument, NULL, OPT_NUMBER },
+  {"iter",      required_argument, NULL, OPT_ITER   },
+  {"alpha",     required_argument, NULL, OPT_ALPHA  },
+  {"beta",      required_argument, NULL, OPT_BETA   },
+  {"verbose",   no_argument,       NULL, OPT_VERBOSE},
   {0, 0, 0, 0}
 };
 
@@ -54,9 +62,6 @@ struct option longopts[] = {
 namespace bayon {
 
 class LDA {
- public:
-  typedef HashMap<VecKey, int>::type WordAssign;
-
  private:
   std::vector<Document *> documents_;
   size_t num_doc_;
@@ -64,11 +69,11 @@ class LDA {
   size_t num_topic_;
   double alpha_;
   double beta_;
-  WordAssign **z_; // topic assignments for each word
-  int **nw_;       // nw[i][j] number of instances of word i assigned to topic j
-  int **nd_;       // nd[i][j] number of words in document i assigned to topic j
-  int *nwsum_;     // nwsum[j] total number of words assigned to topic j
-  int *ndsum_;     // ndsum[i] total number of words in document i
+  int **z_;     // topic assignments for each word
+  int **nw_;   // nw[i][j] number of instances of word i assigned to topic j
+  int **nd_;   // nd[i][j] number of words in document i assigned to topic j
+  int *nwsum_; // nwsum[j] total number of words assigned to topic j
+  int *ndsum_; // ndsum[i] total number of words in document i
   double **thetasum_; // cumulative statistics of theta
   double **phisum_;   // cumulative statistics of phi
   size_t numstats_;   // size of statistics
@@ -79,13 +84,14 @@ class LDA {
   size_t iterations_;    // max iterations
   size_t sample_lag_;    // sample lag
   size_t dispcol_;
+  bool verbose_;
 
   void initialize(size_t num_topic) {
     nw_    = new int*[num_word_];
     nd_    = new int*[num_doc_];
     nwsum_ = new int[num_topic_];
     ndsum_ = new int[num_doc_];
-    z_     = new WordAssign*[num_doc_];
+    z_     = new int*[num_doc_];
 
     for (size_t it = 0; it < num_topic_; it++) nwsum_[it] = 0;
     for (size_t iw = 0; iw < num_word_; iw++) {
@@ -95,27 +101,27 @@ class LDA {
     for (size_t id = 0; id < num_doc_; id++) {
       nd_[id] = new int[num_topic_];
       for (size_t it = 0; it < num_topic_; it++) nd_[id][it] = 0;
+      ndsum_[id] = 0;
 
-      z_[id] = new WordAssign;
-      init_hash_map(bayon::VECTOR_EMPTY_KEY, *z_[id]);
-      double sum = 0.0;
       VecHashMap *hmap = documents_[id]->feature()->hash_map();
       for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-        int topic = static_cast<int>(
-          static_cast<double>(rand()) / RAND_MAX * num_topic_);
-          //static_cast<double>(myrand(&seed_)) / RAND_MAX * num_topic_);
-        if (topic == static_cast<int>(num_topic_)) topic--;
-        (*z_[id])[it->first] = topic;
-        nw_[it->first][topic] += it->second;
-        nd_[id][topic] += it->second;
-        nwsum_[topic] += it->second;
-        sum += it->second;
-//        nw_[it->first][topic]++;
-//        nd_[id][topic]++;
-//        nwsum_[topic]++;
+        ndsum_[id] += it->second;
       }
-      ndsum_[id] = sum;
-//      ndsum_[id] = documents_[id]->feature()->size();
+      z_[id] = new int[ndsum_[id]];
+
+      size_t count = 0;
+      for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
+        for (size_t i = 0; i < it->second; i++) {
+          int topic = static_cast<int>(
+            static_cast<double>(rand()) / RAND_MAX * num_topic_);
+            //static_cast<double>(myrand(&seed_)) / RAND_MAX * num_topic_);
+          if (topic == static_cast<int>(num_topic_)) topic--;
+          z_[id][count++] = topic;
+          nw_[it->first][topic]++;
+          nd_[id][topic]++;
+          nwsum_[topic]++;
+        }
+      }
     }
 
     // initialize sampler statistics
@@ -134,56 +140,15 @@ class LDA {
     }
   }
 
-  int sample_full_conditional2(size_t id, VecKey word, VecValue point) {
-    int topic = (*z_[id])[word];
-    for (size_t i = 0; i < point; i++) {
-      nw_[word][topic]--;
-      nd_[id][topic]--;
-      nwsum_[topic]--;
-      ndsum_[id]--;
-
-      double p[num_topic_];
-      for (size_t it = 0; it < num_topic_; it++) {
-        p[it] = (nw_[word][it] + beta_) / (nwsum_[it] + num_word_ * beta_)
-                * (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
-      }
-      for (size_t it = 1; it < num_topic_; it++) {
-        p[it] += p[it-1];
-      }
-      //double u = static_cast<double>(myrand(&seed_)) / RAND_MAX
-      double u = static_cast<double>(rand()) / RAND_MAX
-                 * p[num_topic_-1];
-      for (size_t it = 0; it < num_topic_; it++) {
-        if (u < p[it]) {
-          topic = static_cast<int>(it);
-          break;
-        }
-      }
-      nw_[word][topic]++;
-      nd_[id][topic]++;
-      nwsum_[topic]++;
-      ndsum_[id]++;
-    }
-    return topic;
-  }
-
-  int sample_full_conditional(size_t id, VecKey word, VecValue point) {
-    int topic = (*z_[id])[word];
-    nw_[word][topic] -= point;
-    nd_[id][topic]   -= point;
-    nwsum_[topic]    -= point;
-    ndsum_[id]       -= point;
-    /*
+  int sample_full_conditional(size_t id, VecKey word, size_t iw) {
+    int topic = z_[id][iw];
     nw_[word][topic]--;
     nd_[id][topic]--;
     nwsum_[topic]--;
     ndsum_[id]--;
-    */
 
     double p[num_topic_];
     for (size_t it = 0; it < num_topic_; it++) {
-//      p[it] = (nw_[word][it] + beta_) / (nwsum_[it] + beta_)
-//              * (nd_[id][it] + alpha_) / (ndsum_[id] + alpha_ - point);
       p[it] = (nw_[word][it] + beta_) / (nwsum_[it] + num_word_ * beta_)
               * (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
     }
@@ -199,17 +164,10 @@ class LDA {
         break;
       }
     }
-
-    nw_[word][topic] += point;
-    nd_[id][topic]   += point;
-    nwsum_[topic]    += point;
-    ndsum_[id]       += point;
-    /*  
     nw_[word][topic]++;
     nd_[id][topic]++;
     nwsum_[topic]++;
     ndsum_[id]++;
-    */
     return topic;
   }
 
@@ -231,18 +189,19 @@ class LDA {
 
  public:
   LDA(size_t thin_interval, size_t burn_in, size_t iterations,
-      size_t sample_lag)
+      size_t sample_lag, bool verbose = false)
     : num_doc_(0), num_word_(0), num_topic_(0), alpha_(0), beta_(0),
       z_(NULL), nw_(NULL), nd_(NULL), nwsum_(NULL), ndsum_(NULL),
       thetasum_(NULL), phisum_(NULL), numstats_(0), seed_(DEFAULT_SEED), 
       thin_interval_(thin_interval), burn_in_(burn_in),
-      iterations_(iterations), sample_lag_(sample_lag), dispcol_(0) { }
+      iterations_(iterations), sample_lag_(sample_lag), dispcol_(0),
+      verbose_(verbose) { }
 
   ~LDA() {
     for (size_t id = 0; id < documents_.size(); id++) {
       delete documents_[id];
       if (nd_ && nd_[id])             delete [] nd_[id];
-      if (z_ && z_[id])               delete z_[id];
+      if (z_ && z_[id])               delete [] z_[id];
       if (thetasum_ && thetasum_[id]) delete [] thetasum_[id];
     }
     for (size_t iw = 0; iw < num_word_; iw++) {
@@ -268,34 +227,36 @@ class LDA {
 
     for (size_t i = 0; i < iterations_; i++) {
       for (size_t id = 0; id < num_doc_; id++) {
+        size_t iw = 0;
         VecHashMap *hmap = documents_[id]->feature()->hash_map();
         for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-          int topic = sample_full_conditional(id, it->first, it->second);
-          (*z_[id])[it->first] = topic;
+          for (size_t j = 0; j < it->second; j++) {
+            int topic = sample_full_conditional(id, it->first, iw);
+            z_[id][iw] = topic;
+            iw++;
+          }
         }
       }
 
-/*
-      if ((i < burn_in_) && (i % thin_interval_ == 0)) {
+      if (verbose_ && (i < burn_in_) && (i % thin_interval_ == 0)) {
         std::cout << "B";
         dispcol_++;
       }
-      if ((i > burn_in_) && (i % thin_interval_ == 0)) {
+      if (verbose_ && (i > burn_in_) && (i % thin_interval_ == 0)) {
         std::cout << "S";
         dispcol_++;
       }
-*/
       if ((i > burn_in_) && (sample_lag_ > 0) && (i % sample_lag_ == 0)) {
         update_params();
-//        std::cout << "|";
-        if (i % thin_interval_ != 0) dispcol_++;
+        if (verbose_) {
+          std::cout << "|";
+          if (i % thin_interval_ != 0) dispcol_++;
+        }
       }
-/*
-      if (dispcol_ >= 100) {
+      if (verbose_ && dispcol_ >= 100) {
         std::cout << std::endl;
         dispcol_ = 0;
       }
-*/
     }
   }
 
@@ -399,6 +360,29 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
+  double alpha, beta;
+  if (option.find(OPT_ALPHA) != option.end()) {
+    alpha = atof(option[OPT_ALPHA].c_str());
+    if (alpha < 0) {
+      std::cerr << "[ERROR]alpha must be greater than zero." << argv[0] << std::endl;
+      return EXIT_FAILURE;
+    }
+  } else {
+    alpha = DEFAULT_ALPHA_NUMERATOR / num_topic;
+  }
+  if (option.find(OPT_BETA) != option.end()) {
+    beta = atof(option[OPT_BETA].c_str());
+    if (beta < 0) {
+      std::cerr << "[ERROR]beta must be greater than zero." << argv[0] << std::endl;
+      return EXIT_FAILURE;
+    }
+  } else {
+    beta = DEFAULT_BETA;
+  }
+  std::cout << alpha << "\t" << beta << std::endl;
+
+  bool verbose = option.find(OPT_VERBOSE) != option.end() ? true : false;
+
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
@@ -414,15 +398,16 @@ int main(int argc, char **argv) {
   bayon::VecKey veckey = 0;
 
   bayon::LDA lda(DEFAULT_THIN_INTERVAL, DEFAULT_BURN_IN,
-                 num_iter, DEFAULT_SAMPLE_LAG);
+                 num_iter, DEFAULT_SAMPLE_LAG, verbose);
   read_documents(ifs_doc, lda, veckey, docid2str, veckey2str, str2veckey);
-  double alpha = 2;
-  double beta = 0.5;
+
   lda.gibbs(num_topic, alpha, beta);
-//  std::cout << std::endl << std::endl;
+  if (verbose) std::cout << std::endl << std::endl;
   lda.print_theta(docid2str);
-//  std::cout << std::endl;
-//  lda.print_phi(veckey2str);
+  if (verbose) {
+    std::cout << std::endl;
+    lda.print_phi(veckey2str);
+  }
 
   return EXIT_SUCCESS;
 }
@@ -436,7 +421,12 @@ static void usage(std::string progname) {
     << " % " << progname << " -n num [options] file" << std::endl
     << "    -n, --number=num  the number of clusters" << std::endl
     << "    -i, --iter=num    the number of iteration (default:"
-    << DEFAULT_ITERATIONS << ")" << std::endl;
+    << DEFAULT_ITERATIONS << ")" << std::endl
+    << "    -a, --alpha=num   alpha value (Default: "
+    << DEFAULT_ALPHA_NUMERATOR << "/num_cluster)" << std::endl
+    << "    -b, --beta=num    beta value (Default:"
+    << DEFAULT_BETA << ")" << std::endl
+    << "    -v, --verbose     show detailed logs" << std::endl;
 }
 
 /* parse command line options */
@@ -444,7 +434,7 @@ static int parse_options(int argc, char **argv, Option &option) {
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt_long(argc, argv, "n:i:", longopts, NULL))
+  while ((opt = getopt_long(argc, argv, "n:i:a:b:v", longopts, NULL))
          != -1) {
     switch (opt) {
     case OPT_NUMBER:
@@ -452,6 +442,15 @@ static int parse_options(int argc, char **argv, Option &option) {
       break;
     case OPT_ITER:
       option[OPT_ITER] = optarg;
+      break;
+    case OPT_ALPHA:
+      option[OPT_ALPHA] = optarg;
+      break;
+    case OPT_BETA:
+      option[OPT_BETA] = optarg;
+      break;
+    case OPT_VERBOSE:
+      option[OPT_VERBOSE] = DUMMY_OPTARG;
       break;
     default:
       break;
