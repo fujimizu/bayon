@@ -165,7 +165,8 @@ int main(int argc, char **argv) {
     bayon::Classifier classifier;
     std::ifstream ifs_cla(option[OPT_CLASSIFY].c_str());
     if (!ifs_cla) {
-      std::cerr << "[ERROR]File not found: " << option[OPT_CLASSIFY] << std::endl;
+      std::cerr << "[ERROR]File not found: "
+                << option[OPT_CLASSIFY] << std::endl;
       return EXIT_FAILURE;
     }
     size_t max_keys = option.find(OPT_INV_KEYS) != option.end() ?

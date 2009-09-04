@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
   bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = 0;
 
-  bayon::PLSI plsi(num_cluster, beta, DEFAULT_SEED);;
+  bayon::PLSI plsi(num_cluster, beta, DEFAULT_SEED);
   read_documents(ifs_doc, plsi, veckey, docid2str, veckey2str, str2veckey);
   plsi.init_prob();
   plsi.em(num_iter);
