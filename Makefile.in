@@ -95,7 +95,7 @@ check-valgrind : $(COMMANDFILES)
 
 clean :
 	rm -rf $(LIBRARYFILES) $(LIBOBJFILES) $(TESTCOMMANDFILES) $(COMMANDFILES) \
-	  *.o *~ a.out gmon.out leak.log plsi
+	  *.o *~ a.out gmon.out leak.log plsi lda
 
 untabify :
 	ls *.cc *.h | while read name ; \
@@ -170,6 +170,9 @@ bayon : bayon.o $(LIBRARYFILES)
 plsi : plsi.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
 
+lda : lda.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
+
 vectest : vectest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
@@ -182,6 +185,8 @@ clutest : clutest.o $(LIBRARYFILES)
 bayon.o : byvector.h classifier.h cluster.h config.h util.h
 
 plsi.o : byvector.h cluster.h config.h util.h
+
+lda.o : byvector.h cluster.h config.h util.h
 
 byvector.o : byvector.h config.h util.h
 
