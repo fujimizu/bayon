@@ -34,10 +34,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
  * constants
  *******************************************************************/
 const std::string DUMMY_OPTARG       = "dummy";
-const size_t DEFAULT_THIN_INTERVAL   = 100;
-const size_t DEFAULT_BURN_IN         = 2000;
-const size_t DEFAULT_ITERATIONS      = 10000;
-const size_t DEFAULT_SAMPLE_LAG      = 10;
+const size_t DEFAULT_ITERATIONS      = 1000;
 const double DEFAULT_ALPHA_NUMERATOR = 50;
 const double DEFAULT_BETA            = 0.1;
 const unsigned int DEFAULT_SEED      = 12345;
@@ -74,19 +71,12 @@ class LDA {
   int **nd_;   // nd[i][j] number of words in document i assigned to topic j
   int *nwsum_; // nwsum[j] total number of words assigned to topic j
   int *ndsum_; // ndsum[i] total number of words in document i
-  double **thetasum_; // cumulative statistics of theta
-  double **phisum_;   // cumulative statistics of phi
-  size_t numstats_;   // size of statistics
   unsigned int seed_;
 
-  size_t thin_interval_; // sampling lag
-  size_t burn_in_;       // burn-in period
   size_t iterations_;    // max iterations
-  size_t sample_lag_;    // sample lag
-  size_t dispcol_;
   bool verbose_;
 
-  void initialize(size_t num_topic) {
+  void initialize() {
     nw_    = new int*[num_word_];
     nd_    = new int*[num_doc_];
     nwsum_ = new int[num_topic_];
@@ -123,21 +113,6 @@ class LDA {
         }
       }
     }
-
-    // initialize sampler statistics
-    if (sample_lag_ > 0) {
-      thetasum_ = new double*[num_doc_];
-      for (size_t id = 0; id < num_doc_; id++) {
-        thetasum_[id] = new double[num_topic_];
-        for (size_t it = 0; it < num_topic_; it++) thetasum_[id][it] = 0.0;
-      }
-      phisum_   = new double*[num_topic_];
-      for (size_t it = 0; it < num_topic_; it++) {
-        phisum_[it] = new double[num_word_];
-        for (size_t iw = 0; iw < num_word_; iw++) phisum_[it][iw] = 0.0;
-      }
-      numstats_ = 0;
-    }
   }
 
   int sample_full_conditional(size_t id, VecKey word, size_t iw) {
@@ -171,61 +146,35 @@ class LDA {
     return topic;
   }
 
-  void update_params() {
-    for (size_t id = 0; id < num_doc_; id++) {
-      for (size_t it = 0; it < num_topic_; it++) {
-        thetasum_[id][it] += (nd_[id][it] + alpha_)
-                             / (ndsum_[id] + num_topic_ * alpha_);
-      }
-    }
-    for (size_t it = 0; it < num_topic_; it++) {
-      for (size_t iw = 0; iw < num_word_; iw++) {
-        phisum_[it][iw] += (nw_[iw][it] + beta_)
-                           / (nwsum_[it] + num_word_ * beta_);
-      }
-    }
-    numstats_++;
-  }
-
  public:
-  LDA(size_t thin_interval, size_t burn_in, size_t iterations,
-      size_t sample_lag, bool verbose = false)
-    : num_doc_(0), num_word_(0), num_topic_(0), alpha_(0), beta_(0),
+  LDA(size_t num_topic, double alpha, double beta,
+      size_t iterations, bool verbose = false)
+    : num_doc_(0), num_word_(0), num_topic_(num_topic),
+      alpha_(alpha), beta_(beta),
       z_(NULL), nw_(NULL), nd_(NULL), nwsum_(NULL), ndsum_(NULL),
-      thetasum_(NULL), phisum_(NULL), numstats_(0), seed_(DEFAULT_SEED), 
-      thin_interval_(thin_interval), burn_in_(burn_in),
-      iterations_(iterations), sample_lag_(sample_lag), dispcol_(0),
-      verbose_(verbose) { }
+      seed_(DEFAULT_SEED), iterations_(iterations), verbose_(verbose) { }
 
   ~LDA() {
     for (size_t id = 0; id < documents_.size(); id++) {
       delete documents_[id];
       if (nd_ && nd_[id])             delete [] nd_[id];
       if (z_ && z_[id])               delete [] z_[id];
-      if (thetasum_ && thetasum_[id]) delete [] thetasum_[id];
     }
     for (size_t iw = 0; iw < num_word_; iw++) {
       if (nw_ && nw_[iw])         delete [] nw_[iw];
-    }
-    for (size_t it = 0; it < num_topic_; it++) {
-      if (phisum_ && phisum_[it]) delete [] phisum_[it];
     }
     if (nw_)       delete [] nw_;
     if (nd_)       delete [] nd_;
     if (nwsum_)    delete [] nwsum_;
     if (ndsum_)    delete [] ndsum_;
     if (z_)        delete [] z_;
-    if (thetasum_) delete [] thetasum_;
-    if (phisum_)   delete [] phisum_;
   }
 
-  void gibbs(size_t num_topic, double alpha, double beta) {
-    num_topic_ = num_topic;
-    alpha_ = alpha;
-    beta_  = beta;
-    initialize(num_topic_);
+  void gibbs() {
+    initialize();
 
     for (size_t i = 0; i < iterations_; i++) {
+      std::cerr << i << std::endl;
       for (size_t id = 0; id < num_doc_; id++) {
         size_t iw = 0;
         VecHashMap *hmap = documents_[id]->feature()->hash_map();
@@ -237,47 +186,24 @@ class LDA {
           }
         }
       }
-
-      if (verbose_ && (i < burn_in_) && (i % thin_interval_ == 0)) {
-        std::cout << "B";
-        dispcol_++;
-      }
-      if (verbose_ && (i > burn_in_) && (i % thin_interval_ == 0)) {
-        std::cout << "S";
-        dispcol_++;
-      }
-      if ((i > burn_in_) && (sample_lag_ > 0) && (i % sample_lag_ == 0)) {
-        update_params();
-        if (verbose_) {
-          std::cout << "|";
-          if (i % thin_interval_ != 0) dispcol_++;
-        }
-      }
-      if (verbose_ && dispcol_ >= 100) {
-        std::cout << std::endl;
-        dispcol_ = 0;
-      }
     }
   }
 
   void print_theta(
     const HashMap<DocumentId, std::string>::type &docid2str) const {
     HashMap<DocumentId, std::string>::type::const_iterator itr;
+
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.precision(5);
     for (size_t id = 0; id < num_doc_; id++) {
       itr = docid2str.find(documents_[id]->id());
       if (itr != docid2str.end()) std::cout << itr->second;
       else                        std::cout << documents_[id]->id();
 
       for (size_t it = 0; it < num_topic_; it++) {
-        std::cout << "\t";
-        double val;
-        if (sample_lag_ > 0) {
-          val = thetasum_[id][it] / numstats_;
-        } else {
-          val = (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
-        }
+        double val = (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
         if (isnan(val)) val = 0;
-        std::cout << val;
+        std::cout << "\t" << val;
       }
       std::cout << std::endl;
     }
@@ -286,6 +212,9 @@ class LDA {
   void print_phi(
     const HashMap<VecKey, std::string>::type &veckey2str) const {
     HashMap<VecKey, std::string>::type::const_iterator itr;
+
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.precision(5);
     for (size_t it = 0; it < num_topic_; it++) {
       std::cout << it;
       for (size_t iw = 0; iw < num_word_; iw++) {
@@ -294,13 +223,9 @@ class LDA {
         if (itr != veckey2str.end()) std::cout << itr->second;
         else                         std::cout << iw;
 
-        std::cout << "\t";
-        if (sample_lag_ > 0) {
-          std::cout << phisum_[it][iw] / numstats_;
-        } else {
-          std::cout << (nw_[iw][it] + beta_)
-                       / (nwsum_[it] + num_word_ * beta_);
-        }
+        double val = (nw_[iw][it] + beta_) / (nwsum_[it] + num_word_ * beta_);
+        if (isnan(val)) val = 0;
+        std::cout << "\t" << val;
       }
       std::cout << std::endl;
     }
@@ -379,7 +304,6 @@ int main(int argc, char **argv) {
   } else {
     beta = DEFAULT_BETA;
   }
-  std::cout << alpha << "\t" << beta << std::endl;
 
   bool verbose = option.find(OPT_VERBOSE) != option.end() ? true : false;
 
@@ -397,11 +321,10 @@ int main(int argc, char **argv) {
   bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = 0;
 
-  bayon::LDA lda(DEFAULT_THIN_INTERVAL, DEFAULT_BURN_IN,
-                 num_iter, DEFAULT_SAMPLE_LAG, verbose);
+  bayon::LDA lda(num_topic, alpha, beta, num_iter, verbose);
   read_documents(ifs_doc, lda, veckey, docid2str, veckey2str, str2veckey);
 
-  lda.gibbs(num_topic, alpha, beta);
+  lda.gibbs();
   if (verbose) std::cout << std::endl << std::endl;
   lda.print_theta(docid2str);
   if (verbose) {
