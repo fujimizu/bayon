@@ -36,7 +36,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 const std::string DUMMY_OPTARG       = "dummy";
 const size_t DEFAULT_ITERATIONS      = 100;
 const double DEFAULT_ALPHA_NUMERATOR = 50;
-const double DEFAULT_BETA            = 0.1;
+const double DEFAULT_BETA            = 0.01;
 const unsigned int DEFAULT_SEED      = 12345;
 
 
@@ -66,14 +66,14 @@ class LDA {
   size_t num_topic_;
   double alpha_;
   double beta_;
-  int **z_;     // topic assignments for each word
+  int **z_;    // topic assignments for each word
   int **nw_;   // nw[i][j] number of instances of word i assigned to topic j
   int **nd_;   // nd[i][j] number of words in document i assigned to topic j
   int *nwsum_; // nwsum[j] total number of words assigned to topic j
   int *ndsum_; // ndsum[i] total number of words in document i
   unsigned int seed_;
 
-  size_t iterations_;    // max iterations
+  size_t iterations_;  // max iterations
   bool verbose_;
 
   void initialize() {
@@ -155,25 +155,25 @@ class LDA {
   ~LDA() {
     for (size_t id = 0; id < documents_.size(); id++) {
       delete documents_[id];
-      if (nd_ && nd_[id])             delete [] nd_[id];
-      if (z_ && z_[id])               delete [] z_[id];
+      if (nd_ && nd_[id]) delete [] nd_[id];
+      if (z_ && z_[id])   delete [] z_[id];
     }
     for (size_t iw = 0; iw < num_word_; iw++) {
-      if (nw_ && nw_[iw])         delete [] nw_[iw];
+      if (nw_ && nw_[iw]) delete [] nw_[iw];
     }
-    if (nw_)       delete [] nw_;
-    if (nd_)       delete [] nd_;
-    if (nwsum_)    delete [] nwsum_;
-    if (ndsum_)    delete [] ndsum_;
-    if (z_)        delete [] z_;
+    if (nw_)    delete [] nw_;
+    if (nd_)    delete [] nd_;
+    if (nwsum_) delete [] nwsum_;
+    if (ndsum_) delete [] ndsum_;
+    if (z_)     delete [] z_;
   }
 
   void gibbs() {
     initialize();
 
     for (size_t i = 0; i < iterations_; i++) {
-      std::cerr << i << std::endl;
       for (size_t id = 0; id < num_doc_; id++) {
+        if (id % 1000 == 0) std::cerr << "iter: " << i << "\tdoc: " << id << "/" << num_doc_ << std::endl;
         size_t iw = 0;
         VecHashMap *hmap = documents_[id]->feature()->hash_map();
         for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
@@ -343,9 +343,9 @@ static void usage(std::string progname) {
     << "    -n, --number=num  the number of clusters" << std::endl
     << "    -i, --iter=num    the number of iteration (default:"
     << DEFAULT_ITERATIONS << ")" << std::endl
-    << "    -a, --alpha=num   alpha value (Default: "
+    << "    -a, --alpha=num   alpha value (default:"
     << DEFAULT_ALPHA_NUMERATOR << "/num_cluster)" << std::endl
-    << "    -b, --beta=num    beta value (Default:"
+    << "    -b, --beta=num    beta value (default:"
     << DEFAULT_BETA << ")" << std::endl
     << "    -v, --verbose     show detailed logs" << std::endl;
 }
@@ -394,6 +394,7 @@ static size_t parse_tsv(std::string &tsv, Feature &feature) {
     } else {
       double point = 0.0;
       point = atof(s.c_str());
+      //point = int(atof(s.c_str()) / 100);
       if (!key.empty() && point != 0) {
         feature[key] = point;
         keycnt++;
