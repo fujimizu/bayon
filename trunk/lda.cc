@@ -20,7 +20,6 @@ typedef enum {
   OPT_ITER    = 'i',
   OPT_ALPHA   = 'a',
   OPT_BETA    = 'b',
-  OPT_VERBOSE = 'v'
 } lda_options;
 
 typedef std::map<lda_options, std::string> Option;
@@ -48,7 +47,6 @@ struct option longopts[] = {
   {"iter",      required_argument, NULL, OPT_ITER   },
   {"alpha",     required_argument, NULL, OPT_ALPHA  },
   {"beta",      required_argument, NULL, OPT_BETA   },
-  {"verbose",   no_argument,       NULL, OPT_VERBOSE},
   {0, 0, 0, 0}
 };
 
@@ -74,7 +72,6 @@ class LDA {
   unsigned int seed_;
 
   size_t iterations_;  // max iterations
-  bool verbose_;
 
   void initialize() {
     nw_    = new int*[num_word_];
@@ -146,11 +143,11 @@ class LDA {
 
  public:
   LDA(size_t num_topic, double alpha, double beta,
-      size_t iterations, bool verbose = false)
+      size_t iterations)
     : num_doc_(0), num_word_(0), num_topic_(num_topic),
       alpha_(alpha), beta_(beta),
       z_(NULL), nw_(NULL), nd_(NULL), nwsum_(NULL), ndsum_(NULL),
-      seed_(DEFAULT_SEED), iterations_(iterations), verbose_(verbose) { }
+      seed_(DEFAULT_SEED), iterations_(iterations) { }
 
   ~LDA() {
     for (size_t id = 0; id < documents_.size(); id++) {
@@ -303,8 +300,6 @@ int main(int argc, char **argv) {
     beta = DEFAULT_BETA;
   }
 
-  bool verbose = option.find(OPT_VERBOSE) != option.end() ? true : false;
-
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
@@ -319,16 +314,12 @@ int main(int argc, char **argv) {
   bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = 0;
 
-  bayon::LDA lda(num_topic, alpha, beta, num_iter, verbose);
+  bayon::LDA lda(num_topic, alpha, beta, num_iter);
   read_documents(ifs_doc, lda, veckey, docid2str, veckey2str, str2veckey);
 
   lda.gibbs();
-  if (verbose) std::cout << std::endl << std::endl;
   lda.print_theta(docid2str);
-  if (verbose) {
-    std::cout << std::endl;
-    lda.print_phi(veckey2str);
-  }
+  //lda.print_phi(veckey2str);
 
   return EXIT_SUCCESS;
 }
@@ -346,8 +337,7 @@ static void usage(std::string progname) {
     << "    -a, --alpha=num   alpha value (default:"
     << DEFAULT_ALPHA_NUMERATOR << "/num_cluster)" << std::endl
     << "    -b, --beta=num    beta value (default:"
-    << DEFAULT_BETA << ")" << std::endl
-    << "    -v, --verbose     show detailed logs" << std::endl;
+    << DEFAULT_BETA << ")" << std::endl;
 }
 
 /* parse command line options */
@@ -355,7 +345,7 @@ static int parse_options(int argc, char **argv, Option &option) {
   int opt;
   extern char *optarg;
   extern int optind;
-  while ((opt = getopt_long(argc, argv, "n:i:a:b:v", longopts, NULL))
+  while ((opt = getopt_long(argc, argv, "n:i:a:b:", longopts, NULL))
          != -1) {
     switch (opt) {
     case OPT_NUMBER:
@@ -369,9 +359,6 @@ static int parse_options(int argc, char **argv, Option &option) {
       break;
     case OPT_BETA:
       option[OPT_BETA] = optarg;
-      break;
-    case OPT_VERBOSE:
-      option[OPT_VERBOSE] = DUMMY_OPTARG;
       break;
     default:
       break;
