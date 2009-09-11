@@ -165,9 +165,6 @@ class PLSI {
     pdz_     = new double*[num_doc_];
     pdz_new_ = new double*[num_doc_];
     set_random_prob(num_doc_, num_cluster_, pdz_, pdz_new_);
-    for (size_t i = 0; i < num_doc_; i++)
-      for (size_t j = 0; j < num_cluster_; j++)
-        pdz_new_[i][j] = 0.0;
 
     pwz_     = new double*[num_word_];
     pwz_new_ = new double*[num_word_];
