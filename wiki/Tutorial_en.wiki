@@ -6,7 +6,7 @@ _Tutorial for bayon in English_
 
 Bayon is a simple and fast [http://en.wikipedia.org/wiki/Cluster_analysis clustering] tool for large-scale data sets. If you want to survey large-scale data, bayon is useful to partition the data into some groups and understand it.
 
-Bayon supports two hard-clustering methods, repeated bisection clustering and [http://en.wikipedia.org/wiki/K-means_clustering K-means clustering]. In the outputs of these methods, each input document is assigned to only one cluster. But you can get the similar clusters for each input document like soft-clustering method by using *--classifier* option.
+Bayon supports two hard-clustering methods, repeated bisection clustering and [http://en.wikipedia.org/wiki/K-means_clustering K-means clustering]. In the outputs of these methods, each input document is assigned to only one cluster. But you can get similar clusters for each input document like soft-clustering method by using *--classifier* option.
 
 = What's new =
 
@@ -22,9 +22,9 @@ Please download [http://code.google.com/p/bayon/downloads/list the latest versio
 
 = Installation =
 
-Download the latest source package, and type the followings.
+Download the latest source package, and type the following.
 
-I recommend that you should preliminarily install [http://code.google.com/p/google-sparsehash/ google-sparsehash] to run bayon faster.
+I recommend that you should install [http://code.google.com/p/google-sparsehash/ google-sparsehash] in advance to run bayon faster.
 
 {{{
 % tar xvzf bayon-*.tar.gz
@@ -37,11 +37,11 @@ I recommend that you should preliminarily install [http://code.google.com/p/goog
 
 = Usage =
 
-== Partition input data into some clusters ==
+== Partition input data into several clusters ==
 
-When you want to partition input data, perform the command-line tool with the following options. The output of clustering will be printed to stdout.
+When you want to partition input data, run the command-line tool with the following options. The output of clustering will be printed to stdout.
 
-The documents in each cluster are arranged in descending order of the similarity values which are the cosine similarities between the vectors of documents and the vector of the cluster centroid. Clustering with *-p, --point* option, the similarity values are printed in the result of clustering, by default not printed. 
+The documents in each cluster are arranged in descending order of the similarity values which are the cosine similarities between the vectors of documents and the vector of the cluster centroid. Clustering with *-p, --point* option will print the similarity values the result of clustering. 
 
 {{{
 % bayon -n num [options] file
@@ -71,7 +71,7 @@ To specify the number of output clusters, perform clustering with *-n, --number*
 
 === Specify the limit value of cluster partitions ===
 
-When it is difficult to specify the number of output clusters preliminarily, perform clustering with *-l, --limit* option which specifies the limit value of cluster partitions. You had better set the limit value to 1.0-2.0 to get the appropriate results of clustering.
+When it is difficult to specify the number of output clusters preliminarily, perform clustering with *-l, --limit* option which specifies the limit value of cluster partitions. It's better to set the limit value to 1.0-2.0 to get the appropriate results of clustering.
 
 {{{
 (Set the limit value of cluster partition to 1.0)
@@ -103,11 +103,11 @@ By default bayon uses 'Repeated Bisection Clustering' method. If you want to use
 % bayon -n 100 --method kmeans input.tsv > output.tsv
 }}}
 
-Repeated bisection clustering is faster and more accurate than K-means clustering, so you had better use Repeated Bisection clustering usually.
+Repeated bisection clustering is faster and more accurate than K-means clustering, so in general, it's better to use Repeated Bisection clustering.
 
 === Change the seed value for random number generator ===
 
-Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying the other seed value of random number generator. By default the same results of clustering are printed every time because the seed value is fixed.
+Bayon selects documents randomly during clustering, so you can get the different results of clustering by specifying a different seed value of random number generator. By default the same results of clustering are printed every time because the seed value is fixed.
 
 {{{
 (Set seed value to 123456)
@@ -116,7 +116,7 @@ Bayon selects documents randomly during clustering, so you can get the different
 
 == Specify the similar clusters for each input document ==
 
-Performing the command-line tool with *-C, --classify* option, you can get the list of the similar clusters for each input document. This option works like 'Soft Clustering'. The output will be printed to stdout.
+Performing the command-line tool with *-C, --classify* option, you can get the list of similar clusters for each input document. This option works like 'Soft Clustering'. The output will be printed to stdout.
 
 {{{
 % bayon -C file [options] file
