@@ -191,7 +191,7 @@ cluster_id2 \t key2-1 \t value2-1 \t key2-2 \t value2-2 \t ...\n
 ...
 }}}
 
-The file of the vectors of cluster centroids is saved by bayon with *-c, --clvector* option automatically, so you don't usually need to make it.
+The file of the vectors of cluster centroids is saved by bayon with *-c, --clvector* option automatically, so you don't usually need to make it manually.
 
 == Examples of input data ==
 
