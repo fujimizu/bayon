@@ -39,7 +39,7 @@ I recommend that you should preliminarily install [http://code.google.com/p/goog
 
 == Partition input data into some clusters ==
 
-When you want to partition the input data, perform the command-line tool with the following options. The output of clustering will be printed to stdout.
+When you want to partition input data, perform the command-line tool with the following options. The output of clustering will be printed to stdout.
 
 The documents in each cluster are arranged in descending order of the similarity values which are the cosine similarities between the vectors of documents and the vector of the cluster centroid. Clustering with *-p, --point* option, the similarity values are printed in the result of clustering, by default not printed. 
 
