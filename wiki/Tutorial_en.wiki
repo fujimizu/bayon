@@ -135,7 +135,7 @@ When you use *-C, --classify* option, you need to perform clustering with *-c, -
 (At first, perform clustering input data saving the vectors of cluster centroids)
 % bayon -c centroid.tsv -n 100 input.tsv > cluster.tsv
 
-(Compare the vector of each document and the vector of each cluster centroid)
+(Compare the vector of each document with the vector of each cluster centroid)
 % bayon -C centroid.tsv input.tsv > classify.tsv
 }}}
 
