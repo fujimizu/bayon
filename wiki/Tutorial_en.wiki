@@ -139,7 +139,7 @@ When you use *-C, --classify* option, you need to perform clustering with *-c, -
 % bayon -C centroid.tsv input.tsv > classify.tsv
 }}}
 
-=== Specify options for inverted index ===
+=== Use options for inverted index ===
 
 Specifying the similar clusters for each documents with *-C, --classify* option, bayon makes the [http://en.wikipedia.org/wiki/Inverted_index inverted indexes] of the vectors of input clusters for speeding up. Bayon may work faster or more accurate by specifying the following options for inverted indexes.
 
