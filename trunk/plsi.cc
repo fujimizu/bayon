@@ -128,8 +128,6 @@ class PLSI {
         pwz_[iw][iz] = pwz_new_[iw][iz] / pz_new_[iz];
         pwz_new_[iw][iz] = 0.0;
       }
-    }
-    for (size_t iz = 0; iz < num_cluster_; iz++) {
       pz_[iz] = pz_new_[iz] / sum_weight_;
       pz_new_[iz] = 0.0;
     }
