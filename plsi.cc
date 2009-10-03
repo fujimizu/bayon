@@ -16,6 +16,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
+// The original version was written by Taku Kudo.
+// (http://chasen.org/~taku/software/plsi/)
+//
 
 #include <getopt.h>
 #include <cmath>
