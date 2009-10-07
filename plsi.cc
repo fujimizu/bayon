@@ -86,14 +86,14 @@ class PLSI {
   double *pz_,   *pz_new_;
 
   void set_random_prob(size_t row, size_t col,
-                       double **array, double **array2) {
+                       double **array, double **array_new) {
     for (size_t i = 0; i < row; i++) {
       array[i] = new double[col];
-      array2[i] = new double[col];
+      array_new[i] = new double[col];
       double sum = 0.0;
       for (size_t j = 0; j < col; j++) {
         array[i][j] = myrand(&seed_);
-        array2[i][j] = 0.0;
+        array_new[i][j] = 0.0;
         sum += array[i][j];
       }
       for (size_t j = 0; j < col; j++) {
