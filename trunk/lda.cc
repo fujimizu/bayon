@@ -186,7 +186,7 @@ class LDA {
 
     for (size_t i = 0; i < iterations_; i++) {
       for (size_t id = 0; id < num_doc_; id++) {
-        if (id % 1000 == 0) std::cerr << "iter: " << i << "\tdoc: " << id << "/" << num_doc_ << std::endl;
+#        if (id % 1000 == 0) std::cerr << "iter: " << i << "\tdoc: " << id << "/" << num_doc_ << std::endl;
         size_t iw = 0;
         VecHashMap *hmap = documents_[id]->feature()->hash_map();
         for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
