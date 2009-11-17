@@ -137,7 +137,7 @@ bool greater_pair(const std::pair<KeyType, ValueType> &left,
 template<typename KeyType, typename ValueType>
 bool greater_pair_abs(const std::pair<KeyType, ValueType> &left,
                       const std::pair<KeyType, ValueType> &right) {
-  return fabs(left.second) > fabs(right.second);
+  return std::abs(left.second) > std::abs(right.second);
 }
 
 /**
