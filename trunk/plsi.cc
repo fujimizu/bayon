@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
-// I refer the following pLSI package written by Taku Kudo.
+// I referred the following pLSI package written by Taku Kudo.
 // http://chasen.org/~taku/software/plsi/
 //
 
