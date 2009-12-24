@@ -142,6 +142,16 @@ class Document {
     feature_->clear();
   }
 
+  void idf(const HashMap<VecKey, size_t>::type &df, size_t ndocs) {
+    VecHashMap *hmap = feature()->hash_map();
+    HashMap<VecKey, size_t>::type::const_iterator dit;
+    for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
+      dit = df.find(it->first);
+      size_t denom = (dit != df.end()) ? dit->second : 1;
+      (*hmap)[it->first] =
+        it->second * log(static_cast<double>(ndocs) / denom);
+    }
+  }
 };
 
 

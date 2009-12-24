@@ -285,11 +285,8 @@ void  Analyzer::idf() {
   init_hash_map(VECTOR_EMPTY_KEY, df);
   count_df(df);
   size_t ndocs = documents_.size();
-  for (size_t i = 0; i < documents_.size(); i++) {
-    VecHashMap *hmap = documents_[i]->feature()->hash_map();
-    for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
-      (*hmap)[it->first] = it->second * log((double)ndocs / df[it->first]);
-    }
+  for (size_t i = 0; i < ndocs; i++) {
+    documents_[i]->idf(df, ndocs);
   }
 }
 

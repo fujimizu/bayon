@@ -57,11 +57,13 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG     = "dummy";
-const size_t DEFAULT_MAX_CLVECTOR  = 50;
-const size_t DEFAULT_MAX_CLASSIFY  = 20;
-const size_t DEFAULT_MAX_INDEX_KEY = 20;
-const size_t DEFAULT_MAX_INDEX     = 100;
+const std::string DUMMY_OPTARG       = "dummy";
+const size_t DEFAULT_MAX_CLVECTOR    = 50;
+const size_t DEFAULT_MAX_CLASSIFY    = 20;
+const size_t DEFAULT_MAX_INDEX_KEY   = 20;
+const size_t DEFAULT_MAX_INDEX       = 100;
+const bayon::VecKey VEC_START_KEY    = 0;
+const bayon::DocumentId DOC_START_ID = 0;
 
 
 /********************************************************************
@@ -94,6 +96,9 @@ int main(int argc, char **argv);
 static void usage(std::string progname);
 static int parse_options(int argc, char **argv, Option &option);
 static size_t parse_tsv(std::string &tsv, Feature &feature);
+static void read_document(std::string &str, bayon::Document &doc,
+                          bayon::VecKey &veckey, DocId2Str &docid2str,
+                          VecKey2Str &veckey2str, Str2VecKey &str2veckey);
 static size_t read_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                              bayon::VecKey &veckey, DocId2Str &docid2str,
                              VecKey2Str &veckey2str, Str2VecKey &str2veckey);
@@ -108,12 +113,14 @@ static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
                           DocId2Str &docid2str, bool show_point);
 static void show_classified(size_t max_keys, size_t max_output,
                             const bayon::Classifier &classifer,
-                            const std::vector<bayon::Document *> &documents,
+                            const bayon::Document &document,
                             const DocId2Str &docid2str,
                             const DocId2Str &claid2str);
 static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
                                 const std::vector<bayon::Cluster *> &clusters,
                                 const VecKey2Str &veckey2str);
+static int execute_clustering(const Option &option, std::ifstream &ifs_doc);
+static int execute_classification(const Option &option, std::ifstream &ifs_doc);
 static void version();
 
 
@@ -138,84 +145,18 @@ int main(int argc, char **argv) {
     usage(progname);
     return EXIT_FAILURE;
   }
-
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
     std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
     return EXIT_FAILURE;
   }
-
-  DocId2Str docid2str;
-  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, docid2str);
-  VecKey2Str veckey2str;
-  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, veckey2str);
-  Str2VecKey str2veckey;
-  bayon::init_hash_map("", str2veckey);
-  bayon::VecKey veckey = 0;
-
-  bayon::Analyzer analyzer;
-  read_documents(ifs_doc, analyzer, veckey,
-                 docid2str, veckey2str, str2veckey);
-
-  if (option.find(OPT_IDF) != option.end()) analyzer.idf();
-  if (option.find(OPT_VECTOR_SIZE) != option.end())
-    analyzer.resize_document_features(atoi(option[OPT_VECTOR_SIZE].c_str()));
-
-  if (option.find(OPT_CLASSIFY) != option.end()) { /* do classifying */
-    bayon::Classifier classifier;
-    std::ifstream ifs_cla(option[OPT_CLASSIFY].c_str());
-    if (!ifs_cla) {
-      std::cerr << "[ERROR]File not found: "
-                << option[OPT_CLASSIFY] << std::endl;
-      return EXIT_FAILURE;
-    }
-    size_t max_keys = option.find(OPT_INV_KEYS) != option.end() ?
-      atoi(option[OPT_INV_KEYS].c_str()) : DEFAULT_MAX_INDEX_KEY;
-    size_t max_index = option.find(OPT_INV_SIZE) != option.end() ?
-      atoi(option[OPT_INV_SIZE].c_str()) : DEFAULT_MAX_INDEX;
-    size_t max_output = option.find(OPT_CLASSIFY_SIZE) != option.end() ?
-      atoi(option[OPT_CLASSIFY_SIZE].c_str()) : DEFAULT_MAX_CLASSIFY;
-
-    DocId2Str claid2str;
-    bayon::init_hash_map(bayon::DOC_EMPTY_KEY, claid2str);
-    read_classifier_vectors(max_index, ifs_cla, classifier, veckey,
-                            claid2str, veckey2str, str2veckey);
-    show_classified(max_keys, max_output, classifier,
-                    analyzer.documents(), docid2str, claid2str);
-
-  } else { /* do clustering */
-    if (option.find(OPT_SEED) != option.end()) {
-      unsigned int seed = static_cast<unsigned int>(
-                            atoi(option[OPT_SEED].c_str()));
-      analyzer.set_seed(seed);
-    }
-
-    if (option.find(OPT_NUMBER) != option.end()) {
-      analyzer.set_cluster_size_limit(atoi(option[OPT_NUMBER].c_str()));
-    } else if (option.find(OPT_LIMIT) != option.end()) {
-      analyzer.set_eval_limit(atof(option[OPT_LIMIT].c_str()));
-    }
-    std::string method = "rb"; // default method
-    if (option.find(OPT_METHOD) != option.end()) method = option[OPT_METHOD];
-    analyzer.do_clustering(method);
-    std::vector<bayon::Cluster *> clusters = analyzer.clusters();
-
-    bool flag_point = (option.find(OPT_POINT) != option.end()) ? true : false;
-    show_clusters(clusters, docid2str, flag_point);
-
-    if (option.find(OPT_CLVECTOR) != option.end()) {
-      std::ofstream ofs(option[OPT_CLVECTOR].c_str());
-      if (!ofs) {
-        std::cerr << "[ERROR]Cannot open file: "
-                  << option[OPT_CLVECTOR] << std::endl;
-        return EXIT_FAILURE;
-      }
-      size_t max_vec = (option.find(OPT_CLVECTOR_SIZE) != option.end()) ?
-        atoi(option[OPT_CLVECTOR_SIZE].c_str()) : DEFAULT_MAX_CLVECTOR;
-      save_cluster_vector(max_vec, ofs, clusters, veckey2str);
-    }
+  if (option.find(OPT_CLASSIFY) != option.end()) {
+    /* classification */
+    return execute_classification(option, ifs_doc);
+  } else {
+    /* clustering */
+    return execute_clustering(option, ifs_doc);
   }
-  return EXIT_SUCCESS;
 }
 
 /* show usage */
@@ -341,34 +282,40 @@ static size_t parse_tsv(std::string &tsv, Feature &feature) {
   return keycnt;
 }
 
+/* parse input string and make a Document object */
+static void read_document(std::string &str, bayon::Document &doc,
+                          bayon::VecKey &veckey, DocId2Str &docid2str,
+                          VecKey2Str &veckey2str, Str2VecKey &str2veckey) {
+  size_t p = str.find(bayon::DELIMITER);
+  std::string doc_name = str.substr(0, p);
+  str = str.substr(p + bayon::DELIMITER.size());
+  docid2str[doc.id()] = doc_name;
+
+  Feature feature;
+  bayon::init_hash_map("", feature);
+  parse_tsv(str, feature);
+  for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
+    if (str2veckey.find(it->first) == str2veckey.end()) {
+      str2veckey[it->first] = veckey;
+      veckey2str[veckey] = it->first;
+      veckey++;
+    }
+    doc.add_feature(str2veckey[it->first], it->second);
+  }
+}
+
 /* read input file and add documents to analyzer */
 static size_t read_documents(std::ifstream &ifs, bayon::Analyzer &analyzer,
                              bayon::VecKey &veckey, DocId2Str &docid2str,
                              VecKey2Str &veckey2str, Str2VecKey &str2veckey) {
-  bayon::DocumentId docid = 0;
+  bayon::DocumentId docid = DOC_START_ID;
   std::string line;
   while (std::getline(ifs, line)) {
     if (!line.empty()) {
-      size_t p = line.find(bayon::DELIMITER);
-      std::string doc_name = line.substr(0, p);
-      line = line.substr(p + bayon::DELIMITER.size());
-
       bayon::Document doc(docid);
-      docid2str[docid] = doc_name;
-      docid++;
-      Feature feature;
-      bayon::init_hash_map("", feature);
-      parse_tsv(line, feature);
-
-      for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
-        if (str2veckey.find(it->first) == str2veckey.end()) {
-          str2veckey[it->first] = veckey;
-          veckey2str[veckey] = it->first;
-          veckey++;
-        }
-        doc.add_feature(str2veckey[it->first], it->second);
-      }
+      read_document(line, doc, veckey, docid2str, veckey2str, str2veckey);
       analyzer.add_document(doc);
+      docid++;
     }
   }
   return docid;
@@ -435,27 +382,23 @@ static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
 /* show classified result */
 static void show_classified(size_t max_keys, size_t max_output,
                             const bayon::Classifier &classifier,
-                            const std::vector<bayon::Document *> &documents,
+                            const bayon::Document &document,
                             const DocId2Str &docid2str,
                             const DocId2Str &claid2str) {
-  DocId2Str::const_iterator it;
-  for (size_t i = 0; i < documents.size(); i++) {
-    std::vector<std::pair<bayon::VectorId, double> > pairs;
-    documents[i]->feature()->normalize();
-    classifier.similar_vectors(max_keys, *documents[i]->feature(), pairs);
+  std::vector<std::pair<bayon::VectorId, double> > pairs;
+  classifier.similar_vectors(max_keys, *document.feature(), pairs);
 
-    it = docid2str.find(documents[i]->id());
-    if (it != docid2str.end()) std::cout << it->second;
-    else                       std::cout << documents[i]->id();
-    for (size_t j = 0; j < pairs.size() && j < max_output; j++) {
-      DocId2Str::const_iterator it = claid2str.find(pairs[j].first);
-      std::cout << bayon::DELIMITER;
-      if (it != claid2str.end()) std::cout << it->second;
-      else                       std::cout << pairs[j].first;
-      std::cout << bayon::DELIMITER << pairs[j].second;
-    }
-    std::cout << std::endl;
+  DocId2Str::const_iterator it = docid2str.find(document.id());
+  if (it != docid2str.end()) std::cout << it->second;
+  else                       std::cout << document.id();
+  for (size_t j = 0; j < pairs.size() && j < max_output; j++) {
+    DocId2Str::const_iterator it = claid2str.find(pairs[j].first);
+    std::cout << bayon::DELIMITER;
+    if (it != claid2str.end()) std::cout << it->second;
+    else                       std::cout << pairs[j].first;
+    std::cout << bayon::DELIMITER << pairs[j].second;
   }
+  std::cout << std::endl;
 }
 
 /* save vectors of cluster centroids */
@@ -479,6 +422,114 @@ static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
     }
   }
 }
+
+static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
+  DocId2Str docid2str;
+  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, docid2str);
+  VecKey2Str veckey2str;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, veckey2str);
+  Str2VecKey str2veckey;
+  bayon::init_hash_map("", str2veckey);
+  bayon::VecKey veckey = VEC_START_KEY;
+
+  bayon::Analyzer analyzer;
+  read_documents(ifs_doc, analyzer, veckey, docid2str, veckey2str, str2veckey);
+  Option::const_iterator oit;
+  if (option.find(OPT_IDF) != option.end()) analyzer.idf();
+  if ((oit = option.find(OPT_VECTOR_SIZE)) != option.end())
+    analyzer.resize_document_features(atoi(oit->second.c_str()));
+  if ((oit = option.find(OPT_SEED)) != option.end()) {
+    unsigned int seed = static_cast<unsigned int>(atoi(oit->second.c_str()));
+    analyzer.set_seed(seed);
+  }
+  if ((oit = option.find(OPT_NUMBER)) != option.end()) {
+    analyzer.set_cluster_size_limit(atoi(oit->second.c_str()));
+  } else if ((oit = option.find(OPT_LIMIT)) != option.end()) {
+    analyzer.set_eval_limit(atof(oit->second.c_str()));
+  }
+  std::string method("rb"); // default method
+  if ((oit = option.find(OPT_METHOD)) != option.end()) method = oit->second;
+  analyzer.do_clustering(method);
+  std::vector<bayon::Cluster *> clusters = analyzer.clusters();
+
+  bool flag_point = (option.find(OPT_POINT) != option.end()) ? true : false;
+  show_clusters(clusters, docid2str, flag_point);
+
+  if ((oit = option.find(OPT_CLVECTOR)) != option.end()) {
+    std::ofstream ofs(oit->second.c_str());
+    if (!ofs) {
+      std::cerr << "[ERROR]Cannot open file: "
+                << oit->second << std::endl;
+      return EXIT_FAILURE;
+    }
+    size_t max_vec = ((oit = option.find(OPT_CLVECTOR_SIZE)) != option.end()) ?
+      atoi(oit->second.c_str()) : DEFAULT_MAX_CLVECTOR;
+    save_cluster_vector(max_vec, ofs, clusters, veckey2str);
+  }
+  return EXIT_SUCCESS;
+}
+
+static int execute_classification(const Option &option,
+                                  std::ifstream &ifs_doc) {
+  DocId2Str docid2str;
+  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, docid2str);
+  VecKey2Str veckey2str;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, veckey2str);
+  Str2VecKey str2veckey;
+  bayon::init_hash_map("", str2veckey);
+  bayon::VecKey veckey = VEC_START_KEY;
+
+  size_t ndocs = 0;
+  bayon::HashMap<bayon::VecKey, size_t>::type df;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, df);
+  std::string line;
+  bayon::DocumentId docid = DOC_START_ID;
+  while (std::getline(ifs_doc, line)) {
+    bayon::Document doc(docid);
+    read_document(line, doc, veckey, docid2str, veckey2str, str2veckey);
+    bayon::VecHashMap *hmap = doc.feature()->hash_map();
+    for (bayon::VecHashMap::iterator it = hmap->begin();
+      it != hmap->end(); ++it) {
+      if (df.find(it->first) == df.end()) df[it->first] = 1;
+      else                                df[it->first]++;
+    }
+    ndocs++;
+  }
+  ifs_doc.clear();
+  ifs_doc.seekg(0, std::ios_base::beg);
+
+  bayon::Classifier classifier;
+  Option::const_iterator oit = option.find(OPT_CLASSIFY);
+  std::ifstream ifs_cla(oit->second.c_str());
+  if (!ifs_cla) {
+    fprintf(stderr, "[ERROR]File not found: %s\n", oit->second.c_str());
+    return EXIT_FAILURE;
+  }
+  size_t max_keys = (oit = option.find(OPT_INV_KEYS)) != option.end() ?
+    atoi(oit->second.c_str()) : DEFAULT_MAX_INDEX_KEY;
+  size_t max_index = (oit = option.find(OPT_INV_SIZE)) != option.end() ?
+    atoi(oit->second.c_str()) : DEFAULT_MAX_INDEX;
+  size_t max_output = (oit = option.find(OPT_CLASSIFY_SIZE)) != option.end() ?
+    atoi(oit->second.c_str()) : DEFAULT_MAX_CLASSIFY;
+
+  DocId2Str claid2str;
+  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, claid2str);
+  read_classifier_vectors(max_index, ifs_cla, classifier, veckey,
+                          claid2str, veckey2str, str2veckey);
+  docid = DOC_START_ID;
+  while (std::getline(ifs_doc, line)) {
+    bayon::Document doc(docid);
+    read_document(line, doc, veckey, docid2str, veckey2str, str2veckey);
+    if (option.find(OPT_IDF) != option.end()) doc.idf(df, ndocs);
+    if ((oit = option.find(OPT_VECTOR_SIZE)) != option.end())
+      doc.feature()->resize(atoi(oit->second.c_str()));
+    doc.feature()->normalize();
+    show_classified(max_keys, max_output, classifier,
+                    doc, docid2str, claid2str);
+  }
+  return EXIT_SUCCESS;
+}
+
 
 /* show version */
 static void version() {
