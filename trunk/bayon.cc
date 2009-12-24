@@ -478,25 +478,28 @@ static int execute_classification(const Option &option,
   Str2VecKey str2veckey;
   bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = VEC_START_KEY;
-
+  bayon::DocumentId docid;
+  std::string line;
   size_t ndocs = 0;
   bayon::HashMap<bayon::VecKey, size_t>::type df;
   bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, df);
-  std::string line;
-  bayon::DocumentId docid = DOC_START_ID;
-  while (std::getline(ifs_doc, line)) {
-    bayon::Document doc(docid);
-    read_document(line, doc, veckey, docid2str, veckey2str, str2veckey);
-    bayon::VecHashMap *hmap = doc.feature()->hash_map();
-    for (bayon::VecHashMap::iterator it = hmap->begin();
-      it != hmap->end(); ++it) {
-      if (df.find(it->first) == df.end()) df[it->first] = 1;
-      else                                df[it->first]++;
+
+  if (option.find(OPT_IDF) != option.end()) {
+    docid = DOC_START_ID;
+    while (std::getline(ifs_doc, line)) {
+      bayon::Document doc(docid);
+      read_document(line, doc, veckey, docid2str, veckey2str, str2veckey);
+      bayon::VecHashMap *hmap = doc.feature()->hash_map();
+      for (bayon::VecHashMap::iterator it = hmap->begin();
+        it != hmap->end(); ++it) {
+        if (df.find(it->first) == df.end()) df[it->first] = 1;
+        else                                df[it->first]++;
+      }
+      ndocs++;
     }
-    ndocs++;
+    ifs_doc.clear();
+    ifs_doc.seekg(0, std::ios_base::beg);
   }
-  ifs_doc.clear();
-  ifs_doc.seekg(0, std::ios_base::beg);
 
   bayon::Classifier classifier;
   Option::const_iterator oit = option.find(OPT_CLASSIFY);
