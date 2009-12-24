@@ -1,4 +1,4 @@
-_Tutorial for bayon in English_
+_Tutorial of bayon in English_
 
 <wiki:toc />
 
@@ -9,6 +9,9 @@ Bayon is a simple and fast [http://en.wikipedia.org/wiki/Cluster_analysis cluste
 Bayon supports two hard-clustering methods, repeated bisection clustering and [http://en.wikipedia.org/wiki/K-means_clustering K-means clustering]. In the outputs of these methods, each input document is assigned to only one cluster. But you can get similar clusters for each input document like soft-clustering method by using *--classifier* option.
 
 = What's new =
+
+ * 2009/12/24: 0.0.8 Released
+  * Memory usage reduced when *-C, --classify* option specified
 
  * 2009/08/12: 0.0.7 Released
   * *--vector-size* option which is used to specify the max size of each input vector is added.
