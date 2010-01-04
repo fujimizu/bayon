@@ -38,7 +38,7 @@ LDFLAGS = @MYLDFLAGS@
 TESTLDFLAGS = @MYTESTLDFLAGS@
 CMDLDFLAGS = @MYCMDLDFLAGS@
 LIBS = @LIBS@
-LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@:.
+LDENV = LD_RUN_PATH=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
 RUNENV = @MYLDLIBPATHENV@=.:/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
 DEFS = @DEFS@
 
