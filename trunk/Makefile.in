@@ -25,7 +25,7 @@ DOCUMENTFILES = @MYDOCUMENTFILES@
 # Install destinations
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-INCLUDEDIR = @includedir@/bayon
+INCLUDEDIR = @includedir@
 LIBDIR = @libdir@
 BINDIR = @bindir@
 DESTDIR =
