@@ -47,8 +47,10 @@
 
 /* isnan for win32 */
 #ifdef _WIN32
+namespace std {
 #include <cfloat>
 #define isnan(x) _isnan(x)
+}
 #endif
 
 
