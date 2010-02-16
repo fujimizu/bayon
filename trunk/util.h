@@ -55,7 +55,7 @@ namespace std {
 
 
 /* hash function of string key for __gnu_cxx::hash_map */
-#if !defined(HAVE_GOOGLE_DENSE_HASH_MAP) && defined(HAVE_EXT_HASH_MAP)
+#if (defined(_WIN32) || !defined(HAVE_GOOGLE_DENSE_HASH_MAP)) && defined(HAVE_EXT_HASH_MAP)
 namespace __gnu_cxx {
   template<> struct hash<std::string> {
     size_t operator() (const std::string &x) const {
