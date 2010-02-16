@@ -51,6 +51,10 @@ namespace std {
 #include <cfloat>
 #define isnan(x) _isnan(x)
 }
+#else
+namespace std {
+  using ::nan;
+}
 #endif
 
 
