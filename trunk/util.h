@@ -24,6 +24,7 @@
 #include "config.h"
 #endif
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
@@ -45,16 +46,14 @@
   do { } while (false);
 #endif
 
-/* isnan for win32 */
+/* isnan */
+#ifndef isnan
 #ifdef _WIN32
-namespace std {
 #include <cfloat>
 #define isnan(x) _isnan(x)
-}
 #else
-namespace std {
-  using ::nan;
-}
+#define isnan(x) (x != x)
+#endif
 #endif
 
 
