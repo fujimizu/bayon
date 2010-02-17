@@ -10,6 +10,9 @@ Bayon supports two hard-clustering methods, repeated bisection clustering and [h
 
 = What's new =
 
+ * 2010/02/16: 0.0.10 Released
+  * Bug fix
+
  * 2010/01/04: 0.0.9 Released
   * A bug that "make check" failed when prior version installed was fixed
 
