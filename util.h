@@ -109,11 +109,27 @@ const std::string DELIMITER("\t");
  *
  * @param empty_key key of empty entry
  * @param deleted_key key of deleted entry
- * @return void
  */
 template<typename KeyType, typename HashType>
 void init_hash_map(const KeyType &empty_key, HashType &hmap) {
 #ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.max_load_factor(0.9);
+  hmap.set_empty_key(empty_key);
+#endif
+}
+
+/**
+ * Initialize hash_map object (for google::dense_hash_map)
+ *
+ * @param empty_key key of empty entry
+ * @param deleted_key key of deleted entry
+ * @param bucket_count bucket count
+ */
+template<typename KeyType, typename HashType>
+void init_hash_map(const KeyType &empty_key, HashType &hmap,
+                   size_t bucket_count) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.rehash(bucket_count);
   hmap.max_load_factor(0.9);
   hmap.set_empty_key(empty_key);
 #endif
