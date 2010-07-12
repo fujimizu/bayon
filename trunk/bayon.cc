@@ -443,7 +443,13 @@ static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
     analyzer.set_seed(seed);
   }
   if ((oit = option.find(OPT_NUMBER)) != option.end()) {
-    analyzer.set_cluster_size_limit(atoi(oit->second.c_str()));
+    int nclusters = atoi(oit->second.c_str());
+    if (nclusters < 1) {
+      std::cerr << "[ERROR]The number of clusters must be more than zero: "
+                << "\"" << oit->second << "\"" << std::endl;
+      return EXIT_FAILURE;
+    }
+    analyzer.set_cluster_size_limit(nclusters);
   } else if ((oit = option.find(OPT_LIMIT)) != option.end()) {
     analyzer.set_eval_limit(atof(oit->second.c_str()));
   }

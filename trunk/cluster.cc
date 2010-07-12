@@ -144,7 +144,7 @@ size_t Analyzer::repeated_bisection() {
     cluster->add_document(documents_[i]);
   }
 
-  std::priority_queue<Cluster,
+  std::priority_queue<Cluster *,
                       std::vector<Cluster *>,
                       CompareClusterBisectionEvalGreater> que;
   cluster->section(2);
