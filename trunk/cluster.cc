@@ -138,6 +138,7 @@ void Cluster::section(size_t nclusters) {
 
 /* Do repeated bisection clustering */
 size_t Analyzer::repeated_bisection() {
+  if (limit_nclusters_ < 1) return 0;
   Cluster *cluster = new Cluster();
   cluster->set_seed(seed_);
   for (size_t i = 0; i < documents_.size(); i++) {
