@@ -1,5 +1,5 @@
 //
-// Bayon API
+// Document object
 //
 // Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
@@ -17,18 +17,10 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_BAYON_H
-#define BAYON_BAYON_H
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "analyzer.h"
-#include "byvector.h"
-#include "classifier.h"
-#include "cluster.h"
 #include "document.h"
-#include "util.h"
 
-#endif
+namespace bayon {
+
+/* no implementation yet */
+
+}  /* namespace bayon */

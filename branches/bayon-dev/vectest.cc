@@ -1,7 +1,7 @@
 //
 // Tests for vector operation
 //
-// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
+// Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
+#include <algorithm>
 #include <map>
+#include <vector>
 #include <gtest/gtest.h>
 #include "byvector.h"
 
@@ -120,7 +122,7 @@ TEST(VectorTest, HashMapTest) {
   for (TestData::iterator it = input1.begin(); it != input1.end(); ++it) {
     keys.push_back(it->first);
   }
-  reverse(keys.begin(), keys.end());
+  std::reverse(keys.begin(), keys.end());
   TestData reversed;
   for (size_t i = 0; i < keys.size(); i++) {
     reversed[keys[i]] = input1[keys[i]];

@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+# -*- conding: utf-8 -*-
+
+import sys
+import Options
+
+APPNAME = 'bayon'
+VERSION = '0.0.1'
+
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+    opt.tool_options('compiler_cxx')
+    opt.tool_options('unittestt')
+
+def configure(conf):
+    conf.env.CPPPATH = ['/usr/local/include']
+    conf.env.CXXFLAGS += ['-O3', '-Wall']
+    conf.env.LIBPATH  += ['/usr/local/lib']
+
+    conf.check_tool('compiler_cxx')
+    conf.check_tool('unittestt')
+
+    conf.check_cxx(lib = 'pthread', mandatory = True)
+    #conf.check_cxx(header_name = 'evhttp.h', mandatory = True)
+
+    #conf.write_config_header('config.h')
+
+def build(bld):
+    task1 = bld(
+        features = 'cxx cshlib',
+        source   = ['util.cc', 'byvector.cc', 'document.cc', 'cluster.cc',
+                    'analyzer.cc', 'classifier.cc'],
+        name     = 'bayon',
+        target   = 'bayon',
+        includes = '.')
+    task2 = bld(
+        features     = 'cxx cprogram testt',
+        source       = 'utiltest.cc',
+        target       = 'utiltest',
+        includes     = '.',
+        lib          = ['gtest', 'pthread'],
+        uselib_local = 'bayon')
+    task3 = bld(
+        features     = 'cxx cprogram testt',
+        source       = 'vectest.cc',
+        target       = 'vectest',
+        includes     = '.',
+        lib          = ['gtest', 'pthread'],
+        uselib_local = 'bayon')
+    task4 = bld(
+        features     = 'cxx cprogram testt',
+        source       = 'doctest.cc',
+        target       = 'doctest',
+        includes     = '.',
+        lib          = ['gtest', 'pthread'],
+        uselib_local = 'bayon')
+    task5 = bld(
+        features     = 'cxx cprogram testt',
+        source       = 'clutest.cc',
+        target       = 'clutest',
+        includes     = '.',
+        lib          = ['gtest', 'pthread'],
+        uselib_local = 'bayon')
+    task6 = bld(
+        features     = 'cxx cprogram testt',
+        source       = 'anatest.cc',
+        target       = 'anatest',
+        includes     = '.',
+        lib          = ['gtest', 'pthread'],
+        uselib_local = 'bayon')
+    task7 = bld(
+        features     = 'cxx cprogram testt',
+        source       = 'clatest.cc',
+        target       = 'clatest',
+        includes     = '.',
+        lib          = ['gtest', 'pthread'],
+        uselib_local = 'bayon')
+    task8 = bld(
+        features     = 'cxx cprogram',
+        source       = 'bayon.cc',
+        target       = 'bayon',
+        includes     = '.',
+        uselib_local = 'bayon')
+
+def dist_hook():
+  import Scripting
+#  Scripting.g_gz = 'gz'
+  Scripting.dist_exts += ['.svn']

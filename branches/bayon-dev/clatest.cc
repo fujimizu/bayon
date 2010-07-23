@@ -1,5 +1,5 @@
 //
-// Tests for Classifier
+// Tests for Classifier class
 //
 // Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
@@ -49,7 +49,7 @@ TEST(ClassifierTest, SimilarVectorsTest) {
   size_t max = 10;
   add_random_vectors(max, NUM_VECTOR_ITEM, classifier);
 
-  std::vector<std::pair<bayon::VectorId, double> > items;
+  std::vector<std::pair<bayon::Classifier::VectorId, double> > items;
   bayon::Vector vec;
   for (size_t i = 0; i < NUM_VECTOR_ITEM; i++) {
     vec.set(i, rand() % 10 + 1);
@@ -58,7 +58,7 @@ TEST(ClassifierTest, SimilarVectorsTest) {
   classifier.similar_vectors(NUM_VECTOR_ITEM, vec, items);
 
   EXPECT_TRUE(0 < items.size() && items.size() <= max);
-  std::map<bayon::VectorId, bool> check;
+  std::map<bayon::Classifier::VectorId, bool> check;
   for (size_t i = 0; i < items.size(); i++) {
     EXPECT_TRUE(-1.0 <= items[i].second && items[i].second <= 1.0);
     EXPECT_TRUE(check.find(items[i].first) == check.end());
