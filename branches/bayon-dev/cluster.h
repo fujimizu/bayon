@@ -34,13 +34,13 @@ namespace bayon {
  */
 class Cluster {
  private:
-  std::vector<Document *> documents_;                  ///< documents
-  Vector composite_;                                   ///< a composite vector
-  Vector centroid_;                                    ///< a centroid vector
-  std::tr1::unordered_map<DocumentId, bool> removed_;  ///< removed documents
-  std::vector<Cluster *> sectioned_clusters_;          ///< sectioned_clusters
-  double sectioned_gain_;                              ///< sectioned gain
-  unsigned int seed_;                                  ///< seed
+  std::vector<Document *> documents_;          ///< documents
+  Vector composite_;                           ///< a composite vector
+  Vector centroid_;                            ///< a centroid vector
+  HashMap<DocumentId, bool>::type removed_;    ///< removed documents
+  std::vector<Cluster *> sectioned_clusters_;  ///< sectioned_clusters
+  double sectioned_gain_;                      ///< sectioned gain
+  unsigned int seed_;                          ///< seed
 
   /**
    * Add the vectors of all documents to a composite vector.
@@ -58,6 +58,7 @@ class Cluster {
    * Constructor.
    */
   Cluster() : sectioned_gain_(0), seed_(DEFAULT_SEED) {
+    init_hash_map(DOC_EMPTY_KEY, removed_);
   }
 
   /**
@@ -65,6 +66,7 @@ class Cluster {
    * @param n the bucket count of a composite vector
    */
   Cluster(size_t n) : sectioned_gain_(0), seed_(DEFAULT_SEED) {
+    init_hash_map(DOC_EMPTY_KEY, removed_);
     composite_.set_bucket_count(n);
     centroid_.set_bucket_count(n);
     // removed_.resize(n);

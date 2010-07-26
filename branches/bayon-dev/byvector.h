@@ -35,9 +35,11 @@ namespace bayon {
 typedef long                            VecKey;   ///< key of a vector
 typedef double                          VecValue; ///< value of a vector
 typedef std::pair<VecKey, VecValue>     VecItem;  ///< key-value pair
-typedef std::tr1::unordered_map<VecKey, VecValue> VecHashMap;
+typedef HashMap<VecKey, VecValue>::type VecHashMap;
 
-const VecValue VECTOR_NULL_VALUE  = 0.0;
+const VecKey   VECTOR_EMPTY_KEY   = -1;   ///< empty key for google::hash_map
+const VecKey   VECTOR_DELETED_KEY = -2;   ///< deleted key for google::hash_map
+const VecValue VECTOR_NULL_VALUE  = 0.0;  ///< value of nonexistent entry
 
 
 /**
@@ -53,7 +55,7 @@ class Vector {
    * Constructor.
    */
   Vector() {
-    vec_.max_load_factor(1.0);
+    init_hash_map(VECTOR_EMPTY_KEY, vec_);
   }
 
   /**
@@ -66,7 +68,9 @@ class Vector {
    * @param n bucket count
    */
   void set_bucket_count(size_t n) {
+#if defined(HAVE_GOOGLE_DENSE_HASH_MAP) || defined(HAVE_EXT_HASH_MAP)
     vec_.rehash(n);
+#endif
   }
 
   /**
@@ -83,7 +87,7 @@ class Vector {
    */
   void copy(Vector &vec) const {
     vec.clear();
-    vec.set_bucket_count(size());
+    vec.set_bucket_count(vec_.size());
     for (VecHashMap::const_iterator it = vec_.begin();
          it != vec_.end(); ++it) {
       vec.set(it->first, it->second);
@@ -122,7 +126,7 @@ class Vector {
    */
   void clear() {
     vec_.clear();
-    vec_.max_load_factor(1.0);
+    vec_.max_load_factor(0.9);
   }
 
   /**

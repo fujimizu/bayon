@@ -38,11 +38,13 @@ class Classifier {
   /** the value of inverted indexes */
   typedef std::vector<IndexItem> InvertedIndexValue;
   /** inverted index */
-  typedef std::tr1::unordered_map<VecKey, InvertedIndexValue *> InvertedIndex;
+  typedef HashMap<VecKey, InvertedIndexValue *>::type InvertedIndex;
 
  private:
-  std::tr1::unordered_map<VectorId, Vector> vectors_;  ///< input vectors
-  InvertedIndex inverted_index_;                       ///< inverted index
+  static const VectorId VECID_EMPTY_KEY = -1;  ///< empty key
+
+  HashMap<VectorId, Vector>::type vectors_;  ///< input vectors
+  InvertedIndex inverted_index_;             ///< inverted index
 
   /**
    * Add vector keys to inverted index.
@@ -66,7 +68,10 @@ class Classifier {
   /**
    * Constructor.
    */
-  Classifier() { }
+  Classifier() {
+    init_hash_map(VECID_EMPTY_KEY, vectors_);
+    init_hash_map(VECID_EMPTY_KEY, inverted_index_);
+  }
 
   /**
    * Destructor.

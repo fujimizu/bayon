@@ -74,7 +74,7 @@ class Analyzer {
    * Count document frequency(DF) of the features in documents.
    * @param df document frequency
    */
-  void count_df(std::tr1::unordered_map<VecKey, size_t> &df) const;
+  void count_df(HashMap<VecKey, size_t>::type &df) const;
 
  public:
   /**

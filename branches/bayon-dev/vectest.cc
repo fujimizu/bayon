@@ -175,6 +175,7 @@ TEST(VectorTest, NormalizeTest) {
 TEST(VectorTest, ResizeTest) {
   bayon::Vector vec;
   for (bayon::VecKey i = 1; i <= 100; i++) {
+    std::cout << i << "\tfafafa" << std::endl;
     vec.set(i, i);
   }
   size_t size = 30;

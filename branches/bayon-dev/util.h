@@ -30,8 +30,14 @@
 #include <string>
 #include <vector>
 
-/* Include hash_map header. */
-#include <tr1/unordered_map>
+/* include hash_map headers. */
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+#include <google/dense_hash_map>
+#elif HAVE_EXT_HASH_MAP
+#include <ext/hash_map>
+#else
+#include <map>
+#endif
 
 /* Print debug messages. */
 #ifdef DEBUG
@@ -52,12 +58,79 @@
 #endif
 #endif
 
+/* hash function of string key for __gnu_cxx::hash_map */
+#if (defined(_WIN32) || !defined(HAVE_GOOGLE_DENSE_HASH_MAP)) && defined(HAVE_EXT_HASH_MAP)
+namespace __gnu_cxx {
+  template<> struct hash<std::string> {
+    size_t operator() (const std::string &x) const {
+      return hash<const char *>()(x.c_str());
+    }
+  };
+
+  template<> struct hash<long long> { 
+    size_t operator()(long long __x) const {
+      return __x;
+    }
+  };
+  template<> struct hash<unsigned long long> { 
+    size_t operator()(unsigned long  long __x) const {
+      return __x;
+    }
+  };
+}
+#endif
+
 
 namespace bayon {
 
+/**
+ * typedef template of hash map class
+ * 'google::dense_hash_map' or '__gnu__cxx::hash_map' or 'std::map'
+ */
+template<typename KeyType, typename ValueType>
+struct HashMap {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  typedef google::dense_hash_map<KeyType, ValueType> type;
+#elif HAVE_EXT_HASH_MAP
+  typedef __gnu_cxx::hash_map<KeyType, ValueType> type;
+#else
+  typedef std::map<KeyType, ValueType> type;
+#endif
+};
+
 const unsigned int DEFAULT_SEED = 12345;  ///< default seed value
 const std::string DELIMITER("\t");        ///< delimiter string
+const double MAX_LOAD_FACTOR = 0.9;       ///< max load factor of hash_map
 
+
+/**
+ * Initialize hash_map object (for google::dense_hash_map)
+ * @param empty_key key of empty entry
+ * @param deleted_key key of deleted entry
+ */
+template<typename KeyType, typename HashType>
+void init_hash_map(const KeyType &empty_key, HashType &hmap) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.max_load_factor(MAX_LOAD_FACTOR);
+  hmap.set_empty_key(empty_key);
+#endif
+}
+
+/**
+ * Initialize hash_map object (for google::dense_hash_map)
+ * @param empty_key key of empty entry
+ * @param deleted_key key of deleted entry
+ * @param bucket_count bucket count
+ */
+template<typename KeyType, typename HashType>
+void init_hash_map(const KeyType &empty_key, HashType &hmap,
+                   size_t bucket_count) {
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+  hmap.rehash(bucket_count);
+  hmap.max_load_factor(MAX_LOAD_FACTOR);
+  hmap.set_empty_key(empty_key);
+#endif
+}
 
 /**
  * Compare pair items.

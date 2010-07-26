@@ -165,7 +165,7 @@ double Analyzer::refined_vector_value(const Vector &composite,
 /**
  * Count document frequency(DF) of the features in documents.
  */
-void Analyzer::count_df(std::tr1::unordered_map<VecKey, size_t> &df) const {
+void Analyzer::count_df(HashMap<VecKey, size_t>::type &df) const {
   for (size_t i = 0; i < documents_.size(); i++) {
     VecHashMap *hmap = documents_[i]->feature()->hash_map();
     for (VecHashMap::iterator it = hmap->begin();
@@ -180,7 +180,8 @@ void Analyzer::count_df(std::tr1::unordered_map<VecKey, size_t> &df) const {
  * Calculate inverse document frequency(IDF) and apply it to document vectors.
  */
 void  Analyzer::idf() {
-  std::tr1::unordered_map<VecKey, size_t> df;
+  HashMap<VecKey, size_t>::type df;
+  init_hash_map(VECTOR_EMPTY_KEY, df);
   count_df(df);
   size_t ndocs = documents_.size();
   for (size_t i = 0; i < ndocs; i++) {

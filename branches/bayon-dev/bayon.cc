@@ -48,10 +48,10 @@ typedef enum {
 } bayon_options;
 
 typedef std::map<bayon_options, std::string> Option;
-typedef std::tr1::unordered_map<std::string, double> Feature;
-typedef std::tr1::unordered_map<bayon::DocumentId, std::string> DocId2Str;
-typedef std::tr1::unordered_map<bayon::VecKey, std::string> VecKey2Str;
-typedef std::tr1::unordered_map<std::string, bayon::VecKey> Str2VecKey;
+typedef bayon::HashMap<std::string, double>::type Feature;
+typedef bayon::HashMap<bayon::DocumentId, std::string>::type DocId2Str;
+typedef bayon::HashMap<bayon::VecKey, std::string>::type VecKey2Str;
+typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 
 
 /********************************************************************
@@ -292,6 +292,7 @@ static void read_document(std::string &str, bayon::Document &doc,
   docid2str[doc.id()] = doc_name;
 
   Feature feature;
+  bayon::init_hash_map("", feature);
   parse_tsv(str, feature);
   for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
     if (str2veckey.find(it->first) == str2veckey.end()) {
@@ -335,11 +336,10 @@ static size_t read_classifier_vectors(size_t max_index,
       size_t p = line.find(bayon::DELIMITER);
       std::string name = line.substr(0, p);
       line = line.substr(p + bayon::DELIMITER.size());
-
       claid2str[claid] = name;
       Feature feature;
+      bayon::init_hash_map("", feature);
       parse_tsv(line, feature);
-
       bayon::Vector vec;
       for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
         if (str2veckey.find(it->first) == str2veckey.end()) {
@@ -423,8 +423,11 @@ static void save_cluster_vector(size_t max_vec, std::ofstream &ofs,
 
 static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
   DocId2Str docid2str;
+  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, docid2str);
   VecKey2Str veckey2str;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, veckey2str);
   Str2VecKey str2veckey;
+  bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = VEC_START_KEY;
 
   bayon::Analyzer analyzer;
@@ -473,13 +476,17 @@ static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
 static int execute_classification(const Option &option,
                                   std::ifstream &ifs_doc) {
   DocId2Str docid2str;
+  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, docid2str);
   VecKey2Str veckey2str;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, veckey2str);
   Str2VecKey str2veckey;
+  bayon::init_hash_map("", str2veckey);
   bayon::VecKey veckey = VEC_START_KEY;
   bayon::DocumentId docid;
   std::string line;
   size_t ndocs = 0;
-  std::tr1::unordered_map<bayon::VecKey, size_t> df;
+  bayon::HashMap<bayon::VecKey, size_t>::type df;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, df);
 
   if (option.find(OPT_IDF) != option.end()) {
     docid = DOC_START_ID;
@@ -513,6 +520,7 @@ static int execute_classification(const Option &option,
     atoi(oit->second.c_str()) : DEFAULT_MAX_CLASSIFY;
 
   DocId2Str claid2str;
+  bayon::init_hash_map(bayon::DOC_EMPTY_KEY, claid2str);
   read_classifier_vectors(max_index, ifs_cla, classifier, veckey,
                           claid2str, veckey2str, str2veckey);
   docid = DOC_START_ID;

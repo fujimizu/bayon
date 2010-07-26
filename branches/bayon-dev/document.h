@@ -30,6 +30,8 @@ namespace bayon {
 
 typedef long DocumentId;  ///< the identifier of a document
 
+const DocumentId DOC_EMPTY_KEY   = -1;  ///< empty key for google hash_map
+
 /**
  * Document class.
  */
@@ -114,9 +116,9 @@ class Document {
    * @param df document frequencies
    * @param ndocs the number of documents
    */
-  void idf(const std::tr1::unordered_map<VecKey, size_t> &df, size_t ndocs) {
+  void idf(const HashMap<VecKey, size_t>::type &df, size_t ndocs) {
     VecHashMap *hmap = feature()->hash_map();
-    std::tr1::unordered_map<VecKey, size_t>::const_iterator dit;
+    HashMap<VecKey, size_t>::type::const_iterator dit;
     for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
       dit = df.find(it->first);
       size_t denom = (dit != df.end()) ? dit->second : 1;

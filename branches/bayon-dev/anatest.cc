@@ -65,7 +65,8 @@ TEST(AnalyzerTest, IdfTest) {
   bayon::Analyzer analyzer;
 
   std::vector<bayon::Vector> vectors_org;
-  std::tr1::unordered_map<bayon::VecKey, size_t> df;
+  bayon::HashMap<bayon::VecKey, size_t>::type df;
+  bayon::init_hash_map(bayon::VECTOR_EMPTY_KEY, df);
   for (size_t i = 0; i < documents.size(); i++) {
     bayon::Vector vec;
     bayon::VecHashMap *hmap = documents[i]->feature()->hash_map();

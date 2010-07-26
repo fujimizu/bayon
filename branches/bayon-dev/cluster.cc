@@ -40,8 +40,9 @@ void Cluster::sorted_documents(
  * Choose documents randomly.
  */
 void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) {
-  std::tr1::unordered_map<size_t, bool> choosed(ndocs);
+  HashMap<size_t, bool>::type choosed;
   size_t siz = size();
+  init_hash_map(siz, choosed, ndocs);
   if (siz < ndocs) ndocs = siz;
   size_t count = 0;
   while (count < ndocs) {
@@ -58,8 +59,9 @@ void Cluster::choose_randomly(size_t ndocs, std::vector<Document *> &docs) {
  * Choose documents smartly.
  */
 void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) {
-  std::tr1::unordered_map<size_t, double> closest(docs.size());
+  HashMap<size_t, double>::type closest;
   size_t siz = size();
+  init_hash_map(siz, closest, docs.size());
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;
 

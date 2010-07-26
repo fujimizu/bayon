@@ -47,7 +47,8 @@ void Classifier::update_inverted_index(VectorId id, const Vector &vec) {
  */
 size_t Classifier::lookup_inverted_index(size_t max, const Vector &vec,
                                          std::vector<VectorId> &ids) const {
-  std::tr1::unordered_map<VectorId, bool> idmap;
+  HashMap<VectorId, bool>::type idmap;
+  init_hash_map(VECID_EMPTY_KEY, idmap);
   std::vector<VecItem> items;
   vec.sorted_items_abs(items);
   for (size_t i = 0; i < items.size() && i < max; i++) {
@@ -59,7 +60,7 @@ size_t Classifier::lookup_inverted_index(size_t max, const Vector &vec,
     }
   }
 
-  for (std::tr1::unordered_map<VectorId, bool>::iterator it = idmap.begin();
+  for (HashMap<VectorId, bool>::type::iterator it = idmap.begin();
        it != idmap.end(); ++it) ids.push_back(it->first);
   return ids.size();
 }
@@ -95,7 +96,7 @@ void Classifier::similar_vectors(
     std::vector<VectorId> ids;
     lookup_inverted_index(max, vec, ids);
     for (size_t i = 0; i < ids.size(); i++) {
-      std::tr1::unordered_map<VectorId, Vector>::const_iterator it = vectors_.find(ids[i]);
+      HashMap<VectorId, Vector>::type::const_iterator it = vectors_.find(ids[i]);
       if (it != vectors_.end()) {
         double similarity = Vector::inner_product(it->second, vec);
         if (similarity != 0) {
@@ -104,7 +105,7 @@ void Classifier::similar_vectors(
       }
     }
   } else { // all
-    for (std::tr1::unordered_map<VectorId, Vector>::const_iterator it = vectors_.begin();
+    for (HashMap<VectorId, Vector>::type::const_iterator it = vectors_.begin();
          it != vectors_.end(); ++it) {
       double similarity = Vector::inner_product(it->second, vec);
       if (similarity != 0) {
