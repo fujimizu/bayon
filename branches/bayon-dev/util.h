@@ -25,6 +25,7 @@
 #endif
 
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -42,7 +43,7 @@
 /* Print debug messages. */
 #ifdef DEBUG
 #define show_log(msg) \
-  do { std::cerr << "[log] " << msg << std::endl; } while (false);
+  do { fprintf(stderr, "[log] %s\n", msg); } while (false);
 #else
 #define show_log(msg) \
   do { } while (false);

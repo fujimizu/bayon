@@ -113,7 +113,6 @@ TEST(AnalyzerTest, DoClusteringRBTest) {
   bayon::Cluster cluster;
   while (analyzer.get_next_result(cluster)) {
     ++count;
-    //std::cout << cluster << std::endl;
     for (size_t i = 0; i < cluster.size(); i++) {
       EXPECT_TRUE(choosed.find(cluster.documents()[i]->id()) == choosed.end());
       choosed[cluster.documents()[i]->id()] = count;
@@ -141,7 +140,6 @@ TEST(AnalyzerTest, DoClusteringKmeansTest) {
   bayon::Cluster cluster;
   while (analyzer.get_next_result(cluster)) {
     ++count;
-    //std::cout << cluster << std::endl;
     for (size_t i = 0; i < cluster.size(); i++) {
       EXPECT_TRUE(choosed.find(cluster.documents()[i]->id()) == choosed.end());
       choosed[cluster.documents()[i]->id()] = count;
