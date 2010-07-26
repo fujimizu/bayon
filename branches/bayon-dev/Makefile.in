@@ -68,7 +68,9 @@ test : $(TESTCOMMANDFILES)
 
 check : $(TESTCOMMANDFILES)
 	$(RUNENV) $(RUNCMD) ./vectest
+	$(RUNENV) $(RUNCMD) ./doctest
 	$(RUNENV) $(RUNCMD) ./clutest
+	$(RUNENV) $(RUNCMD) ./anatest
 	$(RUNENV) $(RUNCMD) ./clatest
 	@printf '\n'
 	@printf '#================================================================\n'
@@ -173,6 +175,9 @@ plsi : plsi.o $(LIBRARYFILES)
 lda : lda.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CMDLDFLAGS) -lbayon $(LIBS)
 
+anatest : anatest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
 vectest : vectest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
@@ -182,11 +187,18 @@ clatest : clatest.o $(LIBRARYFILES)
 clutest : clutest.o $(LIBRARYFILES)
 	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
 
+doctest : doctest.o $(LIBRARYFILES)
+	$(LDENV) $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(TESTLDFLAGS) -lbayon $(LIBS)
+
 bayon.o : byvector.h classifier.h cluster.h config.h util.h
 
 plsi.o : byvector.h cluster.h config.h util.h
 
 lda.o : byvector.h cluster.h config.h util.h
+
+analyzer.o : analyzer.h byvector.h cluster.h document.h util.h
+
+anatest.o : analyzer.h byvector.h cluster.h document.h util.h
 
 byvector.o : byvector.h config.h util.h
 
@@ -199,6 +211,10 @@ clatest.o : byvector.h classifier.h util.h
 cluster.o : cluster.h config.h util.h
 
 clutest.o : byvector.h cluster.h util.h
+
+document.o : byvector.h document.h util.h
+
+doctest.o : byvector.h document.h util.h
 
 util.o : config.h util.h
 

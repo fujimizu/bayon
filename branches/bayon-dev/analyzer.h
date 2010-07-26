@@ -25,6 +25,7 @@
 #endif
 
 #include <vector>
+#include "byvector.h"
 #include "cluster.h"
 #include "document.h"
 

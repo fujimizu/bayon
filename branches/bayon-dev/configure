@@ -2022,11 +2022,11 @@ MYLIBVER=0
 MYLIBREV=1
 
 # Targets
-MYHEADERFILES="bayon.h byvector.h classifier.h cluster.h util.h config.h"
+MYHEADERFILES="bayon.h analyzer.h byvector.h classifier.h cluster.h document.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
-MYLIBOBJFILES="byvector.o classifier.o cluster.o util.o"
+MYLIBOBJFILES="analyzer.o byvector.o classifier.o cluster.o document.o util.o"
 MYCOMMANDFILES="bayon"
-MYTESTCOMMANDFILES="vectest clatest clutest"
+MYTESTCOMMANDFILES="vectest anatest clatest clutest doctest"
 MYDOCUMENTFILES="COPYING README TODO"
 
 # Building paths
