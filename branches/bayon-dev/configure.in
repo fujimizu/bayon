@@ -3,12 +3,12 @@
 #================================================================
 
 # Package name
-AC_INIT(bayon, 0.0.10, fujisawa@bayon.cc)
+AC_INIT(bayon, 0.0.12, fujisawa@bayon.cc)
 AC_CONFIG_HEADER([config.h])
 AC_DEFINE([AUTHOR], ["Mizuki Fujisawa"], [author name])
 
 # Package information
-MYLIBVER=0
+MYLIBVER=1
 MYLIBREV=1
 
 # Targets
