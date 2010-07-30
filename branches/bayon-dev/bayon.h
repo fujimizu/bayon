@@ -1,5 +1,5 @@
 //
-// Bayon API
+// bayon API
 //
 // Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
@@ -32,3 +32,14 @@
 #include "util.h"
 
 #endif
+
+
+/**
+ * @mainpage bayon: a simple and fast clustering tool
+ *
+ * @section Introduction
+ *
+ * Stupa is an associative search engine.
+ * You can search related documents with a high degree of accuracy.
+ */
+
