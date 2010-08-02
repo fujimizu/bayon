@@ -448,8 +448,18 @@ static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
   } else if ((oit = option.find(OPT_LIMIT)) != option.end()) {
     analyzer.set_eval_limit(atof(oit->second.c_str()));
   }
-  std::string method("rb"); // default method
-  if ((oit = option.find(OPT_METHOD)) != option.end()) method = oit->second;
+  bayon::Analyzer::Method method = bayon::Analyzer::RB;
+  if ((oit = option.find(OPT_METHOD)) != option.end()) {
+    if (oit->second == "kmeans") {
+      method = bayon::Analyzer::KMEANS;
+    } else if (oit->second == "rb") {
+      // do nothing
+    } else {
+      fprintf(stderr, "[ERROR]Illegal clustering method: %s\n",
+              oit->second.c_str());
+      return EXIT_FAILURE;
+    }
+  }
   analyzer.do_clustering(method);
   std::vector<bayon::Cluster *> clusters = analyzer.clusters();
 

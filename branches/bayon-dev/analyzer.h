@@ -35,6 +35,15 @@ namespace bayon {
  * Analyzer class
  */
 class Analyzer {
+ public:
+  /**
+   * clustering methods
+   */
+  enum Method {
+    RB,     ///< repeated bisection
+    KMEANS  ///< kmeans
+  };
+
  private:
   ///< maximum count of cluster refinement loop
   static const unsigned int NUM_REFINE_LOOP = 30;
@@ -162,10 +171,10 @@ class Analyzer {
 
   /**
    * Do clustering.
-   * @param mode clustering mode(rb, kmeans)
+   * @param method clustering method
    * @return the number of clusters
    */
-  size_t do_clustering(const std::string &mode);
+  size_t do_clustering(Method method);
 
   /**
    * Get the next clustering result.

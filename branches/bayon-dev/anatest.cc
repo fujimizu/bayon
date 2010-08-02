@@ -106,7 +106,7 @@ TEST(AnalyzerTest, DoClusteringRBTest) {
   }
   int nclusters = 2;
   analyzer.set_cluster_size_limit(nclusters);
-  analyzer.do_clustering("rb");
+  analyzer.do_clustering(bayon::Analyzer::RB);
 
   std::map<bayon::DocumentId, size_t> choosed;
   int count = 0;
@@ -133,7 +133,7 @@ TEST(AnalyzerTest, DoClusteringKmeansTest) {
   }
   int nclusters = 2;
   analyzer.set_cluster_size_limit(nclusters);
-  analyzer.do_clustering("kmeans");
+  analyzer.do_clustering(bayon::Analyzer::KMEANS);
 
   std::map<bayon::DocumentId, size_t> choosed;
   int count = 0;

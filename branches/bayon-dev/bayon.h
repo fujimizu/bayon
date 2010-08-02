@@ -39,7 +39,7 @@
  *
  * @section Introduction
  *
- * Stupa is an associative search engine.
- * You can search related documents with a high degree of accuracy.
+ * Bayon is a simple and fast hard-clustering tool.
+ * Bayon supports repeated-bisection clustering and kmeans clustering.
  */
 

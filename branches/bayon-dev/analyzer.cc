@@ -237,10 +237,10 @@ size_t Analyzer::kmeans() {
 /**
  * Do clustering.
  */
-size_t Analyzer::do_clustering(const std::string &mode) {
+size_t Analyzer::do_clustering(Method method) {
   size_t num = 0;
-  if      (mode == "kmeans") num = kmeans();
-  else if (mode == "rb")     num = repeated_bisection();
+  if      (method == KMEANS) num = kmeans();
+  else if (method == RB) num = repeated_bisection();
   return num;
 }
 
