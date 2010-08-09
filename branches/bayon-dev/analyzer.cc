@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <queue>
 #include <sstream>
+#include <utility>
 #include "analyzer.h"
 
 namespace bayon {

@@ -66,7 +66,7 @@ TEST(DocumentTest, ClearTest) {
   size_t max = 10;
   for (size_t i = 0; i < max; i++) doc.add_feature(i, i * 10);
 
-  EXPECT_TRUE(doc.feature()->size() != 0);
+  EXPECT_NE(0, doc.feature()->size());
   doc.clear();
   EXPECT_EQ(doc.feature()->size(), static_cast<size_t>(0));
 }

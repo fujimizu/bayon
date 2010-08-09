@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_UTIL_H
-#define BAYON_UTIL_H
+#ifndef BAYON_UTIL_H_
+#define BAYON_UTIL_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -68,12 +68,12 @@ namespace __gnu_cxx {
     }
   };
 
-  template<> struct hash<long long> { 
+  template<> struct hash<long long> {
     size_t operator()(long long __x) const {
       return __x;
     }
   };
-  template<> struct hash<unsigned long long> { 
+  template<> struct hash<unsigned long long> {
     size_t operator()(unsigned long  long __x) const {
       return __x;
     }
@@ -262,4 +262,4 @@ class Random {
 
 } /* namespace bayon */
 
-#endif  // BAYON_UTIL_H
+#endif  // BAYON_UTIL_H_

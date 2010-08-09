@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_BYVECTOR_H
-#define BAYON_BYVECTOR_H
+#ifndef BAYON_BYVECTOR_H_
+#define BAYON_BYVECTOR_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -26,15 +26,16 @@
 
 #include <cmath>
 #include <cstdio>
+#include <algorithm>
 #include <utility>
 #include <vector>
 #include "util.h"
 
 namespace bayon {
 
-typedef long                            VecKey;   ///< key of a vector
-typedef double                          VecValue; ///< value of a vector
-typedef std::pair<VecKey, VecValue>     VecItem;  ///< key-value pair
+typedef long                            VecKey;    ///< key of a vector
+typedef double                          VecValue;  ///< value of a vector
+typedef std::pair<VecKey, VecValue>     VecItem;   ///< key-value pair
 typedef HashMap<VecKey, VecValue>::type VecHashMap;
 
 const VecKey   VECTOR_EMPTY_KEY   = -1;   ///< empty key for google::hash_map
@@ -44,7 +45,7 @@ const VecValue VECTOR_NULL_VALUE  = 0.0;  ///< value of nonexistent entry
 
 /**
  * Vector class.
- * This is utility class for vector operations.
+ * This is a utility class for vector operations.
  */
 class Vector {
  private:
@@ -268,4 +269,4 @@ class Vector {
 
 } /* namespace bayon */
 
-#endif  // BAYON_BYVECTOR_H
+#endif  // BAYON_BYVECTOR_H_

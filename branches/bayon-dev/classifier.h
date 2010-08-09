@@ -17,8 +17,12 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_CLASSIFIER_H
-#define BAYON_CLASSIFIER_H
+#ifndef BAYON_CLASSIFIER_H_
+#define BAYON_CLASSIFIER_H_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <utility>
 #include <vector>
@@ -122,4 +126,4 @@ class Classifier {
 
 } /* namespace bayon */
 
-#endif
+#endif  // BAYON_CLASSIFIER_H_

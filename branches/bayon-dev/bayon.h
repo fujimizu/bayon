@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_BAYON_H
-#define BAYON_BAYON_H
+#ifndef BAYON_BAYON_H_
+#define BAYON_BAYON_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -31,7 +31,7 @@
 #include "document.h"
 #include "util.h"
 
-#endif
+#endif  // BAYON_BAYON_H_
 
 
 /**

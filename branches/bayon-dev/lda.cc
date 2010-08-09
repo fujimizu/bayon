@@ -21,9 +21,9 @@
 //
 
 #include <getopt.h>
+#include <cstdio>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <string>
 #include "bayon.h"
@@ -80,11 +80,11 @@ class LDA {
   size_t num_topic_;
   double alpha_;
   double beta_;
-  int **z_;    // topic assignments for each word
-  int **nw_;   // nw[i][j] number of instances of word i assigned to topic j
-  int **nd_;   // nd[i][j] number of words in document i assigned to topic j
-  int *nwsum_; // nwsum[j] total number of words assigned to topic j
-  int *ndsum_; // ndsum[i] total number of words in document i
+  int **z_;     // topic assignments for each word
+  int **nw_;    // nw[i][j] number of instances of word i assigned to topic j
+  int **nd_;    // nd[i][j] number of words in document i assigned to topic j
+  int *nwsum_;  // nwsum[j] total number of words assigned to topic j
+  int *ndsum_;  // ndsum[i] total number of words in document i
   unsigned int seed_;
 
   size_t iterations_;  // max iterations
@@ -141,7 +141,7 @@ class LDA {
               * (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
       if (it > 0) p[it] += p[it-1];
     }
-    //double u = static_cast<double>(myrand(&seed_)) / RAND_MAX
+    // double u = static_cast<double>(myrand(&seed_)) / RAND_MAX
     double u = static_cast<double>(rand()) / RAND_MAX
                * p[num_topic_-1];
     for (size_t it = 0; it < num_topic_; it++) {
@@ -328,7 +328,7 @@ int main(int argc, char **argv) {
 
   lda.gibbs();
   lda.print_theta(docid2str);
-  //lda.print_phi(veckey2str);
+  // lda.print_phi(veckey2str);
 
   return EXIT_SUCCESS;
 }
@@ -389,7 +389,7 @@ static size_t parse_tsv(std::string &tsv, Feature &feature) {
     } else {
       double point = 0.0;
       point = atof(s.c_str());
-      //point = int(atof(s.c_str()) / 100);
+      // point = int(atof(s.c_str()) / 100);
       if (!key.empty() && point != 0) {
         feature[key] = point;
         keycnt++;

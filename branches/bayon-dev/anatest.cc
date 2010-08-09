@@ -35,7 +35,7 @@ void init_documents(std::vector<bayon::Document *> &documents) {
     bayon::Document *doc = new bayon::Document(i);
     for (size_t j = 0; j < NUM_FEATURE; j++) {
       size_t id = rand() % MAX_FEATURE_ID;
-      double point = rand() / (double)RAND_MAX * MAX_POINT;
+      double point = static_cast<double>(rand()) / RAND_MAX * MAX_POINT;
       doc->add_feature(id, point);
     }
     documents.push_back(doc);

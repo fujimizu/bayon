@@ -74,7 +74,7 @@ static void set_input_values() {
   sorted_keys_abs.push_back(1);
 }
 
-} // namespace
+} //  namespace
 
 /* copy */
 TEST(VectorTest, CopyTest) {

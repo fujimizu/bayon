@@ -18,12 +18,14 @@
 //
 
 #include <getopt.h>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
-#include <iostream>
 #include <map>
+#include <string>
 #include <utility>
+#include <vector>
 #include "bayon.h"
 
 /********************************************************************
@@ -384,13 +386,19 @@ static void show_classified(size_t max_keys, size_t max_output,
   classifier.similar_vectors(max_keys, *document.feature(), pairs);
 
   DocId2Str::const_iterator it = docid2str.find(document.id());
-  if (it != docid2str.end()) printf("%s", it->second.c_str());
-  else printf("%ld", document.id());
+  if (it != docid2str.end()) {
+    printf("%s", it->second.c_str());
+  } else {
+    printf("%ld", document.id());
+  }
   for (size_t j = 0; j < pairs.size() && j < max_output; j++) {
     DocId2Str::const_iterator it = claid2str.find(pairs[j].first);
     printf("%s", bayon::DELIMITER.c_str());
-    if (it != claid2str.end()) printf("%s", it->second.c_str());
-    else printf("%ld", pairs[j].first);
+    if (it != claid2str.end()) {
+      printf("%s", it->second.c_str());
+    } else {
+      printf("%ld", pairs[j].first);
+    }
     printf("%s%f", bayon::DELIMITER.c_str(), pairs[j].second);
   }
   printf("\n");

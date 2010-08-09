@@ -22,8 +22,8 @@
 
 #include <getopt.h>
 #include <cmath>
+#include <cstdio>
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <string>
 #include "bayon.h"
@@ -252,7 +252,7 @@ class PLSI {
   }
 };
 
-} // namespace bayon
+} //  namespace bayon
 
 
 /********************************************************************

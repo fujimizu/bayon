@@ -61,7 +61,9 @@ size_t Classifier::lookup_inverted_index(size_t max, const Vector &vec,
   }
 
   for (HashMap<VectorId, bool>::type::iterator it = idmap.begin();
-       it != idmap.end(); ++it) ids.push_back(it->first);
+       it != idmap.end(); ++it) {
+    ids.push_back(it->first);
+  }
   return ids.size();
 }
 
@@ -92,7 +94,7 @@ void Classifier::similar_vectors(
   size_t max, const Vector &vec,
   std::vector<std::pair<VectorId, double> > &items) const {
 
-  if (max > 0) { // inverted index
+  if (max > 0) {  // inverted index
     std::vector<VectorId> ids;
     lookup_inverted_index(max, vec, ids);
     for (size_t i = 0; i < ids.size(); i++) {
@@ -104,7 +106,7 @@ void Classifier::similar_vectors(
         }
       }
     }
-  } else { // all
+  } else {  // all
     for (HashMap<VectorId, Vector>::type::const_iterator it = vectors_.begin();
          it != vectors_.end(); ++it) {
       double similarity = Vector::inner_product(it->second, vec);

@@ -17,13 +17,14 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_CLUSTER_H
-#define BAYON_CLUSTER_H
+#ifndef BAYON_CLUSTER_H_
+#define BAYON_CLUSTER_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <utility>
 #include <vector>
 #include "document.h"
 
@@ -289,4 +290,4 @@ struct CompareClusterBisectionEvalGreater {
 
 }  /* namespace bayon */
 
-#endif  // BAYON_CLUSTER_H
+#endif  // BAYON_CLUSTER_H_

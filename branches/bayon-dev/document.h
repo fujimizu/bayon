@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_DOCUMENT
-#define BAYON_DOCUMENT
+#ifndef BAYON_DOCUMENT_H_
+#define BAYON_DOCUMENT_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -130,4 +130,4 @@ class Document {
 
 }  /* namespace bayon */
 
-#endif  // BAYON_DOCUMENT
+#endif  // BAYON_DOCUMENT_H_

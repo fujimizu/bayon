@@ -17,8 +17,8 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_ANALYZER_H
-#define BAYON_ANALYZER_H
+#ifndef BAYON_ANALYZER_H_
+#define BAYON_ANALYZER_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -208,4 +208,4 @@ class Analyzer {
 
 }  /* namespace bayon */
 
-#endif  // BAYON_ANALYZER_H
+#endif  // BAYON_ANALYZER_H_

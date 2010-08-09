@@ -65,7 +65,7 @@ void Cluster::choose_smartly(size_t ndocs, std::vector<Document *> &docs) {
   if (siz < ndocs) ndocs = siz;
   size_t index, count = 0;
 
-  index = myrand(&seed_) % siz; // initial center
+  index = myrand(&seed_) % siz;  // initial center
   docs.push_back(documents_[index]);
   ++count;
   double potential = 0.0;
@@ -124,7 +124,7 @@ void Cluster::section(size_t nclusters) {
   if (size() < nclusters) return;
 
   std::vector<Document *> centroids;
-  //choose_randomly(nclusters, centroids);
+  // choose_randomly(nclusters, centroids);
   choose_smartly(nclusters, centroids);
   for (size_t i = 0; i < centroids.size(); i++) {
     Cluster *cluster = new Cluster();
