@@ -39,8 +39,8 @@ class Cluster {
   Vector composite_;                           ///< a composite vector
   Vector centroid_;                            ///< a centroid vector
   HashMap<DocumentId, bool>::type removed_;    ///< removed documents
-  std::vector<Cluster *> sectioned_clusters_;  ///< sectioned_clusters
-  double sectioned_gain_;                      ///< sectioned gain
+  std::vector<Cluster *> sectioned_clusters_;  ///< sectioned clusters
+  double sectioned_gain_;                      ///< a sectioned gain
   unsigned int seed_;                          ///< seed
 
   /**

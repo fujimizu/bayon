@@ -28,17 +28,20 @@
 
 namespace bayon {
 
+/* typedef */
 typedef long DocumentId;  ///< the identifier of a document
 
-const DocumentId DOC_EMPTY_KEY   = -1;  ///< empty key for google hash_map
+/* constants */
+const DocumentId DOC_EMPTY_KEY = -1;  ///< empty key for google hash_map
+
 
 /**
  * Document class.
  */
 class Document {
  private:
-  DocumentId id_;
-  Vector *feature_;
+  DocumentId id_;    /// the identifier of a document
+  Vector *feature_;  /// feature vector of a document
 
  public:
   /**

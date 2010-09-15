@@ -67,7 +67,6 @@ namespace __gnu_cxx {
       return hash<const char *>()(x.c_str());
     }
   };
-
   template<> struct hash<long long> {
     size_t operator()(long long __x) const {
       return __x;
@@ -105,7 +104,7 @@ const double MAX_LOAD_FACTOR = 0.9;       ///< max load factor of hash_map
 
 
 /**
- * Initialize hash_map object (for google::dense_hash_map)
+ * Initialize a hash_map object (for google::dense_hash_map)
  * @param empty_key key of empty entry
  * @param deleted_key key of deleted entry
  */
@@ -118,9 +117,9 @@ void init_hash_map(const KeyType &empty_key, HashType &hmap) {
 }
 
 /**
- * Initialize hash_map object (for google::dense_hash_map)
- * @param empty_key key of empty entry
- * @param deleted_key key of deleted entry
+ * Initialize a hash_map object (for google::dense_hash_map)
+ * @param empty_key key of a empty entry
+ * @param deleted_key key of a deleted entry
  * @param bucket_count bucket count
  */
 template<typename KeyType, typename HashType>
@@ -135,7 +134,6 @@ void init_hash_map(const KeyType &empty_key, HashType &hmap,
 
 /**
  * Compare pair items.
- *
  * @param left item
  * @param right item
  * @return return true if left_value > right_value
@@ -154,7 +152,6 @@ bool greater_pair(const std::pair<KeyType, ValueType> &left,
 
 /**
  * Compare pair items by absolute values.
- *
  * @param left item
  * @param right item
  * @return return true if abs(left_value) > abs(right_value)
@@ -175,14 +172,12 @@ bool greater_pair_abs(const std::pair<KeyType, ValueType> &left,
 
 /**
  * Set a seed for a random number generator.
- *
  * @param seed seed
  */
 void mysrand(unsigned int seed);
 
 /**
  * Get a random number.
- *
  * @param seed the pointer of a seed
  * @return a random number
  */
@@ -195,14 +190,14 @@ int myrand(unsigned int *seed);
 double get_time();
 
 /**
- * Get random ASCII string.
+ * Get a random ASCII string.
  * @param max max size of output string
  * @param result output string
  */
 void random_string(size_t max, std::string &result);
 
 /**
- * Get file extension.
+ * Get a file extension.
  * @param filename file name
  * @return extension
  */

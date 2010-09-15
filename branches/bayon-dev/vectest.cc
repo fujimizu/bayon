@@ -25,6 +25,7 @@
 
 namespace {
 
+/* typedef */
 typedef std::map<bayon::VecKey, bayon::VecValue> TestData;
 
 /* function prototypes */
@@ -74,7 +75,8 @@ static void set_input_values() {
   sorted_keys_abs.push_back(1);
 }
 
-} //  namespace
+} /* namespace */
+
 
 /* copy */
 TEST(VectorTest, CopyTest) {

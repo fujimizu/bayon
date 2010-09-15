@@ -60,7 +60,7 @@ void Vector::normalize() {
 }
 
 /**
- * Resize a vector
+ * Resize a vector.
  */
 void Vector::resize(size_t size) {
   if (vec_.size() <= size) return;
@@ -134,7 +134,6 @@ double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   init_hash_map(VECTOR_EMPTY_KEY, done, vec1.size());
   VecHashMap::const_iterator it1, it2;
   double dist = 0;
-
   for (it1 = vec1.hash_map()->begin(); it1 != vec1.hash_map()->end(); ++it1) {
     double val = vec2.get(it1->first);
     dist += (it1->second - val) * (it1->second - val);
@@ -171,7 +170,6 @@ double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
     end = vec2.hash_map()->end();
     other = &vec1;
   }
-
   double prod = 0;
   while (it != end) {
     itother = other->hash_map()->find(it->first);

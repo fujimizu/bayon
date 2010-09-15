@@ -59,7 +59,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG       = "dummy";
+const std::string DUMMY_OPTARG("dummy");
 const size_t DEFAULT_MAX_CLVECTOR    = 50;
 const size_t DEFAULT_MAX_CLASSIFY    = 20;
 const size_t DEFAULT_MAX_INDEX_KEY   = 20;
@@ -168,22 +168,22 @@ static void usage(std::string progname) {
   fprintf(stderr, "* Clustering input data\n");
   fprintf(stderr, " %% %s -n num [options] file\n", progname.c_str());
   fprintf(stderr, " %% %s -l limit [options] file\n", progname.c_str());
-  fprintf(stderr, "    -n, --number=num      number of clusters\n");
+  fprintf(stderr, "    -n, --number=num      the number of clusters\n");
   fprintf(stderr, "    -l, --limit=lim       limit value of cluster bisection\n");
-  fprintf(stderr, "    -p, --point           output similarity point\n");
+  fprintf(stderr, "    -p, --point           output similarity points\n");
   fprintf(stderr, "    -c, --clvector=file   save vectors of cluster centroids\n");
   fprintf(stderr, "    --clvector-size=num   max size of output vectors of\n");
   fprintf(stderr, "                          cluster centroids (default: %ld)\n",
           DEFAULT_MAX_CLVECTOR);
   fprintf(stderr, "    --method=method       clustering method(rb, kmeans), default:rb\n");
-  fprintf(stderr, "    --seed=seed           set seed for random number generator\n\n");
+  fprintf(stderr, "    --seed=seed           set a seed for random number generator\n\n");
   fprintf(stderr, "* Get the similar clusters for each input documents\n");
   fprintf(stderr, " %% %s -C file [options] file\n", progname.c_str());
   fprintf(stderr, "    -C, --classify=file   target vectors\n");
-  fprintf(stderr, "    --inv-keys=num        max size of keys of each vector to be\n");
+  fprintf(stderr, "    --inv-keys=num        max size of the keys of each vector to be\n");
   fprintf(stderr, "                          looked up in inverted index (default: %ld)\n",
           DEFAULT_MAX_INDEX_KEY);
-  fprintf(stderr, "    --inv-size=num        max size of inverted index of each key\n");
+  fprintf(stderr, "    --inv-size=num        max size of the inverted index of each key\n");
   fprintf(stderr, "                          (default: %ld)\n", DEFAULT_MAX_INDEX);
   fprintf(stderr, "    --classify-size=num   max size of output similar groups\n");
   fprintf(stderr, "                          (default: %ld)\n\n", DEFAULT_MAX_CLASSIFY);

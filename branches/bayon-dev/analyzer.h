@@ -45,8 +45,9 @@ class Analyzer {
   };
 
  private:
-  ///< maximum count of cluster refinement loop
+  /** maximum count of cluster refinement loop */
   static const unsigned int NUM_REFINE_LOOP = 30;
+
   std::vector<Document *> documents_;  ///< documents
   std::vector<Cluster *> clusters_;    ///< clustering results
   size_t cluster_index_;               ///< the index of clusters
@@ -73,9 +74,6 @@ class Analyzer {
    */
   double refine_clusters(std::vector<Cluster *> &clusters);
 
-  /**
-   *
-   */
   inline double refined_vector_value(const Vector &composite,
                                      const Vector &vec, int sign);
 

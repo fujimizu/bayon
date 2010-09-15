@@ -46,7 +46,9 @@ static void random_pairs(size_t size,
     pairs.push_back(p);
   }
 }
+
 } /* namespace */
+
 
 /* greater_pair */
 TEST(UtilTest, ComparePairItemsTest) {

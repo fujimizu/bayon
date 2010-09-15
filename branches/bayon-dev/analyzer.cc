@@ -149,9 +149,6 @@ double Analyzer::refine_clusters(std::vector<Cluster *> &clusters) {
   return eval_cluster;
 }
 
-/**
- *
- */
 double Analyzer::refined_vector_value(const Vector &composite,
                                       const Vector &vec, int sign) {
   double sum = 0.0;

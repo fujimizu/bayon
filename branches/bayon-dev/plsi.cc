@@ -49,7 +49,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG  = "dummy";
+const std::string DUMMY_OPTARG("dummy");
 const size_t DEFAULT_NUM_ITER   = 50;
 const double DEFAULT_BETA       = 0.75;
 const unsigned int DEFAULT_SEED = 12345;
