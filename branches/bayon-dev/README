@@ -31,7 +31,7 @@ Usage:
     % bayon -C file [options] file
        -C, --classify=file   target vectors
        --inv-keys=num        max size of the keys of each vector to be
-                             looked up in the inverted index (default: 20)
+                             looked up in inverted index (default: 20)
        --inv-size=num        max size of the inverted index of each key
                              (default: 100)
        --classify-size=num   max size of output similar groups
