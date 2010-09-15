@@ -1,5 +1,5 @@
 //
-// bayon API
+// Document object
 //
 // Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
@@ -17,29 +17,10 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_BAYON_H_
-#define BAYON_BAYON_H_
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "analyzer.h"
-#include "byvector.h"
-#include "classifier.h"
-#include "cluster.h"
 #include "document.h"
-#include "util.h"
 
-#endif  // BAYON_BAYON_H_
+namespace bayon {
 
+/* no implementation yet */
 
-/**
- * @mainpage bayon: a simple and fast clustering tool
- *
- * @section Introduction
- *
- * Bayon is a simple and fast hard-clustering tool.
- * Bayon supports repeated-bisection clustering and kmeans clustering.
- */
-
+}  /* namespace bayon */

@@ -6,7 +6,7 @@
 
 Overview:
   Bayon is a simple and fast hard-clustering tool.
-  Bayon supports repeated-bisection clustering and kmeans clustering.
+  Bayon supports repeated-bisection clustering and k-means clustering.
 
 Install:
   % ./configure
@@ -18,21 +18,21 @@ Usage:
   * Clustering input data
     % bayon -n num [options] file
     % bayon -l limit [options] file
-       -n, --number=num      number of clusters
+       -n, --number=num      the number of clusters
        -l, --limit=lim       limit value of cluster bisection
-       -p, --point           output similarity point
+       -p, --point           output similarity points
        -c, --clvector=file   save vectors of cluster centroids
        --clvector-size=num   max size of output vectors of
                              cluster centroids (default: 50)
        --method=method       clustering method(rb, kmeans), default:rb
-       --seed=seed           set seed for random number generator
+       --seed=seed           set a seed for random number generator
 
   * Get the similar clusters for each input documents
     % bayon -C file [options] file
        -C, --classify=file   target vectors
-       --inv-keys=num        max size of keys of each vector to be
+       --inv-keys=num        max size of the keys of each vector to be
                              looked up in inverted index (default: 20)
-       --inv-size=num        max size of inverted index of each key
+       --inv-size=num        max size of the inverted index of each key
                              (default: 100)
        --classify-size=num   max size of output similar groups
                              (default: 20)
@@ -46,7 +46,7 @@ Example:
   * clustering (number_of_output_clusters = 100)
     % bayon -n 100 input.tsv > cluster.tsv
 
-  * clustering (save vectors of cluster centroids)
+  * clustering (save the vectors of cluster centroids)
     % bayon -n 100 -c centroid.tsv input.tsv > cluster.tsv
 
   * classification (get similar clusters using centroid vectors)
