@@ -1,7 +1,7 @@
 //
-// Classifier
+// Classifier class
 //
-// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
+// Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,12 +17,15 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
+#include <algorithm>
 #include "classifier.h"
 
 namespace bayon {
 
-/* Add vector keys to inverted index */
-void Classifier::add_inverted_index(VectorId id, const Vector &vec) {
+/**
+ * Add vector keys to inverted index.
+ */
+void Classifier::update_inverted_index(VectorId id, const Vector &vec) {
   std::vector<VecItem> items;
   vec.sorted_items_abs(items);
   for (size_t i = 0; i < items.size(); i++) {
@@ -39,7 +42,35 @@ void Classifier::add_inverted_index(VectorId id, const Vector &vec) {
   }
 }
 
-/* Resize inverted index */
+/**
+ * Look up inverted index.
+ */
+size_t Classifier::lookup_inverted_index(size_t max, const Vector &vec,
+                                         std::vector<VectorId> &ids) const {
+  HashMap<VectorId, bool>::type idmap;
+  init_hash_map(VECID_EMPTY_KEY, idmap);
+  std::vector<VecItem> items;
+  vec.sorted_items_abs(items);
+  for (size_t i = 0; i < items.size() && i < max; i++) {
+    InvertedIndex::const_iterator itidx = inverted_index_.find(items[i].first);
+    if (itidx != inverted_index_.end()) {
+      for (size_t j = 0; j < itidx->second->size(); j++) {
+        idmap[itidx->second->at(j).first] = true;
+      }
+    }
+  }
+
+  for (HashMap<VectorId, bool>::type::iterator it = idmap.begin();
+       it != idmap.end(); ++it) {
+    ids.push_back(it->first);
+  }
+  return ids.size();
+}
+
+/**
+ * Resize a inverted index.
+ * @param the size of resized index
+ */
 void Classifier::resize_inverted_index(size_t siz) {
   for (InvertedIndex::iterator it = inverted_index_.begin();
        it != inverted_index_.end(); ++it) {
@@ -56,34 +87,14 @@ void Classifier::resize_inverted_index(size_t siz) {
   }
 }
 
-/* Look up inverted index */
-size_t Classifier::lookup_inverted_index(size_t max, const Vector &vec,
-                                         std::vector<VectorId> &ids) const {
-  HashMap<VectorId, bool>::type idmap;
-  init_hash_map(VECID_EMPTY_KEY, idmap);
-
-  std::vector<VecItem> items;
-  vec.sorted_items_abs(items);
-  for (size_t i = 0; i < items.size() && i < max; i++) {
-    InvertedIndex::const_iterator itidx = inverted_index_.find(items[i].first);
-    if (itidx != inverted_index_.end()) {
-      for (size_t j = 0; j < itidx->second->size(); j++) {
-        idmap[itidx->second->at(j).first] = true;
-      }
-    }
-  }
-
-  for (HashMap<VectorId, bool>::type::iterator it = idmap.begin();
-       it != idmap.end(); ++it) ids.push_back(it->first);
-  return ids.size();
-}
-
-/* Get list of id and points of similar vectors */
+/**
+ * Get the pairs of the identifiers and points of similar vectors.
+ */
 void Classifier::similar_vectors(
   size_t max, const Vector &vec,
   std::vector<std::pair<VectorId, double> > &items) const {
 
-  if (max > 0) { // inverted index
+  if (max > 0) {  // inverted index
     std::vector<VectorId> ids;
     lookup_inverted_index(max, vec, ids);
     for (size_t i = 0; i < ids.size(); i++) {
@@ -95,7 +106,7 @@ void Classifier::similar_vectors(
         }
       }
     }
-  } else { // all
+  } else {  // all
     for (HashMap<VectorId, Vector>::type::const_iterator it = vectors_.begin();
          it != vectors_.end(); ++it) {
       double similarity = Vector::inner_product(it->second, vec);
@@ -108,4 +119,4 @@ void Classifier::similar_vectors(
   std::sort(items.begin(), items.end(), greater_pair<VectorId, double>);
 }
 
-} /* namespace bayon */
+}  /* namespace bayon */

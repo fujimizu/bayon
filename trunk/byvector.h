@@ -1,7 +1,7 @@
 //
 // Utility class for vector operation
 //
-// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
+// Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,100 +17,78 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_BYVECTOR_H
-#define BAYON_BYVECTOR_H
+#ifndef BAYON_BYVECTOR_H_
+#define BAYON_BYVECTOR_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <cmath>
+#include <cstdio>
 #include <algorithm>
-#include <iostream>
 #include <utility>
 #include <vector>
 #include "util.h"
 
 namespace bayon {
 
-/********************************************************************
- * Typedef
- *******************************************************************/
-typedef long                            VecKey;   // key of vector
-typedef double                          VecValue; // value of vector
-typedef std::pair<VecKey, VecValue>     VecItem;  // key-value pair
+typedef long                            VecKey;    ///< key of a vector
+typedef double                          VecValue;  ///< value of a vector
+typedef std::pair<VecKey, VecValue>     VecItem;   ///< key-value pair
 typedef HashMap<VecKey, VecValue>::type VecHashMap;
 
-
-/********************************************************************
- * Constants
- *******************************************************************/
-const VecKey   VECTOR_EMPTY_KEY   = -1;
-const VecKey   VECTOR_DELETED_KEY = -2;
-const VecValue VECTOR_NULL_VALUE  = 0.0;
+const VecKey   VECTOR_EMPTY_KEY   = -1;   ///< empty key for google::hash_map
+const VecKey   VECTOR_DELETED_KEY = -2;   ///< deleted key for google::hash_map
+const VecValue VECTOR_NULL_VALUE  = 0.0;  ///< value of nonexistent entry
 
 
-/********************************************************************
- * Classes
- *******************************************************************/
 /**
- * Vector class
- *
- * This is utility class for vector operations.
+ * Vector class.
+ * This is a utility class for vector operations.
  */
 class Vector {
  private:
-  /**
-   * internal hash_map object
-   */
-  VecHashMap vec_;
+  VecHashMap vec_;  ///< Internal hash_map object
 
  public:
   /**
-   * Constructor
+   * Constructor.
    */
   Vector() {
     init_hash_map(VECTOR_EMPTY_KEY, vec_);
   }
 
   /**
-   * Constructor
-   *
-   * @param vec Vector object
-   */
-  Vector(const Vector &vec) {
-    init_hash_map(VECTOR_EMPTY_KEY, vec_);
-    for (VecHashMap::const_iterator it = vec.hash_map()->begin();
-         it != vec.hash_map()->end(); ++it) {
-      vec_[it->first] = it->second;
-    }
-  }
-
-  /**
-   * Destructor
+   * Destructor.
    */
   ~Vector() { }
 
   /**
-   * Set bucket count of internal hash_map object
-   *
+   * Set a bucket count of the internal hash_map object.
    * @param n bucket count
-   * @return void
    */
   void set_bucket_count(size_t n) {
 #if defined(HAVE_GOOGLE_DENSE_HASH_MAP) || defined(HAVE_EXT_HASH_MAP)
-    vec_.resize(n);
+    vec_.rehash(n);
 #endif
   }
 
   /**
-   * Copy vector
-   *
+   * Set max_load_factor of the internal hash_map object.
+   * @param factor max_load_factor value
+   */
+  void max_load_factor(double factor) {
+    vec_.max_load_factor(factor);
+  }
+
+  /**
+   * Copy data to a vector.
    * @param vec output vector
-   * @return void
    */
   void copy(Vector &vec) const {
     vec.clear();
+    vec.set_bucket_count(vec_.size());
     for (VecHashMap::const_iterator it = vec_.begin();
          it != vec_.end(); ++it) {
       vec.set(it->first, it->second);
@@ -118,180 +96,153 @@ class Vector {
   }
 
   /**
-   * Get value
-   *
+   * Get a value.
    * @param key key
-   * @return VecValue value
+   * @return value
    */
   VecValue get(VecKey key) const {
     VecHashMap::const_iterator it = vec_.find(key);
-    if (it != vec_.end()) return it->second;
-    else                  return VECTOR_NULL_VALUE;
+    return (it != vec_.end()) ? it->second : VECTOR_NULL_VALUE;
   }
 
   /**
-   * Set value
-   *
+   * Set a value.
    * @param key key
    * @param value value
-   * @return void
    */
   void set(VecKey key, VecValue value) {
     vec_[key] = value;
   }
 
   /**
-   * Get size of vector
-   *
-   * @return size_t size of vector
+   * Get the size of a vector.
+   * @return the size of a vector
    */
   size_t size() const {
     return vec_.size();
   }
 
   /**
-   * Clear all items in vector
-   *
-   * @return void
+   * Clear all items.
    */
   void clear() {
     vec_.clear();
+    vec_.max_load_factor(0.9);
   }
 
   /**
-   * Get pointer of internal hash_map object
-   *
-   * @return const VecHashMap* pointer of hash_map object
+   * Get the const pointer of a internal hash_map object.
+   * @return the pointer of a internal hash_map object
    */
   const VecHashMap *hash_map() const {
     return &vec_;
   }
 
   /**
-   * Get pointer of internal hash_map object
-   *
-   * @return VecHashMap* pointer of hash_map object
+   * Get the pointer of a internal hash_map object.
+   * @return the pointer of hash_map object
    */
   VecHashMap *hash_map() {
     return &vec_;
   }
 
   /**
-   * Get items sorted by value (desc order)
-   *
+   * Get items sorted by values (desc order).
    * @param items sorted keys
-   * @return void
    */
   void sorted_items(std::vector<VecItem> &items) const;
 
   /**
-   * Get items sorted by absolute value (desc order)
-   *
+   * Get items sorted by absolute values (desc order).
    * @param items sorted keys
-   * @return void
    */
   void sorted_items_abs(std::vector<VecItem> &items) const;
 
   /**
-   * Normalize the vector
-   *
-   * @return void
+   * Normalize a vector.
    */
   void normalize();
 
   /**
-   * Resize the vector
-   *
+   * Resize a vector.
    * @param size resized size
-   * @return void
    */
   void resize(size_t size);
 
   /**
-   * Calculate squared norm of the vector
-   *
-   * @return double squared norm of the vector
+   * Calculate a squared norm.
+   * @return a squared norm
    */
   double norm_squared() const;
 
   /**
-   * Calculate norm of the vector
-   *
-   * @return double norm of the vector
+   * Calculate a norm.
+   * @return norm
    */
   double norm() const;
 
   /**
-   * Multiply each value of vector by constant
-   *
-   * @param x constant value
-   * @return void
+   * Multiply each value of a vector by a constant value.
+   * @param x a constant value
    */
   void multiply_constant(double x);
 
   /**
-   * Add other vector
-   *
-   * @param vec input vector
-   * @return void
+   * Add other vector.
+   * @param vec an input vector
    */
   void add_vector(const Vector &vec);
 
   /**
-   * Delete other vector
-   *
-   * @param vec input vector
-   * @return void
+   * Delete other vector.
+   * @param vec an input vector
    */
   void delete_vector(const Vector &vec);
 
   /**
-   * Calculate squared euclid distance between vectors
-   *
-   * @param vec1 input vector
-   * @param vec2 input vector
-   * @return double squared distance
+   * Calculate the squared euclid distance between vectors.
+   * @param vec1 an input vector
+   * @param vec2 an input vector
+   * @return squared distance
    */
   static double euclid_distance_squared(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate euclid distance bewteen vectors
-   *
+   * Calculate the euclid distance bewteen vectors.
    * @param vec1 input vector
    * @param vec2 input vector
-   * @return double distance
+   * @return distance
    */
   static double euclid_distance(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate inner product value between vectors
-   *
+   * Calculate the inner product value between vectors.
    * @param vec1 input vector
    * @param vec2 input vector
-   * @return double inner product value
+   * @return inner product value
    */
   static double inner_product(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate cosine value between vectors
-   *
+   * Calculate the cosine value between vectors.
    * @param vec1 input vector
    * @param vec2 input vector
-   * @return double cosine value
+   * @return cosine value
    */
   static double cosine(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Calculate Jaccard coefficient value between vectors
-   *
+   * Calculate the Jaccard coefficient value between vectors.
    * @param vec1 input vector
    * @param vec2 input vector
-   * @return double jaccard coefficient value
+   * @return jaccard coefficient value
    */
   static double jaccard(const Vector &vec1, const Vector &vec2);
 
   /**
-   * Output stream
+   * Output stream.
+   * @param ofs output stream
+   * @param vec a vector object
    */
   friend std::ostream &operator <<(std::ostream &os, const Vector &vec) {
     os.precision(4);
@@ -302,8 +253,20 @@ class Vector {
     }
     return os;
   }
+
+  /**
+   * Print a vector.
+   */
+  void print() const {
+    for (VecHashMap::const_iterator it = vec_.begin();
+         it != vec_.end(); ++it) {
+      if (it != vec_.begin()) printf("%s", DELIMITER.c_str());
+      printf("%ld%s%.4f", it->first, DELIMITER.c_str(), it->second);
+    }
+    printf("\n");
+  }
 };
 
 } /* namespace bayon */
 
-#endif
+#endif  // BAYON_BYVECTOR_H_

@@ -1,7 +1,7 @@
 //
 // Utilities for vector operation
 //
-// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
+// Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,11 +17,14 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
+#include <algorithm>
 #include "byvector.h"
 
 namespace bayon {
 
-/* Get items sorted by value */
+/**
+ * Get items sorted by values (desc order).
+ */
 void Vector::sorted_items(std::vector<VecItem> &items) const {
   for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
     VecItem item;
@@ -32,7 +35,9 @@ void Vector::sorted_items(std::vector<VecItem> &items) const {
   std::sort(items.begin(), items.end(), greater_pair<VecKey, VecValue>);
 }
 
-/* Get items sorted by absolute value */
+/**
+ * Get items sorted by absolute values (desc order).
+ */
 void Vector::sorted_items_abs(std::vector<VecItem> &items) const {
   for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
     VecItem item;
@@ -43,7 +48,9 @@ void Vector::sorted_items_abs(std::vector<VecItem> &items) const {
   std::sort(items.begin(), items.end(), greater_pair_abs<VecKey, VecValue>);
 }
 
-/* Normalize the vector */
+/**
+ * Normalize a vector.
+ */
 void Vector::normalize() {
   double nrm = norm();
   for (VecHashMap::iterator it = vec_.begin(); it != vec_.end(); ++it) {
@@ -52,7 +59,9 @@ void Vector::normalize() {
   }
 }
 
-/* Resize the vector */
+/**
+ * Resize a vector.
+ */
 void Vector::resize(size_t size) {
   if (vec_.size() <= size) return;
   std::vector<VecItem> items;
@@ -68,7 +77,9 @@ void Vector::resize(size_t size) {
 #endif
 }
 
-/* Calculate squared norm of the vector */
+/**
+ * Calculate a squared norm.
+ */
 double Vector::norm_squared() const {
   double sum = 0;
   for (VecHashMap::const_iterator it = vec_.begin(); it != vec_.end(); ++it) {
@@ -78,12 +89,16 @@ double Vector::norm_squared() const {
   return sum;
 }
 
-/* Calculate norm of the vector */
+/**
+ * Calculate a norm.
+ */
 double Vector::norm() const {
   return sqrt(norm_squared());
 }
 
-/* Multiply each value of vector by constant */
+/**
+ * Multiply each value of  avector by a constant value.
+ */
 void Vector::multiply_constant(double x) {
   for (VecHashMap::iterator it = vec_.begin(); it != vec_.end(); ++it) {
     double point = it->second * x;
@@ -91,7 +106,9 @@ void Vector::multiply_constant(double x) {
   }
 }
 
-/* Add other vector */
+/**
+ * Add other vector.
+ */
 void Vector::add_vector(const Vector &vec) {
   for (VecHashMap::const_iterator it = vec.hash_map()->begin();
        it != vec.hash_map()->end(); ++it) {
@@ -99,7 +116,9 @@ void Vector::add_vector(const Vector &vec) {
   }
 }
 
-/* Delete other vector */
+/**
+ * Delete other vector.
+ */
 void Vector::delete_vector(const Vector &vec) {
   for (VecHashMap::const_iterator it = vec.hash_map()->begin();
        it != vec.hash_map()->end(); ++it) {
@@ -107,13 +126,14 @@ void Vector::delete_vector(const Vector &vec) {
   }
 }
 
-/* Calculate squared euclid distance between vectors */
+/**
+ * Calculate the squared euclid distance between vectors.
+ */
 double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   HashMap<VecKey, bool>::type done;
-  init_hash_map(VECTOR_EMPTY_KEY, done);
+  init_hash_map(VECTOR_EMPTY_KEY, done, vec1.size());
   VecHashMap::const_iterator it1, it2;
   double dist = 0;
-
   for (it1 = vec1.hash_map()->begin(); it1 != vec1.hash_map()->end(); ++it1) {
     double val = vec2.get(it1->first);
     dist += (it1->second - val) * (it1->second - val);
@@ -128,12 +148,16 @@ double Vector::euclid_distance_squared(const Vector &vec1, const Vector &vec2) {
   return dist;
 }
 
-/* Calculate euclid distance between vectors */
+/**
+ * Calculate the euclid distance between vectors.
+ */
 double Vector::euclid_distance(const Vector &vec1, const Vector &vec2) {
   return sqrt(Vector::euclid_distance_squared(vec1, vec2));
 }
 
-/* Calculate inner product value between vectors */
+/**
+ * Calculate the inner product value between vectors.
+ */
 double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
   VecHashMap::const_iterator it, itother, end;
   const Vector *other;
@@ -146,7 +170,6 @@ double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
     end = vec2.hash_map()->end();
     other = &vec1;
   }
-
   double prod = 0;
   while (it != end) {
     itother = other->hash_map()->find(it->first);
@@ -158,7 +181,9 @@ double Vector::inner_product(const Vector &vec1, const Vector &vec2) {
   return prod;
 }
 
-/* Calculate cosine value between vectors */
+/**
+ * Calculate the cosine value between vectors.
+ */
 double Vector::cosine(const Vector &vec1, const Vector &vec2) {
   double norm1 = vec1.norm();
   double norm2 = vec2.norm();
@@ -172,7 +197,9 @@ double Vector::cosine(const Vector &vec1, const Vector &vec2) {
   }
 }
 
-/* Calculate Jaccard coefficient value between vectors */
+/**
+ * Calculate the Jaccard coefficient value between vectors.
+ */
 double Vector::jaccard(const Vector &vec1, const Vector &vec2) {
   double norm1 = vec1.norm();
   double norm2 = vec2.norm();

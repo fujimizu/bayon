@@ -18,12 +18,14 @@
 //
 
 #include <getopt.h>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
-#include <iostream>
 #include <map>
+#include <string>
 #include <utility>
+#include <vector>
 #include "bayon.h"
 
 /********************************************************************
@@ -57,7 +59,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG       = "dummy";
+const std::string DUMMY_OPTARG("dummy");
 const size_t DEFAULT_MAX_CLVECTOR    = 50;
 const size_t DEFAULT_MAX_CLASSIFY    = 20;
 const size_t DEFAULT_MAX_INDEX_KEY   = 20;
@@ -147,7 +149,7 @@ int main(int argc, char **argv) {
   }
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
-    std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
+    fprintf(stderr, "[ERROR]File not found: %s\n", argv[0]);
     return EXIT_FAILURE;
   }
   if (option.find(OPT_CLASSIFY) != option.end()) {
@@ -161,38 +163,35 @@ int main(int argc, char **argv) {
 
 /* show usage */
 static void usage(std::string progname) {
-  std::cerr
-    << progname << ": simple and fast clustering tool" << std::endl << std::endl
-    << "Usage:" << std::endl
-    << "* Clustering input data" << std::endl
-    << " % " << progname << " -n num [options] file" << std::endl
-    << " % " << progname << " -l limit [options] file" << std::endl
-    << "    -n, --number=num      number of clusters" << std::endl
-    << "    -l, --limit=lim       limit value of cluster bisection" << std::endl
-    << "    -p, --point           output similarity point" << std::endl
-    << "    -c, --clvector=file   save vectors of cluster centroids" << std::endl
-    << "    --clvector-size=num   max size of output vectors of" << std::endl
-    << "                          cluster centroids (default: "
-    << DEFAULT_MAX_CLVECTOR << ")" << std::endl
-    << "    --method=method       clustering method(rb, kmeans), default:rb" << std::endl
-    << "    --seed=seed           set seed for random number generator" << std::endl << std::endl
-    << "* Get the similar clusters for each input documents" << std::endl
-    << " % " << progname << " -C file [options] file" << std::endl
-    << "    -C, --classify=file   target vectors" << std::endl
-    << "    --inv-keys=num        max size of keys of each vector to be" << std::endl
-    << "                          looked up in inverted index (default: "
-    << DEFAULT_MAX_INDEX_KEY << ")" << std::endl
-    << "    --inv-size=num        max size of inverted index of each key" << std::endl
-    << "                          (default: "
-    << DEFAULT_MAX_INDEX << ")" << std::endl
-    << "    --classify-size=num   max size of output similar groups" << std::endl
-    << "                          (default: "
-    << DEFAULT_MAX_CLASSIFY << ")" << std::endl << std::endl
-    << "* Common options" << std::endl
-    << "    --vector-size=num     max size of each input vector" << std::endl
-    << "    --idf                 apply idf to input vectors" << std::endl
-    << "    -h, --help            show help messages" << std::endl
-    << "    -v, --version         show the version and exit" << std::endl;
+  fprintf(stderr, "%s: simple and fast clustering tool\n\n", progname.c_str());
+  fprintf(stderr, "Usage:\n");
+  fprintf(stderr, "* Clustering input data\n");
+  fprintf(stderr, " %% %s -n num [options] file\n", progname.c_str());
+  fprintf(stderr, " %% %s -l limit [options] file\n", progname.c_str());
+  fprintf(stderr, "    -n, --number=num      the number of clusters\n");
+  fprintf(stderr, "    -l, --limit=lim       limit value of cluster bisection\n");
+  fprintf(stderr, "    -p, --point           output similarity points\n");
+  fprintf(stderr, "    -c, --clvector=file   save vectors of cluster centroids\n");
+  fprintf(stderr, "    --clvector-size=num   max size of output vectors of\n");
+  fprintf(stderr, "                          cluster centroids (default: %ld)\n",
+          DEFAULT_MAX_CLVECTOR);
+  fprintf(stderr, "    --method=method       clustering method(rb, kmeans), default:rb\n");
+  fprintf(stderr, "    --seed=seed           set a seed for random number generator\n\n");
+  fprintf(stderr, "* Get the similar clusters for each input documents\n");
+  fprintf(stderr, " %% %s -C file [options] file\n", progname.c_str());
+  fprintf(stderr, "    -C, --classify=file   target vectors\n");
+  fprintf(stderr, "    --inv-keys=num        max size of the keys of each vector to be\n");
+  fprintf(stderr, "                          looked up in inverted index (default: %ld)\n",
+          DEFAULT_MAX_INDEX_KEY);
+  fprintf(stderr, "    --inv-size=num        max size of the inverted index of each key\n");
+  fprintf(stderr, "                          (default: %ld)\n", DEFAULT_MAX_INDEX);
+  fprintf(stderr, "    --classify-size=num   max size of output similar groups\n");
+  fprintf(stderr, "                          (default: %ld)\n\n", DEFAULT_MAX_CLASSIFY);
+  fprintf(stderr, "* Common options\n");
+  fprintf(stderr, "    --vector-size=num     max size of each input vector\n");
+  fprintf(stderr, "    --idf                 apply idf to input vectors\n");
+  fprintf(stderr, "    -h, --help            show help messages\n");
+  fprintf(stderr, "    -v, --version         show the version and exit\n");
 }
 
 /* parse command line options */
@@ -336,12 +335,10 @@ static size_t read_classifier_vectors(size_t max_index,
       size_t p = line.find(bayon::DELIMITER);
       std::string name = line.substr(0, p);
       line = line.substr(p + bayon::DELIMITER.size());
-
       claid2str[claid] = name;
       Feature feature;
       bayon::init_hash_map("", feature);
       parse_tsv(line, feature);
-
       bayon::Vector vec;
       for (Feature::iterator it = feature.begin(); it != feature.end(); ++it) {
         if (str2veckey.find(it->first) == str2veckey.end()) {
@@ -368,13 +365,13 @@ static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
       std::vector<std::pair<bayon::Document *, double> > pairs;
       clusters[i]->sorted_documents(pairs);
 
-      std::cout << cluster_count++ << bayon::DELIMITER;
+      printf("%ld%s", cluster_count++, bayon::DELIMITER.c_str());
       for (size_t i = 0; i < pairs.size(); i++) {
-        if (i > 0) std::cout << bayon::DELIMITER;
-        std::cout << docid2str[pairs[i].first->id()];
-        if (show_point) std::cout << bayon::DELIMITER << pairs[i].second;
+        if (i > 0) printf("%s", bayon::DELIMITER.c_str());
+        printf("%s", docid2str[pairs[i].first->id()].c_str());
+        if (show_point) printf("%s%f", bayon::DELIMITER.c_str(), pairs[i].second);
       }
-      std::cout << std::endl;
+      printf("\n");
     }
   }
 }
@@ -385,20 +382,26 @@ static void show_classified(size_t max_keys, size_t max_output,
                             const bayon::Document &document,
                             const DocId2Str &docid2str,
                             const DocId2Str &claid2str) {
-  std::vector<std::pair<bayon::VectorId, double> > pairs;
+  std::vector<std::pair<bayon::Classifier::VectorId, double> > pairs;
   classifier.similar_vectors(max_keys, *document.feature(), pairs);
 
   DocId2Str::const_iterator it = docid2str.find(document.id());
-  if (it != docid2str.end()) std::cout << it->second;
-  else                       std::cout << document.id();
+  if (it != docid2str.end()) {
+    printf("%s", it->second.c_str());
+  } else {
+    printf("%ld", document.id());
+  }
   for (size_t j = 0; j < pairs.size() && j < max_output; j++) {
     DocId2Str::const_iterator it = claid2str.find(pairs[j].first);
-    std::cout << bayon::DELIMITER;
-    if (it != claid2str.end()) std::cout << it->second;
-    else                       std::cout << pairs[j].first;
-    std::cout << bayon::DELIMITER << pairs[j].second;
+    printf("%s", bayon::DELIMITER.c_str());
+    if (it != claid2str.end()) {
+      printf("%s", it->second.c_str());
+    } else {
+      printf("%ld", pairs[j].first);
+    }
+    printf("%s%f", bayon::DELIMITER.c_str(), pairs[j].second);
   }
-  std::cout << std::endl;
+  printf("\n");
 }
 
 /* save vectors of cluster centroids */
@@ -445,16 +448,26 @@ static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
   if ((oit = option.find(OPT_NUMBER)) != option.end()) {
     int nclusters = atoi(oit->second.c_str());
     if (nclusters < 1) {
-      std::cerr << "[ERROR]The number of clusters must be more than zero: "
-                << "\"" << oit->second << "\"" << std::endl;
+      fprintf(stderr, "[ERROR]The number of clusters must be more than zero: ");
+      fprintf(stderr, "\"%s\"\n", oit->second.c_str());
       return EXIT_FAILURE;
     }
     analyzer.set_cluster_size_limit(nclusters);
   } else if ((oit = option.find(OPT_LIMIT)) != option.end()) {
     analyzer.set_eval_limit(atof(oit->second.c_str()));
   }
-  std::string method("rb"); // default method
-  if ((oit = option.find(OPT_METHOD)) != option.end()) method = oit->second;
+  bayon::Analyzer::Method method = bayon::Analyzer::RB;
+  if ((oit = option.find(OPT_METHOD)) != option.end()) {
+    if (oit->second == "kmeans") {
+      method = bayon::Analyzer::KMEANS;
+    } else if (oit->second == "rb") {
+      // do nothing
+    } else {
+      fprintf(stderr, "[ERROR]Illegal clustering method: %s\n",
+              oit->second.c_str());
+      return EXIT_FAILURE;
+    }
+  }
   analyzer.do_clustering(method);
   std::vector<bayon::Cluster *> clusters = analyzer.clusters();
 
@@ -464,8 +477,7 @@ static int execute_clustering(const Option &option, std::ifstream &ifs_doc) {
   if ((oit = option.find(OPT_CLVECTOR)) != option.end()) {
     std::ofstream ofs(oit->second.c_str());
     if (!ofs) {
-      std::cerr << "[ERROR]Cannot open file: "
-                << oit->second << std::endl;
+      fprintf(stderr, "[ERROR]Cannot open file: %s\n", oit->second.c_str());
       return EXIT_FAILURE;
     }
     size_t max_vec = ((oit = option.find(OPT_CLVECTOR_SIZE)) != option.end()) ?
@@ -543,16 +555,17 @@ static int execute_classification(const Option &option,
 /* show version */
 static void version() {
 #ifdef PACKAGE_NAME
-  std::cout << PACKAGE_NAME;
+  printf("%s", PACKAGE_NAME);
 #else
-  std::cout << "bayon";
+  printf("bayon");
 #endif
 #ifdef PACKAGE_VERSION
-  std::cout << " version " << PACKAGE_VERSION;
+  printf(" version %s", PACKAGE_VERSION);
 #endif
-  std::cout << std::endl << "Copyright(C) 2009";
+  printf("\n");
+  printf("Copyright(C) 2010");
 #ifdef AUTHOR
-  std::cout << "  " << AUTHOR;
+  printf("  %s", AUTHOR);
 #endif
-std::cout << std::endl;
+  printf("\n");
 }

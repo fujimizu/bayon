@@ -21,9 +21,9 @@
 //
 
 #include <getopt.h>
+#include <cstdio>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <string>
 #include "bayon.h"
@@ -48,7 +48,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG       = "dummy";
+const std::string DUMMY_OPTARG("dummy");
 const size_t DEFAULT_ITERATIONS      = 100;
 const double DEFAULT_ALPHA_NUMERATOR = 50;
 const double DEFAULT_BETA            = 0.01;
@@ -80,11 +80,11 @@ class LDA {
   size_t num_topic_;
   double alpha_;
   double beta_;
-  int **z_;    // topic assignments for each word
-  int **nw_;   // nw[i][j] number of instances of word i assigned to topic j
-  int **nd_;   // nd[i][j] number of words in document i assigned to topic j
-  int *nwsum_; // nwsum[j] total number of words assigned to topic j
-  int *ndsum_; // ndsum[i] total number of words in document i
+  int **z_;     // topic assignments for each word
+  int **nw_;    // nw[i][j] number of instances of word i assigned to topic j
+  int **nd_;    // nd[i][j] number of words in document i assigned to topic j
+  int *nwsum_;  // nwsum[j] total number of words assigned to topic j
+  int *ndsum_;  // ndsum[i] total number of words in document i
   unsigned int seed_;
 
   size_t iterations_;  // max iterations
@@ -141,7 +141,7 @@ class LDA {
               * (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
       if (it > 0) p[it] += p[it-1];
     }
-    //double u = static_cast<double>(myrand(&seed_)) / RAND_MAX
+    // double u = static_cast<double>(myrand(&seed_)) / RAND_MAX
     double u = static_cast<double>(rand()) / RAND_MAX
                * p[num_topic_-1];
     for (size_t it = 0; it < num_topic_; it++) {
@@ -186,7 +186,6 @@ class LDA {
 
     for (size_t i = 0; i < iterations_; i++) {
       for (size_t id = 0; id < num_doc_; id++) {
-//        if (id % 1000 == 0) std::cerr << "iter: " << i << "\tdoc: " << id << "/" << num_doc_ << std::endl;
         size_t iw = 0;
         VecHashMap *hmap = documents_[id]->feature()->hash_map();
         for (VecHashMap::iterator it = hmap->begin(); it != hmap->end(); ++it) {
@@ -203,42 +202,36 @@ class LDA {
   void print_theta(
     const HashMap<DocumentId, std::string>::type &docid2str) const {
     HashMap<DocumentId, std::string>::type::const_iterator itr;
-
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
-    std::cout.precision(5);
     for (size_t id = 0; id < num_doc_; id++) {
       itr = docid2str.find(documents_[id]->id());
-      if (itr != docid2str.end()) std::cout << itr->second;
-      else                        std::cout << documents_[id]->id();
+      if (itr != docid2str.end()) printf("%s", itr->second.c_str());
+      else                        printf("%ld", documents_[id]->id());
 
       for (size_t it = 0; it < num_topic_; it++) {
         double val = (nd_[id][it] + alpha_) / (ndsum_[id] + num_topic_ * alpha_);
         if (isnan(val)) val = 0;
-        std::cout << "\t" << val;
+        printf("\t%f", val);
       }
-      std::cout << std::endl;
+      printf("\n");
     }
   }
 
   void print_phi(
     const HashMap<VecKey, std::string>::type &veckey2str) const {
     HashMap<VecKey, std::string>::type::const_iterator itr;
-
-    std::cout.setf(std::ios::fixed, std::ios::floatfield);
-    std::cout.precision(5);
     for (size_t it = 0; it < num_topic_; it++) {
-      std::cout << it;
+      printf("%ld", it);
       for (size_t iw = 0; iw < num_word_; iw++) {
-        std::cout << "\t";
+        printf("\t");
         itr = veckey2str.find(iw);
-        if (itr != veckey2str.end()) std::cout << itr->second;
-        else                         std::cout << iw;
+        if (itr != veckey2str.end()) printf("%s", itr->second.c_str());
+        else                         printf("%ld", iw);
 
         double val = (nw_[iw][it] + beta_) / (nwsum_[it] + num_word_ * beta_);
         if (isnan(val)) val = 0;
-        std::cout << "\t" << val;
+        printf("\t%f", val);
       }
-      std::cout << std::endl;
+      printf("\n");
     }
   }
 
@@ -284,15 +277,15 @@ int main(int argc, char **argv) {
 
   size_t num_topic = static_cast<size_t>(atoi(option[OPT_NUMBER].c_str()));
   if (num_topic <= 0) {
-    std::cerr << "[ERROR] The number of output cluster must be greater than zero."
-              << std::endl;
+    fprintf(stderr, "[ERROR] The number of output cluster");
+    fprintf(stderr, " must be greater than zero.\n");
     return EXIT_FAILURE;
   }
   size_t num_iter = option.find(OPT_ITER) != option.end() ?
     static_cast<size_t>(atoi(option[OPT_ITER].c_str())) : DEFAULT_ITERATIONS;
   if (num_topic <= 0) {
-    std::cerr << "[ERROR] The number of iteration must be greater than zero."
-              << std::endl;
+    fprintf(stderr, "[ERROR] The number of iteration");
+    fprintf(stderr, " must be greater than zero.\n");
     return EXIT_FAILURE;
   }
 
@@ -300,7 +293,7 @@ int main(int argc, char **argv) {
   if (option.find(OPT_ALPHA) != option.end()) {
     alpha = atof(option[OPT_ALPHA].c_str());
     if (alpha < 0) {
-      std::cerr << "[ERROR]alpha must be greater than zero." << argv[0] << std::endl;
+      fprintf(stderr, "[ERROR]alpha must be greater than zero.\n");
       return EXIT_FAILURE;
     }
   } else {
@@ -309,7 +302,7 @@ int main(int argc, char **argv) {
   if (option.find(OPT_BETA) != option.end()) {
     beta = atof(option[OPT_BETA].c_str());
     if (beta < 0) {
-      std::cerr << "[ERROR]beta must be greater than zero." << argv[0] << std::endl;
+      fprintf(stderr, "[ERROR]beta must be greater than zero.\n");
       return EXIT_FAILURE;
     }
   } else {
@@ -318,7 +311,7 @@ int main(int argc, char **argv) {
 
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
-    std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
+    fprintf(stderr, "[ERROR]File not found: %s", argv[0]);
     return EXIT_FAILURE;
   }
 
@@ -335,25 +328,24 @@ int main(int argc, char **argv) {
 
   lda.gibbs();
   lda.print_theta(docid2str);
-  //lda.print_phi(veckey2str);
+  // lda.print_phi(veckey2str);
 
   return EXIT_SUCCESS;
 }
 
 /* show usage */
 static void usage(std::string progname) {
-  std::cerr
-    << progname << ": Clustering tool by Latent Dirichlet Allocation"
-    << std::endl
-    << "Usage:" << std::endl
-    << " % " << progname << " -n num [options] file" << std::endl
-    << "    -n, --number=num  the number of clusters" << std::endl
-    << "    -i, --iter=num    the number of iteration (default:"
-    << DEFAULT_ITERATIONS << ")" << std::endl
-    << "    -a, --alpha=num   alpha value (default:"
-    << DEFAULT_ALPHA_NUMERATOR << "/num_cluster)" << std::endl
-    << "    -b, --beta=num    beta value (default:"
-    << DEFAULT_BETA << ")" << std::endl;
+  fprintf(stderr, "%s: Clustering tool by Latent Dirichlet Allocation\n",
+          progname.c_str());
+  fprintf(stderr, "Usage:\n");
+  fprintf(stderr, " %% %s -n num [options] file\n", progname.c_str());
+  fprintf(stderr, "    -n, --number=num  the number of clusters\n");
+  fprintf(stderr, "    -i, --iter=num    the number of iteration (default:%ld)\n",
+          DEFAULT_ITERATIONS);
+  fprintf(stderr, "    -a, --alpha=num   alpha value (default:%.1f/num_cluster)\n",
+          DEFAULT_ALPHA_NUMERATOR);
+  fprintf(stderr, "    -b, --beta=num    beta value (default:%.3f)\n",
+          DEFAULT_BETA);
 }
 
 /* parse command line options */
@@ -397,7 +389,7 @@ static size_t parse_tsv(std::string &tsv, Feature &feature) {
     } else {
       double point = 0.0;
       point = atof(s.c_str());
-      //point = int(atof(s.c_str()) / 100);
+      // point = int(atof(s.c_str()) / 100);
       if (!key.empty() && point != 0) {
         feature[key] = point;
         keycnt++;

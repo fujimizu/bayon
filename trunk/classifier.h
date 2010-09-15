@@ -1,7 +1,7 @@
 //
-// Classifier
+// Classifier class
 //
-// Copyright(C) 2009  Mizuki Fujisawa <fujisawa@bayon.cc>
+// Copyright(C) 2010  Mizuki Fujisawa <fujisawa@bayon.cc>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,8 +17,12 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-#ifndef BAYON_CLASSIFIER_H
-#define BAYON_CLASSIFIER_H
+#ifndef BAYON_CLASSIFIER_H_
+#define BAYON_CLASSIFIER_H_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <utility>
 #include <vector>
@@ -26,62 +30,47 @@
 
 namespace bayon {
 
-/********************************************************************
- * Typedef
- *******************************************************************/
-/* Vector ID */
-typedef long VectorId;
-
-
-/********************************************************************
- * Constants
- *******************************************************************/
-const VectorId VECID_EMPTY_KEY = -1;
-
-
-/********************************************************************
- * Classes
- *******************************************************************/
 /**
- * Classifier class
+ * Classifier class.
  */
 class Classifier {
  public:
+  /** the identifier of a vector */
+  typedef long VectorId;
+  /** the items in inverted indexes */
   typedef std::pair<VectorId, double> IndexItem;
+  /** the value of inverted indexes */
   typedef std::vector<IndexItem> InvertedIndexValue;
+  /** inverted index */
   typedef HashMap<VecKey, InvertedIndexValue *>::type InvertedIndex;
 
  private:
-  /* input vectors */
-  HashMap<VectorId, Vector>::type vectors_;
+  static const VectorId VECID_EMPTY_KEY = -1;  ///< empty key
 
-  /* inverted index */
-  InvertedIndex inverted_index_;
+  HashMap<VectorId, Vector>::type vectors_;  ///< input vectors
+  InvertedIndex inverted_index_;             ///< inverted index
 
   /**
-   * Add vector keys to inverted index
-   *
-   * @param id vector id
-   * @param vec Vector object
-   * @return void
+   * Add vector keys to inverted index.
+   * @param id the identifier of a vector
+   * @param vec a feature vector
    */
-  void add_inverted_index(VectorId id, const Vector &vec);
+  void update_inverted_index(VectorId id, const Vector &vec);
 
   /**
-   * Look up inverted index
-   *
-   * @param max max size of keys of each vector to be
-   *            looked up in inverted index
+   * Look up inverted index.
+   * @param max the maximum number of keys of each vector
+   *            to be looked up in inverted index
    * @param vec input vectors
    * @param ids list of VectorId
-   * @return size_t the number of output VectorId
+   * @return the number of output VectorId
    */
   size_t lookup_inverted_index(size_t max, const Vector &vec,
                                std::vector<VectorId> &ids) const;
 
  public:
   /**
-   * Constructor
+   * Constructor.
    */
   Classifier() {
     init_hash_map(VECID_EMPTY_KEY, vectors_);
@@ -89,7 +78,7 @@ class Classifier {
   }
 
   /**
-   * Destructor
+   * Destructor.
    */
   ~Classifier() {
     for (InvertedIndex::iterator it = inverted_index_.begin();
@@ -99,40 +88,36 @@ class Classifier {
   }
 
   /**
-   * Add vector
-   *
-   * @param id vector id
-   * @param vec Vector object
+   * Add a vector.
+   * @param id the identifier of a vector
+   * @param vec a feature vector
    */
   void add_vector(VectorId id, const Vector &vec) {
     vectors_[id] = vec;
     vectors_[id].normalize();
-    add_inverted_index(id, vec);
+    update_inverted_index(id, vec);
   }
 
   /**
-   * Get the number of vectors
-   *
-   * @return size_t number of vectors
+   * Get the number of vectors.
+   * @return the number of vectors
    */
   size_t count_vectors() const {
     return vectors_.size();
   }
 
   /**
-   * Resize inverted index
-   *
-   * @param siz size of resized index
+   * Resize a inverted index.
+   * @param the size of resized index
    */
   void resize_inverted_index(size_t siz);
 
   /**
-   * Get list of id and points of similar vectors
-   *
-   * @param max max size of keys of each vector to be
-   *            looked up in inverted index
-   * @param vec Vector object (must be normalized)
-   * @param items pairs of id and similarity point
+   * Get the pairs of the identifiers and points of similar vectors.
+   * @param max the maximum number of keys of each vector
+   *            to be looked up in inverted index
+   * @param vec a feature vector (must be normalized)
+   * @param items pairs of the identifiers and similarity points
    */
   void similar_vectors(
     size_t max, const Vector &vec,
@@ -141,4 +126,4 @@ class Classifier {
 
 } /* namespace bayon */
 
-#endif
+#endif  // BAYON_CLASSIFIER_H_

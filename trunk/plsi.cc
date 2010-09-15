@@ -22,8 +22,8 @@
 
 #include <getopt.h>
 #include <cmath>
+#include <cstdio>
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <string>
 #include "bayon.h"
@@ -49,7 +49,7 @@ typedef bayon::HashMap<std::string, bayon::VecKey>::type Str2VecKey;
 /********************************************************************
  * constants
  *******************************************************************/
-const std::string DUMMY_OPTARG  = "dummy";
+const std::string DUMMY_OPTARG("dummy");
 const size_t DEFAULT_NUM_ITER   = 50;
 const double DEFAULT_BETA       = 0.75;
 const unsigned int DEFAULT_SEED = 12345;
@@ -197,45 +197,41 @@ class PLSI {
   }
 
   void show_pdz() const {
-    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_doc_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
-        if (j != 0) std::cout << "\t";
-        std::cout << pdz_[i][j];
+        if (j != 0) printf("\t");
+        printf("%f", pdz_[i][j]);
       }
-      std::cout << std::endl;
+      printf("\n");
     }
   }
 
   void show_pwz() const {
-    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_word_; i++) {
       for (size_t j = 0; j < num_cluster_; j++) {
-        if (j != 0) std::cout << "\t";
-        std::cout << pwz_[i][j];
+        if (j != 0) printf("\t");
+        printf("%f", pwz_[i][j]);
       }
-      std::cout << std::endl;
+      printf("\n");
     }
   }
 
   void show_pz() const {
-    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < num_cluster_; i++) {
-      if (i != 0) std::cout << "\t";
-      std::cout << pz_[i];
+      if (i != 0) printf("\t");
+      printf("%f", pz_[i]);
     }
-    std::cout << std::endl;
+    printf("\n");
   }
 
   void show_membership(
     const HashMap<bayon::DocumentId, std::string>::type &docid2str,
     bool normalize = false) const {
     HashMap<bayon::DocumentId, std::string>::type::const_iterator it;
-    //std::cout.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t id = 0; id < num_doc_; id++) {
       it = docid2str.find(documents_[id]->id());
-      if (it != docid2str.end()) std::cout << it->second;
-      else                       std::cout << documents_[id]->id();
+      if (it != docid2str.end()) printf("%s", it->second.c_str());
+      else                       printf("%ld", documents_[id]->id());
 
       if (normalize) {
         double sum = 0.0;
@@ -244,19 +240,19 @@ class PLSI {
         }
         for (size_t iz = 0; iz < num_cluster_; iz++) {
           double val = sum == 0.0 ? 0 : pdz_[id][iz] * pz_[iz] / sum;
-          std::cout << "\t" << val;
+          printf("\t%f", val);
         }
       } else {
         for (size_t iz = 0; iz < num_cluster_; iz++) {
-          std::cout << "\t" << pdz_[id][iz] * pz_[iz];
+          printf("\t%f", pdz_[id][iz] * pz_[iz]);
         }
       }
-      std::cout << std::endl;
+      printf("\n");
     }
   }
 };
 
-} // namespace bayon
+} //  namespace bayon
 
 
 /********************************************************************
@@ -284,28 +280,27 @@ int main(int argc, char **argv) {
 
   size_t num_cluster = static_cast<size_t>(atoi(option[OPT_NUMBER].c_str()));
   if (num_cluster <= 0) {
-    std::cerr << "[ERROR] The number of output cluster must be greater than zero."
-              << std::endl;
+    fprintf(stderr, "[ERROR] The number of output cluster");
+    fprintf(stderr, " must be greater than zero.\n");
     return EXIT_FAILURE;
   }
   size_t num_iter = option.find(OPT_ITER) != option.end() ?
     static_cast<size_t>(atoi(option[OPT_ITER].c_str())) : DEFAULT_NUM_ITER;
   if (num_cluster <= 0) {
-    std::cerr << "[ERROR] The number of iteration must be greater than zero."
-              << std::endl;
+    fprintf(stderr, "[ERROR] The number of iteration");
+    fprintf(stderr, " must be greater than zero.\n");
     return EXIT_FAILURE;
   }
   double beta = option.find(OPT_BETA) != option.end() ?
     atof(option[OPT_BETA].c_str()) : DEFAULT_BETA;
   if (num_cluster <= 0) {
-    std::cerr << "[ERROR] Beta value must be greater than zero."
-              << std::endl;
+    fprintf(stderr, "[ERROR] Beta value must be greater than zero.\n");
     return EXIT_FAILURE;
   }
 
   std::ifstream ifs_doc(argv[0]);
   if (!ifs_doc) {
-    std::cerr << "[ERROR]File not found: " << argv[0] << std::endl;
+    fprintf(stderr, "[ERROR]File not found: %s\n", argv[0]);
     return EXIT_FAILURE;
   }
 
@@ -329,17 +324,16 @@ int main(int argc, char **argv) {
 
 /* show usage */
 static void usage(std::string progname) {
-  std::cerr
-    << progname << ": Clustering tool by probabilistic latent semantic indexing"
-    << std::endl
-    << "Usage:" << std::endl
-    << " % " << progname << " -n num [options] file" << std::endl
-    << "    -n, --number=num      the number of clusters" << std::endl
-    << "    -i, --iter=num        the number of iteration (default:"
-    << DEFAULT_NUM_ITER << ")" << std::endl
-    << "    -b, --beta=double     the parameter of tempered EM (default:"
-    << DEFAULT_BETA << ")" << std::endl
-    << "    --normalize           normalize output probabilities" << std::endl;
+  fprintf(stderr, "%s: Clustering tool by probabilistic latent semantic indexing\n",
+          progname.c_str());
+  fprintf(stderr, "Usage:\n");
+  fprintf(stderr, " %% %s -n num [options] file\n", progname.c_str());
+  fprintf(stderr, "    -n, --number=num   the number of clusters\n");
+  fprintf(stderr, "    -i, --iter=num     the number of iteration (default: %ld)\n",
+          DEFAULT_NUM_ITER);
+  fprintf(stderr, "    -b, --beta=double  the parameter of tempered EM (default:%.3f)\n",
+          DEFAULT_BETA);
+  fprintf(stderr, "    --normalize        normalize output probabilities\n");
 }
 
 /* parse command line options */

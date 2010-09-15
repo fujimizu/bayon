@@ -3,20 +3,20 @@
 #================================================================
 
 # Package name
-AC_INIT(bayon, 0.0.11, fujisawa@bayon.cc)
+AC_INIT(bayon, 0.1.0, fujisawa@bayon.cc)
 AC_CONFIG_HEADER([config.h])
 AC_DEFINE([AUTHOR], ["Mizuki Fujisawa"], [author name])
 
 # Package information
-MYLIBVER=0
+MYLIBVER=1
 MYLIBREV=1
 
 # Targets
-MYHEADERFILES="bayon.h byvector.h classifier.h cluster.h util.h config.h"
+MYHEADERFILES="bayon.h analyzer.h byvector.h classifier.h cluster.h document.h util.h config.h"
 MYLIBRARYFILES="libbayon.a"
-MYLIBOBJFILES="byvector.o classifier.o cluster.o util.o"
+MYLIBOBJFILES="analyzer.o byvector.o classifier.o cluster.o document.o util.o"
 MYCOMMANDFILES="bayon"
-MYTESTCOMMANDFILES="vectest clatest clutest"
+MYTESTCOMMANDFILES="vectest anatest clatest clutest doctest"
 MYDOCUMENTFILES="COPYING README TODO"
 
 # Building paths
