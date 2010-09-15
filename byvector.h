@@ -70,16 +70,8 @@ class Vector {
    */
   void set_bucket_count(size_t n) {
 #if defined(HAVE_GOOGLE_DENSE_HASH_MAP) || defined(HAVE_EXT_HASH_MAP)
-    vec_.rehash(n);
+    vec_.resize(n);
 #endif
-  }
-
-  /**
-   * Set max_load_factor of the internal hash_map object.
-   * @param factor max_load_factor value
-   */
-  void max_load_factor(double factor) {
-    vec_.max_load_factor(factor);
   }
 
   /**
@@ -127,7 +119,9 @@ class Vector {
    */
   void clear() {
     vec_.clear();
-    vec_.max_load_factor(0.9);
+#ifdef HAVE_GOOGLE_DENSE_HASH_MAP
+    vec_.max_load_factor(MAX_LOAD_FACTOR);
+#endif
   }
 
   /**

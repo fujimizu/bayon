@@ -173,7 +173,7 @@ static void usage(std::string progname) {
   fprintf(stderr, "    -p, --point           output similarity points\n");
   fprintf(stderr, "    -c, --clvector=file   save vectors of cluster centroids\n");
   fprintf(stderr, "    --clvector-size=num   max size of output vectors of\n");
-  fprintf(stderr, "                          cluster centroids (default: %ld)\n",
+  fprintf(stderr, "                          cluster centroids (default: %zd)\n",
           DEFAULT_MAX_CLVECTOR);
   fprintf(stderr, "    --method=method       clustering method(rb, kmeans), default:rb\n");
   fprintf(stderr, "    --seed=seed           set a seed for random number generator\n\n");
@@ -181,12 +181,12 @@ static void usage(std::string progname) {
   fprintf(stderr, " %% %s -C file [options] file\n", progname.c_str());
   fprintf(stderr, "    -C, --classify=file   target vectors\n");
   fprintf(stderr, "    --inv-keys=num        max size of the keys of each vector to be\n");
-  fprintf(stderr, "                          looked up in inverted index (default: %ld)\n",
+  fprintf(stderr, "                          looked up in inverted index (default: %zd)\n",
           DEFAULT_MAX_INDEX_KEY);
   fprintf(stderr, "    --inv-size=num        max size of the inverted index of each key\n");
-  fprintf(stderr, "                          (default: %ld)\n", DEFAULT_MAX_INDEX);
+  fprintf(stderr, "                          (default: %zd)\n", DEFAULT_MAX_INDEX);
   fprintf(stderr, "    --classify-size=num   max size of output similar groups\n");
-  fprintf(stderr, "                          (default: %ld)\n\n", DEFAULT_MAX_CLASSIFY);
+  fprintf(stderr, "                          (default: %zd)\n\n", DEFAULT_MAX_CLASSIFY);
   fprintf(stderr, "* Common options\n");
   fprintf(stderr, "    --vector-size=num     max size of each input vector\n");
   fprintf(stderr, "    --idf                 apply idf to input vectors\n");
@@ -365,7 +365,7 @@ static void show_clusters(const std::vector<bayon::Cluster *> &clusters,
       std::vector<std::pair<bayon::Document *, double> > pairs;
       clusters[i]->sorted_documents(pairs);
 
-      printf("%ld%s", cluster_count++, bayon::DELIMITER.c_str());
+      printf("%zd%s", cluster_count++, bayon::DELIMITER.c_str());
       for (size_t i = 0; i < pairs.size(); i++) {
         if (i > 0) printf("%s", bayon::DELIMITER.c_str());
         printf("%s", docid2str[pairs[i].first->id()].c_str());
