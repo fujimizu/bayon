@@ -25,6 +25,8 @@
 
 namespace bayon {
 
+const unsigned int Analyzer::NUM_REFINE_LOOP;
+
 /**
  * Do repeated bisection clustering.
  */
