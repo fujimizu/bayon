@@ -22,6 +22,8 @@
 
 namespace bayon {
 
+const Classifier::VectorId Classifier::VECID_EMPTY_KEY;
+
 /**
  * Add vector keys to inverted index.
  */
